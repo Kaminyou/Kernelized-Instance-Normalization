@@ -1,0 +1,6 @@
+albumentations==0.5.2
+numpy==1.19.5
+Pillow==8.1.2
+PyYAML==5.4.1
+torch==1.7.0
+torchvision==0.8.0
