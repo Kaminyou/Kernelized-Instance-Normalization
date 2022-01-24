@@ -1,10 +1,13 @@
 import os
 from collections import defaultdict
+
 from torch.utils.data import DataLoader
 from torchvision.utils import save_image
+
 from models.cut import ContrastiveModel
 from utils.dataset import XYDataset
-from utils.util import read_yaml_config, transforms, reverse_image_normalize
+from utils.util import read_yaml_config, reverse_image_normalize, transforms
+
 
 def main():
     config = read_yaml_config("./config.yaml")

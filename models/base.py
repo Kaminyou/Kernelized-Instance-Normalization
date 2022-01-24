@@ -1,7 +1,9 @@
 import os
 from abc import ABC, abstractmethod
 from collections import OrderedDict
+
 import torch
+
 
 class BaseModel(ABC):
     """This class is an abstract base class (ABC) for models.
@@ -118,7 +120,7 @@ class BaseModel(ABC):
                 torch.save(net.state_dict(), save_path)
 
     def load_networks(self, epoch):
-        """Load all the networks from the disk.
+        """Load all the networks from the disk. Allow replacement of different instance normalization modules
 
         Parameters:
             epoch (int) -- current epoch; used in the file name '%s_%s.pth' % (epoch, name)
@@ -130,7 +132,10 @@ class BaseModel(ABC):
                 net = getattr(self, name)
 
                 checkpoint = torch.load(load_path, map_location=self.device)
-                net.load_state_dict(checkpoint)
+                model_dict = net.state_dict()
+                checkpoint = {k: v for k, v in checkpoint.items() if k in model_dict}
+                model_dict.update(checkpoint)
+                net.load_state_dict(model_dict)
 
     def print_networks(self, verbose):
         """Print the total number of parameters in the network and (if verbose) network architecture

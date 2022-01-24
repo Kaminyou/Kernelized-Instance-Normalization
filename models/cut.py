@@ -16,6 +16,7 @@ from models.tin import (init_thumbnail_instance_norm,
 
 
 class ContrastiveModel(BaseModel):
+    # instance normalization can be different from the one specified during training
     def __init__(self, config, normalization="kin"):
         BaseModel.__init__(self, config)
         self.model_names = ['D_Y', 'G', 'H']
@@ -24,9 +25,8 @@ class ContrastiveModel(BaseModel):
         if self.config["TRAINING_SETTING"]["LAMBDA_Y"] > 0:
             self.loss_names += ['NCE_Y']
             self.visual_names += ['Y_idt']
-
         self.D_Y = Discriminator(normalization=normalization).to(self.device)
-        self.G = Generator(normalizatio=normalization).to(self.device)
+        self.G = Generator(normalization=normalization).to(self.device)
         self.H = Head().to(self.device)
 
         self.opt_D_Y = optim.Adam(self.D_Y.parameters(), lr=self.config["TRAINING_SETTING"]["LEARNING_RATE"], betas=(0.5, 0.999),)
