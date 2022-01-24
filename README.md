@@ -1,6 +1,5 @@
-# Contrastive Unpaired Translation (CUT) concise implementation
-A simplified and concise implementation of [*Contrastive Learning for Unpaired
-Image-to-Image Translation* (ECCV 2020)](https://link.springer.com/chapter/10.1007/978-3-030-58545-7_19)
+# URUST: Ultra-resolution unpaired stain transformation via Kernelized Instance Normalization
+...
 
 ### Knowledgement
 Please refer to the official implementation [here](https://github.com/taesungp/contrastive-unpaired-translation). This code is a simplified version revised from [wilbertcaine's implementation](https://github.com/wilbertcaine/CUT).
