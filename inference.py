@@ -1,32 +1,98 @@
+import argparse
 import os
-from collections import defaultdict
+from pathlib import Path
+
 from torch.utils.data import DataLoader
 from torchvision.utils import save_image
+
 from models.cut import ContrastiveModel
-from utils.dataset import XYDataset
-from utils.util import read_yaml_config, test_transforms, reverse_image_normalize
+from utils.dataset import XInferenceDataset
+from utils.util import (read_yaml_config, reverse_image_normalize,
+                        test_transforms)
 
 
 def main():
-    config = read_yaml_config("./config.yaml")
+    parser = argparse.ArgumentParser("Model inference")
+    parser.add_argument("-c", "--config", type=str, default="./config.yaml", help="Path to the config file.")
+    args = parser.parse_args()
 
-    model = ContrastiveModel(config)
+    config = read_yaml_config(args.config)
 
-    val_dataset = XInferenceDataset(root_X=config["INFERENCE_SETTING"]["TEST_DIR_X"], transform=test_transforms)
-    val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, pin_memory=True)
+    model = ContrastiveModel(config, normalization=config["INFERENCE_SETTING"]["NORMALIZATION"])
+
+    if config["INFERENCE_SETTING"]["NORMALIZATION"] == "tin":
+        test_dataset = XInferenceDataset(
+            root_X=config["INFERENCE_SETTING"]["TEST_DIR_X"], 
+            transform=test_transforms, 
+            return_anchor=True, 
+            thumbnail=config["INFERENCE_SETTING"]["THUMBNAIL"]
+            )
+    else:
+        test_dataset = XInferenceDataset(
+            root_X=config["INFERENCE_SETTING"]["TEST_DIR_X"], 
+            transform=test_transforms, 
+            return_anchor=True
+            )
+
+    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, pin_memory=True)
 
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])
 
-    for idx, data in enumerate(val_loader):
-        print(f"Processing {idx}", end="\r")
+    if config["INFERENCE_SETTING"]["NORMALIZATION"] == "tin":
+        model.init_thumbnail_instance_norm_for_whole_model()
+        thumbnail = test_dataset.get_thumbnail()
+        thumbnail_fake = model.inference(thumbnail)
 
-        X, X_path = data
-        Y_fake = model.inference(X)
-
-        if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
-            save_image(reverse_image_normalize(X), os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", f"{Path(X_path[0]).stem}_X_{idx}.png"))
+        model.use_thumbnail_instance_norm_for_whole_model()
+        for idx, data in enumerate(test_loader):
+            print(f"Processing {idx}", end="\r")
+            X, X_path, _, _, _, _ = data
+            Y_fake = model.inference(X)
+            if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
+                save_image(
+                    reverse_image_normalize(X), 
+                    os.path.join(config["EXPERIMENT_ROOT_PATH"], 
+                    config["EXPERIMENT_NAME"], 
+                    "test", 
+                    f"{Path(X_path[0]).stem}_X_{idx}.png")
+                )
+            save_image(
+                reverse_image_normalize(Y_fake), 
+                os.path.join(config["EXPERIMENT_ROOT_PATH"], 
+                config["EXPERIMENT_NAME"], 
+                "test", 
+                f"{Path(X_path[0]).stem}_Y_fake_{idx}.png")
+            )    
         
-        save_image(reverse_image_normalize(Y_fake), os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", f"{Path(X_path[0]).stem}_Y_fake_{idx}.png"))
+    elif config["INFERENCE_SETTING"]["NORMALIZATION"] == "kin":
+        y_anchor_num, x_anchor_num = test_dataset.get_boundary()
+        model.init_kernelized_instance_norm_for_whole_model(
+            y_anchor_num=y_anchor_num, 
+            x_anchor_num=x_anchor_num, 
+            kernel=torch.ones(3,3)
+        )
+        for idx, data in enumerate(test_loader):
+            print(f"Processing {idx}", end="\r")
+            X, X_path, y_idx, x_idx, _, _ = data
+            Y_fake = model.inference(X)
+
+        model.use_kernelized_instance_norm_for_whole_model()
+
+
+
+
+    else:
+
+        for idx, data in enumerate(test_loader):
+            print(f"Processing {idx}", end="\r")
+
+            X, X_path = data
+            Y_fake = model.inference(X)
+
+            if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
+                save_image(reverse_image_normalize(X), os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", f"{Path(X_path[0]).stem}_X_{idx}.png"))
+            
+            save_image(reverse_image_normalize(Y_fake), os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", f"{Path(X_path[0]).stem}_Y_fake_{idx}.png"))
 
 if __name__ == "__main__":
     main()

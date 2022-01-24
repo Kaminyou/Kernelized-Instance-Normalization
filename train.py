@@ -1,3 +1,4 @@
+import argparse
 import os
 from collections import defaultdict
 
@@ -10,7 +11,11 @@ from utils.util import read_yaml_config, reverse_image_normalize, transforms
 
 
 def main():
-    config = read_yaml_config("./config.yaml")
+    parser = argparse.ArgumentParser("Model training")
+    parser.add_argument("-c", "--config", type=str, default="./config.yaml", help="Path to the config file.")
+    args = parser.parse_args()
+    
+    config = read_yaml_config(args.config)
     
     model = ContrastiveModel(config)
 

@@ -2,8 +2,8 @@ EXPERIMENT_ROOT_PATH: "./experiments/"
 EXPERIMENT_NAME: "initial_try"
 DEVICE: "cuda"
 TRAINING_SETTING:
-  TRAIN_DIR_X: "./data/trainX/"
-  TRAIN_DIR_Y: "./data/trainY/"
+  TRAIN_DIR_X: "./data/initial_try/trainX/"
+  TRAIN_DIR_Y: "./data/initial_try/trainY/"
   NUM_EPOCHS: 400
   LAMBDA_Y: 1
   LEARNING_RATE: 0.0002
@@ -15,6 +15,8 @@ TRAINING_SETTING:
   LOAD_MODEL: false
   LOAD_EPOCH: 0
 INFERENCE_SETTING:
-  TEST_DIR_X: "./data/testX/"
+  TEST_DIR_X: "./data/initial_try/testX/"
   MODEL_VERSION: "latast"
   SAVE_ORIGINAL_IMAGE: False
+  NORMALIZATION: "kin"
+  THUMBNAIL: "None" # set to "None" if it's not required
