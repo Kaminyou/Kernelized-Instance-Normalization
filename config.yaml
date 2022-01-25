@@ -20,3 +20,4 @@ INFERENCE_SETTING:
   SAVE_ORIGINAL_IMAGE: False
   NORMALIZATION: "kin"
   THUMBNAIL: "None" # set to "None" if it's not required
+  PADDING: 1 # for kin
