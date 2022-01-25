@@ -9,6 +9,7 @@ from models.upsample import Upsample
 class ResnetBlock(nn.Module):
     def __init__(self, features, normalization="in"):
         super().__init__()
+        self.normalization = normalization
         self.model = nn.Sequential(
             nn.ReflectionPad2d(1),
             nn.Conv2d(features, features, kernel_size=3),
@@ -22,6 +23,14 @@ class ResnetBlock(nn.Module):
     def forward(self, x):
         return x + self.model(x)
     
+    def forward_with_anchor(self, x, y_anchor, x_anchor, padding):
+        assert self.normalization == "kin"
+        x = self.model[:2](x)
+        x = self.model[2](x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        x = self.model[3:6](x)
+        x = self.model[6](x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        return x
+
     def analyze_feature_map(self, x):
         x = self.model[:2](x)
         feature_map1 = x
@@ -37,6 +46,7 @@ class GeneratorBasicBlock(nn.Module):
         
         self.do_upsample = do_upsample
         self.do_downsample = do_downsample
+        self.normalization = normalization
 
         if self.do_upsample:
             self.upsample = Upsample(in_features)
@@ -55,7 +65,7 @@ class GeneratorBasicBlock(nn.Module):
         if self.do_downsample:
             x = self.downsample(x)
         return x
-    
+
     def fordward_hook(self, x):
         if self.do_upsample:
             x = self.upsample(x)
@@ -65,6 +75,17 @@ class GeneratorBasicBlock(nn.Module):
         if self.do_downsample:
             x = self.downsample(x)
         return x_hook, x
+
+    def forward_with_anchor(self, x, y_anchor, x_anchor, padding):
+        assert self.normalization == "kin"
+        if self.do_upsample:
+            x = self.upsample(x)
+        x = self.conv(x)
+        x = self.instancenorm(x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        x = self.relu(x)
+        if self.do_downsample:
+            x = self.downsample(x)
+        return x
 
     def analyze_feature_map(self, x):
         if self.do_upsample:
@@ -81,6 +102,7 @@ class Generator(nn.Module):
     def __init__(self, in_channels=3, features=64, residuals=9, normalization="in"):
         super().__init__()
         self.residuals = residuals
+        self.normalization = normalization
 
         self.reflectionpad = nn.ReflectionPad2d(3)
         self.block1 = nn.Sequential(
@@ -89,13 +111,13 @@ class Generator(nn.Module):
                         nn.ReLU(True)
                         )
 
-        self.downsampleblock2 = GeneratorBasicBlock(features, features * 2, do_upsample=False, do_downsample=True)
-        self.downsampleblock3 = GeneratorBasicBlock(features * 2, features * 4, do_upsample=False, do_downsample=True)
+        self.downsampleblock2 = GeneratorBasicBlock(features, features * 2, do_upsample=False, do_downsample=True, normalization=normalization)
+        self.downsampleblock3 = GeneratorBasicBlock(features * 2, features * 4, do_upsample=False, do_downsample=True, normalization=normalization)
 
-        self.resnetblocks4 = nn.Sequential(*[ResnetBlock(features * 4) for _ in range(residuals)])
+        self.resnetblocks4 = nn.Sequential(*[ResnetBlock(features * 4, normalization=normalization) for _ in range(residuals)])
 
-        self.upsampleblock5 = GeneratorBasicBlock(features * 4, features * 2, do_upsample=True, do_downsample=False)
-        self.upsampleblock6 = GeneratorBasicBlock(features * 2, features, do_upsample=True, do_downsample=False)
+        self.upsampleblock5 = GeneratorBasicBlock(features * 4, features * 2, do_upsample=True, do_downsample=False, normalization=normalization)
+        self.upsampleblock6 = GeneratorBasicBlock(features * 2, features, do_upsample=True, do_downsample=False, normalization=normalization)
 
         self.block7 = nn.Sequential(
                         nn.ReflectionPad2d(3),
@@ -142,6 +164,21 @@ class Generator(nn.Module):
 
         x = self.block7(x)
         return x, feature_maps
+
+    def forward_with_anchor(self, x, y_anchor, x_anchor, padding):
+        assert self.normalization == "kin"
+        x = self.reflectionpad(x)
+        x = self.block1[0](x)
+        x = self.block1[1](x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        x = self.block1[2](x)
+        x = self.downsampleblock2.forward_with_anchor(x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        x = self.downsampleblock3.forward_with_anchor(x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        for resnetblock in self.resnetblocks4:
+            x = resnetblock.forward_with_anchor(x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        x = self.upsampleblock5.forward_with_anchor(x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        x = self.upsampleblock6.forward_with_anchor(x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        x = self.block7(x)
+        return x
 
     def forward(self, x, encode_only=False, num_patches=256, patch_ids=None):
         if not encode_only:

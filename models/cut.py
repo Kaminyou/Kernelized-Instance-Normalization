@@ -17,7 +17,7 @@ from models.tin import (init_thumbnail_instance_norm,
 
 class ContrastiveModel(BaseModel):
     # instance normalization can be different from the one specified during training
-    def __init__(self, config, normalization="kin"):
+    def __init__(self, config, normalization="in"):
         BaseModel.__init__(self, config)
         self.model_names = ['D_Y', 'G', 'H']
         self.loss_names = ['G_adv', 'D_Y', 'G', 'NCE']
@@ -25,7 +25,12 @@ class ContrastiveModel(BaseModel):
         if self.config["TRAINING_SETTING"]["LAMBDA_Y"] > 0:
             self.loss_names += ['NCE_Y']
             self.visual_names += ['Y_idt']
-        self.D_Y = Discriminator(normalization=normalization).to(self.device)
+        
+        self.normalization = normalization
+        # Discrimnator would not be used during inference, 
+        # so specification of instane normalization is not required
+        self.D_Y = Discriminator().to(self.device) 
+        
         self.G = Generator(normalization=normalization).to(self.device)
         self.H = Head().to(self.device)
 
@@ -67,6 +72,14 @@ class ContrastiveModel(BaseModel):
         with torch.no_grad():
             X = X.to(self.device)
             Y_fake = self.G(X)
+        return Y_fake
+
+    def inference_with_anchor(self, X, y_anchor, x_anchor, padding):
+        assert self.normalization == "kin"
+        self.eval()
+        with torch.no_grad():
+            X = X.to(self.device)
+            Y_fake = self.G.forward_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
         return Y_fake
 
     def optimize_parameters(self):

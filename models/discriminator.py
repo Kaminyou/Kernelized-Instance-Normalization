@@ -6,7 +6,7 @@ from models.normalization import get_normalization_layer
 
 
 class DiscriminatorBasicBlock(nn.Module):
-    def __init__(self, in_features, out_features, do_downsample=True, do_instancenorm=True, normalization="kin"):
+    def __init__(self, in_features, out_features, do_downsample=True, do_instancenorm=True, normalization="in"):
         super().__init__()
 
         self.do_downsample = do_downsample
