@@ -1,18 +1,21 @@
 # URUST: Ultra-resolution unpaired stain transformation via Kernelized Instance Normalization
-...
-
-### Knowledgement
-Please refer to the official implementation [here](https://github.com/taesungp/contrastive-unpaired-translation). This code is a simplified version revised from [wilbertcaine's implementation](https://github.com/wilbertcaine/CUT).
+We invented a kernelized instance normalization module enabling ultra-resolution unpaired stain transformation
 
 ## Usage (Training)
-Suppose you would like to transfer image from source domain `X` to the target domain `Y`.
-1. Please split your data `X` into training and testing set. Namely, split `X` into `X_train` and `X_test`.
-2. Put `X_train` into `./data/trainX`. 
-3. Put `X_test` into `./data/testX`. 
-4. Put `Y` into `./data/trainY`.
-5. Modify `./config.yaml` if you would like to adjust some setting, or just keep the default setting.
-6. Execute `python3 train.py`.
-7. Some transfered examples will be generated during training. Please check the `./experiments/$experiment_name/train/` folder.
+A public dataset [ANHIR](https://anhir.grand-challenge.org/Data/) is used in this project. Please first download it from the offical website and put `ANHIR2019/dataset_medium/breast_1/scale-20pc/HE.jpg` and `ANHIR2019/dataset_medium/breast_1/scale-20pc/ER.jpg` in `data/example/` folder. We would like to transfer `HE (domain X)` to `ER (domain Y)`.
+
+1. It is recommended to manually crop a center part from `HE.jpg` and `ER.jpg` first as the main contents are surrounded by a lot of unnecessary blank region, which will increase the training time but make the distribution hard to be learned. 
+2. Crop `HE.jpg` and `ER.jpg` into patches.
+```script
+python3 crop.py -i ./data/example/HE_cropped.jpg -o ./data/example/trainX/ --thumbnail_output ./data/example/trainX/
+python3 crop.py -i ./data/example/ER_cropped.jpg -o ./data/example/trainY/ --thumbnail_output ./data/example/trainY/
+```
+3. Train the model
+```script
+python3 train.py --config config_example.yaml
+```
+4. Wait for the model training
+- Some transfered examples will be generated during training. Please check the `experiments/example/train/` folder.
 
 ## Usage (Inference)
 ```
@@ -23,3 +26,6 @@ The transfered images will be stored in `./experiments/$experiment_name/test/` f
 ## Environment
 - Python 3.8.6
 - All the required packages are listed in the `requirements.txt`.
+
+## Knowledgement
+Besides our novel kernelized instance normalizatio module, we use [Contrastive Unpaired Translation](https://link.springer.com/chapter/10.1007/978-3-030-58545-7_19) as our backbone. Please refer to the official implementation [here](https://github.com/taesungp/contrastive-unpaired-translation). This code is a simplified version revised from [wilbertcaine's implementation](https://github.com/wilbertcaine/CUT).

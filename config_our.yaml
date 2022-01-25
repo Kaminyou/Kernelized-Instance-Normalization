@@ -1,0 +1,24 @@
+EXPERIMENT_ROOT_PATH: "./experiments/"
+EXPERIMENT_NAME: "initial_try"
+DEVICE: "cuda"
+TRAINING_SETTING:
+  TRAIN_DIR_X: "/home/kaminyouho/a20025_tzm_glioma/transfer/datasets/HandE_full/trainA/" #"./data/initial_try/trainX/"
+  TRAIN_DIR_Y: "/home/kaminyouho/a20025_tzm_glioma/transfer/datasets/HandE_full/trainB/" #"./data/initial_try/trainY/"
+  NUM_EPOCHS: 10
+  LAMBDA_Y: 1
+  LEARNING_RATE: 0.0002
+  BATCH_SIZE: 1
+  NUM_WORKERS: 4
+  SAVE_MODEL: true
+  SAVE_MODEL_EPOCH_STEP: 2
+  VISUALIZATION_STEP: 250
+  LOAD_MODEL: false
+  LOAD_EPOCH: 0
+
+INFERENCE_SETTING:
+  TEST_DIR_X: "./data/initial_try/testX/"
+  MODEL_VERSION: "latast"
+  SAVE_ORIGINAL_IMAGE: False
+  NORMALIZATION: "kin"
+  THUMBNAIL: "None" # set to "None" if it's not required
+  PADDING: 1 # for kin
