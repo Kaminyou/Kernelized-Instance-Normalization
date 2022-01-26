@@ -38,7 +38,7 @@ def main():
         matrix[y_anchor:y_anchor + 512, x_anchor:x_anchor + 512, :] = image
 
     if (args.resize_h != -1) and (args.resize_w != -1):
-        matrix = cv2.resize(matrix, (args.resize_h, args.resize_w), cv2.INTER_CUBIC)
+        matrix = cv2.resize(matrix, (args.resize_w, args.resize_h), cv2.INTER_CUBIC)
 
     matrix_image = Image.fromarray(matrix)
     matrix_image.save(os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", f"combined_{config['INFERENCE_SETTING']['NORMALIZATION']}.png"))
