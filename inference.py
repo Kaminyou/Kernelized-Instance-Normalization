@@ -115,7 +115,7 @@ def main():
         for idx, data in enumerate(test_loader):
             print(f"Processing {idx}", end="\r")
 
-            X, X_path = data
+            X, X_path, _, _, _, _  = data
             Y_fake = model.inference(X)
 
             if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
