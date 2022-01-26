@@ -19,6 +19,6 @@ INFERENCE_SETTING:
   TEST_DIR_X: "./data/example/testX/"
   MODEL_VERSION: "40"
   SAVE_ORIGINAL_IMAGE: False
-  NORMALIZATION: "in"
-  THUMBNAIL: "None" # set to "None" if it's not required
+  NORMALIZATION: "kin"
+  THUMBNAIL: "/home/kaminyouho/URUST/data/example/testX/thumbnail.png" #"None" # set to "None" if it's not required
   PADDING: 1 # for kin

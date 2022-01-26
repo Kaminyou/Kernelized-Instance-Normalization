@@ -86,6 +86,8 @@ class XInferenceDataset(Dataset):
         
         if self.return_anchor:
             y_idx, x_idx, y_anchor, x_anchor = Path(X_img_name).stem.split("_")
+            y_idx = int(y_idx)
+            x_idx = int(x_idx)
             return (X_img, X_path, y_idx, x_idx, y_anchor, x_anchor)
         
         else:

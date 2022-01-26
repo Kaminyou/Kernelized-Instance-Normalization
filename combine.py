@@ -19,6 +19,11 @@ def main():
     config = read_yaml_config(args.config)
 
     filenames = os.listdir(os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", config['INFERENCE_SETTING']["NORMALIZATION"]))
+    try:
+        filenames.remove("thumbnail_Y_fake.png")
+    except:
+        pass
+
     y_anchor_max = 0
     x_anchor_max = 0
     for filename in filenames:
@@ -33,7 +38,7 @@ def main():
         _, _, y_anchor, x_anchor, _ = filename.split("_", 4)
         y_anchor = int(y_anchor)
         x_anchor = int(x_anchor)
-        image = cv2.imread(os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", "in", filename))
+        image = cv2.imread(os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", config['INFERENCE_SETTING']["NORMALIZATION"], filename))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         matrix[y_anchor:y_anchor + 512, x_anchor:x_anchor + 512, :] = image
 

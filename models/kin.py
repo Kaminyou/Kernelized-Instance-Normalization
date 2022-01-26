@@ -6,13 +6,14 @@ import torch.nn as nn
 
 
 class KernelizedInstanceNorm(nn.Module):
-    def __init__(self, out_channels=None, affine=True):
+    def __init__(self, out_channels=None, affine=True, device="cuda"):
         super(KernelizedInstanceNorm, self).__init__()
         self.normal_instance_normalization = False # if use normal instance normalization during evaluation mode
-        self.collection_mode = False # if collecting instance normalization mean and std during evaluation mode
+        self.collection_mode = False # if collecting instance normalization mean and std during evaluation mode'
+        self.device = device
         if affine == True:
-            self.weight = nn.Parameter(torch.ones(size=(1, out_channels, 1, 1), requires_grad=True))
-            self.bias = nn.Parameter(torch.zeros(size=(1, out_channels, 1, 1), requires_grad=True))
+            self.weight = nn.Parameter(torch.ones(size=(1, out_channels, 1, 1), requires_grad=True)).to(device)
+            self.bias = nn.Parameter(torch.zeros(size=(1, out_channels, 1, 1), requires_grad=True)).to(device)
 
     def calc_mean_std(self, feat, eps=1e-5):
         size = feat.size()
@@ -26,8 +27,8 @@ class KernelizedInstanceNorm(nn.Module):
     def init_collection(self, y_anchor_num, x_anchor_num):
         self.y_anchor_num = y_anchor_num
         self.x_anchor_num = x_anchor_num
-        self.mean_table = torch.zeros(y_anchor_num, x_anchor_num)
-        self.std_table = torch.zeros(y_anchor_num, x_anchor_num)
+        self.mean_table = torch.zeros(y_anchor_num, x_anchor_num).to(self.device)
+        self.std_table = torch.zeros(y_anchor_num, x_anchor_num).to(self.device)
 
     def init_kernel(self, kernel=torch.ones(3,3)):
         self.kernel = kernel
