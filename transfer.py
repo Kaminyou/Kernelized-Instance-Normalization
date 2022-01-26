@@ -1,0 +1,24 @@
+import argparse
+import os
+
+import cv2
+
+
+def main():
+    """
+    USAGE
+        python3 transfer.py -c config_example.yaml -i ./data/example/HE_cropped.jpg -o ./data/example/testX/ 
+    """
+    parser = argparse.ArgumentParser("Model inference")
+    parser.add_argument("-c", "--config", type=str, default="./config.yaml", help="Path to the config file.")
+    parser.add_argument("-i", "--image", type=str, required=True)
+    parser.add_argument("-o", "--cropped_output", type=str, required=True)
+    args = parser.parse_args()
+
+    H, W, _ = cv2.imread(args.image).shape
+    os.system(f"python3 crop.py -i {args.image} -o {args.cropped_output} --stride 512 --thumbnail_output {args.cropped_output}")
+    os.system(f"python3 inference.py --config {args.config}")
+    os.system(f"python3 combine.py --config {args.config} --resize_h {H} --resize_w {W}")
+
+if __name__ == "__main__":
+    main()
