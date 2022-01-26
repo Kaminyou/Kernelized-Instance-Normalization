@@ -23,6 +23,7 @@ if __name__ == "__main__":
     USAGE
     python3 crop.py -i ./data/example/HE_cropped.jpg -o ./data/example/trainX/ --thumbnail_output ./data/example/trainX/
     python3 crop.py -i ./data/example/ER_cropped.jpg -o ./data/example/trainY/ --thumbnail_output ./data/example/trainY/
+    python3 crop.py -i ./data/example/HE_cropped.jpg -o ./data/example/testX/ --stride 512 --thumbnail_output ./data/example/testX/
     """
     parser = argparse.ArgumentParser(description="Crop a large image into patches.")
     parser.add_argument("-i","--input", help="Input image path", required=True)

@@ -39,6 +39,7 @@ def main():
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])
 
     if config["INFERENCE_SETTING"]["NORMALIZATION"] == "tin":
+        os.makedirs(os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", "tin"), exist_ok=True)
         model.init_thumbnail_instance_norm_for_whole_model()
         thumbnail = test_dataset.get_thumbnail()
         thumbnail_fake = model.inference(thumbnail)
@@ -60,6 +61,7 @@ def main():
                     reverse_image_normalize(X), 
                     os.path.join(config["EXPERIMENT_ROOT_PATH"], 
                     config["EXPERIMENT_NAME"], 
+                    "test",
                     "tin", 
                     f"{Path(X_path[0]).stem}_X_{idx}.png")
                 )
@@ -67,11 +69,13 @@ def main():
                 reverse_image_normalize(Y_fake), 
                 os.path.join(config["EXPERIMENT_ROOT_PATH"], 
                 config["EXPERIMENT_NAME"], 
+                "test",
                 "tin", 
                 f"{Path(X_path[0]).stem}_Y_fake_{idx}.png")
             )    
         
     elif config["INFERENCE_SETTING"]["NORMALIZATION"] == "kin":
+        os.makedirs(os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", "kin"), exist_ok=True)
         y_anchor_num, x_anchor_num = test_dataset.get_boundary()
         model.init_kernelized_instance_norm_for_whole_model(
             y_anchor_num=y_anchor_num, 
@@ -93,6 +97,7 @@ def main():
                     reverse_image_normalize(X), 
                     os.path.join(config["EXPERIMENT_ROOT_PATH"], 
                     config["EXPERIMENT_NAME"], 
+                    "test",
                     "kin", 
                     f"{Path(X_path[0]).stem}_X_{idx}.png")
                 )
@@ -100,11 +105,13 @@ def main():
                 reverse_image_normalize(Y_fake), 
                 os.path.join(config["EXPERIMENT_ROOT_PATH"], 
                 config["EXPERIMENT_NAME"], 
+                "test",
                 "kin", 
                 f"{Path(X_path[0]).stem}_Y_fake_{idx}.png")
             )    
 
     else:
+        os.makedirs(os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", "in"), exist_ok=True)
         for idx, data in enumerate(test_loader):
             print(f"Processing {idx}", end="\r")
 
@@ -112,9 +119,9 @@ def main():
             Y_fake = model.inference(X)
 
             if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
-                save_image(reverse_image_normalize(X), os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "in", f"{Path(X_path[0]).stem}_X_{idx}.png"))
+                save_image(reverse_image_normalize(X), os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", "in", f"{Path(X_path[0]).stem}_X_{idx}.png"))
             
-            save_image(reverse_image_normalize(Y_fake), os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "in", f"{Path(X_path[0]).stem}_Y_fake_{idx}.png"))
+            save_image(reverse_image_normalize(Y_fake), os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", "in", f"{Path(X_path[0]).stem}_Y_fake_{idx}.png"))
 
 if __name__ == "__main__":
     main()

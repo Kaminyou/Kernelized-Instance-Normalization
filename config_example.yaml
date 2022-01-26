@@ -16,9 +16,9 @@ TRAINING_SETTING:
   LOAD_EPOCH: 0
 
 INFERENCE_SETTING:
-  TEST_DIR_X: "./data/initial_try/testX/"
-  MODEL_VERSION: "latast"
+  TEST_DIR_X: "./data/example/testX/"
+  MODEL_VERSION: "40"
   SAVE_ORIGINAL_IMAGE: False
-  NORMALIZATION: "kin"
+  NORMALIZATION: "in"
   THUMBNAIL: "None" # set to "None" if it's not required
   PADDING: 1 # for kin
