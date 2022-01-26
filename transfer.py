@@ -15,8 +15,9 @@ def main():
     parser.add_argument("-o", "--cropped_output", type=str, required=True)
     args = parser.parse_args()
 
+    config = read_yaml_config(args.config)
     H, W, _ = cv2.imread(args.image).shape
-    os.system(f"python3 crop.py -i {args.image} -o {args.cropped_output} --stride 512 --thumbnail_output {args.cropped_output}")
+    os.system(f"python3 crop.py -i {args.image} -o {args.cropped_output} --stride 512 --thumbnail_output {config['INFERENCE_SETTING']['TEST_DIR_X']}")
     os.system(f"python3 inference.py --config {args.config}")
     os.system(f"python3 combine.py --config {args.config} --resize_h {H} --resize_w {W}")
 

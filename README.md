@@ -18,10 +18,24 @@ python3 train.py --config config_example.yaml
 - Some transfered examples will be generated during training. Please check the `experiments/example/train/` folder.
 
 ## Usage (Inference)
+1. Do inference for the images in `INFERENCE_SETTING.TEST_DIR_X` folder specified in the `config` file.
 ```
-python3 inference.py
+python3 inference.py --config config_example.yaml
 ```
-The transfered images will be stored in `./experiments/$experiment_name/test/` folder.
+- The transfered images will be stored in `./experiments/$experiment_name/test/` folder.
+2. Then, you can combine all the images into one ultra-resolution image.
+```
+python3 combine.py --config config_example.yaml
+```
+- You can also specify `height` and `width` to resize the transferred image to match the original one.
+```
+python3 combine.py --config config_example.yaml --resize_h $H --resize_w $W
+```
+
+## Usage (Transfer by one step)
+```
+python3 transfer.py -c config_example.yaml -i ./data/example/HE_cropped.jpg -o ./data/example/testX/ 
+```
 
 ## Environment
 - Python 3.8.6
