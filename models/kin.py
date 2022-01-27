@@ -10,6 +10,7 @@ class KernelizedInstanceNorm(nn.Module):
         super(KernelizedInstanceNorm, self).__init__()
         self.normal_instance_normalization = False # if use normal instance normalization during evaluation mode
         self.collection_mode = False # if collecting instance normalization mean and std during evaluation mode'
+        self.out_channels = out_channels
         self.device = device
         if affine == True:
             self.weight = nn.Parameter(torch.ones(size=(1, out_channels, 1, 1), requires_grad=True)).to(device)
@@ -27,8 +28,8 @@ class KernelizedInstanceNorm(nn.Module):
     def init_collection(self, y_anchor_num, x_anchor_num):
         self.y_anchor_num = y_anchor_num
         self.x_anchor_num = x_anchor_num
-        self.mean_table = torch.zeros(y_anchor_num, x_anchor_num).to(self.device)
-        self.std_table = torch.zeros(y_anchor_num, x_anchor_num).to(self.device)
+        self.mean_table = torch.zeros(y_anchor_num, x_anchor_num, self.out_channels).to(self.device)
+        self.std_table = torch.zeros(y_anchor_num, x_anchor_num, self.out_channels).to(self.device)
 
     def init_kernel(self, kernel=torch.ones(3,3)):
         self.kernel = kernel
@@ -37,8 +38,8 @@ class KernelizedInstanceNorm(nn.Module):
         instance_means = instance_means.squeeze(-1).squeeze(-1)
         instnace_stds = instnace_stds.squeeze(-1).squeeze(-1)
         for instance_mean, instnace_std, y_anchor, x_anchor in zip(instance_means, instnace_stds, y_anchors, x_anchors):
-            self.mean_table[y_anchor, x_anchor] = instance_mean[0]
-            self.std_table[y_anchor, x_anchor] = instnace_std[0]
+            self.mean_table[y_anchor, x_anchor, :] = instance_mean
+            self.std_table[y_anchor, x_anchor, :] = instnace_std
     
     def query_neighbors(self, y_anchor, x_anchor, padding=1, return_anchors=False):
         """
@@ -67,7 +68,7 @@ class KernelizedInstanceNorm(nn.Module):
 
     def forward_normal(self, x):
         x_mean, x_std = self.calc_mean_std(x)
-        x = (x - x_mean) / x_std * self.weight + self.bias
+        x = (x - x_mean) / x_std #* self.weight + self.bias
         return x
 
     def forward(self, x, y_anchor=None, x_anchor=None, padding=1):
@@ -85,12 +86,12 @@ class KernelizedInstanceNorm(nn.Module):
             else:
                 assert x.shape[0] == 1 # currently, could support batch size = 1 for kernelized instance normalization
                 top, down, left, right = self.query_neighbors(y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
-                mean_matrix = self.mean_table[top:down + 1, left:right + 1]
-                std_matrix = self.std_table[top:down + 1, left:right + 1]
-                x_mean = mean_matrix.mean() #self.kernel *  # should deal with the boundary
-                x_std = std_matrix.mean() #self.kernel * 
-                x_mean = x_mean.unsqueeze(-1).unsqueeze(-1)
-                x_std = x_std.unsqueeze(-1).unsqueeze(-1)
+                mean_matrix = self.mean_table[top:down + 1, left:right + 1, :]
+                std_matrix = self.std_table[top:down + 1, left:right + 1, :]
+                x_mean = mean_matrix.mean(dim=0).mean(dim=0).unsqueeze(0).unsqueeze(-1).unsqueeze(-1) #self.kernel *  # should deal with the boundary
+                x_std = std_matrix.mean(dim=0).mean(dim=0).unsqueeze(0).unsqueeze(-1).unsqueeze(-1) #self.kernel * 
+                #x_mean = x_mean.unsqueeze(-1).unsqueeze(-1)
+                #x_std = x_std.unsqueeze(-1).unsqueeze(-1)
 
             x = (x - x_mean) / x_std * self.weight + self.bias
             return x

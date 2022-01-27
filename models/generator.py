@@ -25,11 +25,12 @@ class ResnetBlock(nn.Module):
     
     def forward_with_anchor(self, x, y_anchor, x_anchor, padding):
         assert self.normalization == "kin"
+        x_residual = x
         x = self.model[:2](x)
         x = self.model[2](x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
         x = self.model[3:6](x)
         x = self.model[6](x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
-        return x
+        return x_residual + x
 
     def analyze_feature_map(self, x):
         x = self.model[:2](x)
