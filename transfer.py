@@ -25,7 +25,7 @@ def main():
         assert args.cropped_output != None
         os.system(f"python3 crop.py -i {args.image} -o {args.cropped_output} --stride 512 --thumbnail_output {config['INFERENCE_SETTING']['TEST_DIR_X']}")
         print("Finish cropping and start inference")
-    #os.system(f"python3 inference.py --config {args.config}")
+    os.system(f"python3 inference.py --config {args.config}")
     print("Finish inference and start combining images")
     os.system(f"python3 combine.py --config {args.config} --resize_h {H} --resize_w {W}")
 
