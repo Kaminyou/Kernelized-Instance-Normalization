@@ -73,6 +73,5 @@ python3 transfer.py -c config_example.yaml --skip_cropping
 python3 transfer.py -c config_example.yaml --skip_cropping
 ```
 
-
-## Knowledgement
+## Acknowledgement
 Besides our novel kernelized instance normalizatio module, we use [Contrastive Unpaired Translation](https://link.springer.com/chapter/10.1007/978-3-030-58545-7_19) as our backbone. Please refer to the official implementation [here](https://github.com/taesungp/contrastive-unpaired-translation). This code is a simplified version revised from [wilbertcaine's implementation](https://github.com/wilbertcaine/CUT).
