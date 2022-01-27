@@ -78,14 +78,14 @@ def main():
         model.init_kernelized_instance_norm_for_whole_model(
             y_anchor_num=y_anchor_num + 1, 
             x_anchor_num=x_anchor_num + 1, 
-            kernel=torch.ones(3,3)
+            kernel=(torch.ones(1,1,3,3)/9) ### mind the kernel size and padding size
         )
         for idx, data in enumerate(test_loader):
             print(f"Caching {idx}", end="\r")
             X, X_path, y_anchor, x_anchor, _, _ = data
             _ = model.inference_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=config["INFERENCE_SETTING"]["PADDING"])
 
-        model.use_kernelized_instance_norm_for_whole_model()
+        model.use_kernelized_instance_norm_for_whole_model(padding=config["INFERENCE_SETTING"]["PADDING"])
         for idx, data in enumerate(test_loader):
             print(f"Processing {idx}", end="\r")
             X, X_path, y_anchor, x_anchor, _, _ = data

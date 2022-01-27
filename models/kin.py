@@ -31,7 +31,8 @@ class KernelizedInstanceNorm(nn.Module):
         self.mean_table = torch.zeros(y_anchor_num, x_anchor_num, self.out_channels).to(self.device)
         self.std_table = torch.zeros(y_anchor_num, x_anchor_num, self.out_channels).to(self.device)
 
-    def init_kernel(self, kernel=torch.ones(3,3)):
+    def init_kernel(self, kernel=(torch.ones(1,1,3,3)/9)):
+        kernel = kernel.to(self.device)
         self.kernel = kernel
 
     def collection(self, instance_means, instnace_stds, y_anchors, x_anchors):
@@ -66,6 +67,11 @@ class KernelizedInstanceNorm(nn.Module):
                 neighbors.append([neighbor_y_anchor, neighbor_x_anchor])
             return neighbors
 
+    def pad_table(self, padding):
+        pad_func = nn.ReplicationPad2d((padding, padding, padding, padding))
+        self.padded_mean_table = pad_func(self.mean_table.permute(2, 0, 1).unsqueeze(0)) # H, W, C -> C, H, W -> N, C, H, W
+        self.padded_std_table = pad_func(self.std_table.permute(2, 0, 1).unsqueeze(0)) # H, W, C -> C, H, W -> N, C, H, W
+
     def forward_normal(self, x):
         x_mean, x_std = self.calc_mean_std(x)
         x = (x - x_mean) / x_std #* self.weight + self.bias
@@ -85,13 +91,26 @@ class KernelizedInstanceNorm(nn.Module):
 
             else:
                 assert x.shape[0] == 1 # currently, could support batch size = 1 for kernelized instance normalization
-                top, down, left, right = self.query_neighbors(y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
-                mean_matrix = self.mean_table[top:down + 1, left:right + 1, :]
-                std_matrix = self.std_table[top:down + 1, left:right + 1, :]
-                x_mean = mean_matrix.mean(dim=0).mean(dim=0).unsqueeze(0).unsqueeze(-1).unsqueeze(-1) #self.kernel *  # should deal with the boundary
-                x_std = std_matrix.mean(dim=0).mean(dim=0).unsqueeze(0).unsqueeze(-1).unsqueeze(-1) #self.kernel * 
-                #x_mean = x_mean.unsqueeze(-1).unsqueeze(-1)
-                #x_std = x_std.unsqueeze(-1).unsqueeze(-1)
+                top = y_anchor
+                down = y_anchor + 2 * padding + 1
+                left = x_anchor
+                right = x_anchor + 2 *padding + 1
+                x_mean = self.padded_mean_table[:,:,top:down + 1, left:right + 1] # 1, C, H, W
+                x_std = self.padded_std_table[:,:,top:down + 1, left:right + 1] # 1, C, H, W
+                assert self.kernel.shape == x.mean.shape
+                x_mean = x_mean * self.kernel # 1, C, H, W
+                x_std = x_std * self.kernel # 1, C, H, W
+                x_mean = x_mean.flatten(start_dim=2).sum(dim=2) # [1, C, H, W] -> [1, C, H * W] -> [1, C]
+                x_std = x_std.flatten(start_dim=2).sum(dim=2) # [1, C, H, W] -> [1, C, H * W] -> [1, C]
+                x_mean = x_mean.unsqueeze(-1).unsqueeze(-1) # [1, C] -> [1, C, 1, 1]
+                x_std = x_std.unsqueeze(-1).unsqueeze(-1) # [1, C] -> [1, C, 1, 1]
+
+                #top, down, left, right = self.query_neighbors(y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+                #mean_matrix = self.mean_table[top:down + 1, left:right + 1, :]
+                #std_matrix = self.std_table[top:down + 1, left:right + 1, :]
+                # H, W, C -> C -> 1, C -> 1, C, 1, 1
+                #x_mean = mean_matrix.mean(dim=0).mean(dim=0).unsqueeze(0).unsqueeze(-1).unsqueeze(-1) #self.kernel *  # should deal with the boundary
+                #x_std = std_matrix.mean(dim=0).mean(dim=0).unsqueeze(0).unsqueeze(-1).unsqueeze(-1) #self.kernel * 
 
             x = (x - x_mean) / x_std * self.weight + self.bias
             return x
@@ -102,7 +121,7 @@ def not_use_kernelized_instance_norm(model):
             layer.collection_mode = False
             layer.normal_instance_normalization = True
 
-def init_kernelized_instance_norm(model, y_anchor_num, x_anchor_num, kernel=torch.ones(3,3)):
+def init_kernelized_instance_norm(model, y_anchor_num, x_anchor_num, kernel=(torch.ones(1,1,3,3)/9)):
     for _, layer in model.named_modules():
         if isinstance(layer, KernelizedInstanceNorm):
             layer.collection_mode = True
@@ -110,9 +129,10 @@ def init_kernelized_instance_norm(model, y_anchor_num, x_anchor_num, kernel=torc
             layer.init_collection(y_anchor_num=y_anchor_num, x_anchor_num=x_anchor_num)
             layer.init_kernel(kernel=kernel)
 
-def use_kernelized_instance_norm(model):
+def use_kernelized_instance_norm(model, padding=1):
     for _, layer in model.named_modules():
         if isinstance(layer, KernelizedInstanceNorm):
+            layer.pad_table(padding=padding)
             layer.collection_mode = False
             layer.normal_instance_normalization = False
             

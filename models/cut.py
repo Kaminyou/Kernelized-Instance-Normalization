@@ -159,7 +159,7 @@ class ContrastiveModel(BaseModel):
     def not_use_thumbnail_instance_norm_for_whole_model(self):
         not_use_thumbnail_instance_norm(self.G)
 
-    def init_kernelized_instance_norm_for_whole_model(self, y_anchor_num, x_anchor_num, kernel=torch.ones(3,3)):
+    def init_kernelized_instance_norm_for_whole_model(self, y_anchor_num, x_anchor_num, kernel=(torch.ones(1,1,3,3)/9)):
         init_kernelized_instance_norm(
             self.G, 
             y_anchor_num=y_anchor_num, 
@@ -167,8 +167,8 @@ class ContrastiveModel(BaseModel):
             kernel=kernel
         )
 
-    def use_kernelized_instance_norm_for_whole_model(self):
-        use_kernelized_instance_norm(self.G)
+    def use_kernelized_instance_norm_for_whole_model(self, padding=1):
+        use_kernelized_instance_norm(self.G, padding=padding)
     
     def not_use_kernelized_instance_norm_for_whole_model(self):
         not_use_kernelized_instance_norm(self.G)
