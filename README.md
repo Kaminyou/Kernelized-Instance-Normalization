@@ -39,8 +39,9 @@ The output will be in the `./experiments/example/test/` folder.
 ## Train your own model with your own dataset
 1. Create a folder in `./data/`
 2. Put a `config.yaml` in `./data/$your_folder/`
-3. Prepare images (domain X) and images in (domain Y) in `./data/$your_folder/`.
-4. Crop those images into patches.
+3. Modify `config.yaml`
+4. Prepare images (domain X) and images in (domain Y) in `./data/$your_folder/`.
+5. Crop those images into patches.
 - If there is only one image in each domain
 ```
 python3 crop_pipeline.py -c ./data/$your_folder/config.yaml
@@ -51,22 +52,23 @@ python3 crop.py -i ./data/$your_folder/$image_a -o ./data/$your_folder/trainX/ -
 python3 crop.py -i ./data/$your_folder/$image_b -o ./data/$your_folder/trainX/ --thumbnail_output ./data/$your_folder/trainX/
 ...
 ```
-- **Multiple images belong to one domain:**: for the testing data, it is recommended to seperate patches belong to different image in different folder.
+- **Multiple images belong to one domain:** for the testing data, it is recommended to seperate patches belong to different image in different folder.
 ```
 python3 crop.py -i ./data/$your_folder/$test_a -o ./data/$your_folder/$test_a/ --stride 512 --thumbnail_output ./data/example/$test_a/
 python3 crop.py -i ./data/$your_folder/$test_b -o ./data/$your_folder/$test_b/ --stride 512 --thumbnail_output ./data/example/$test_b/
 ...
 ```
-5. Modify `TRAINING_SETTING` section in `./data/$your_folder/config.yaml`, especially the `TRAIN_DIR_X` and `TRAIN_DIR_Y`.
-6. Train the model
+6. Modify `TRAINING_SETTING` section in `./data/$your_folder/config.yaml`, especially the `TRAIN_DIR_X` and `TRAIN_DIR_Y`.
+7. Train the model
 ```
 python3 train.py -c ./data/$your_folder/config.yaml
 ```
-7. **If you have only one image requires inference:** modify `INFERENCE_SETTING` section in `./data/$your_folder/config.yaml`, especially the `TEST_X` and `TEST_DIR_X`. Then,
+8. Inference
+- **If you have only one image requires inference:** modify `INFERENCE_SETTING` section in `./data/$your_folder/config.yaml`, especially the `TEST_X` and `TEST_DIR_X`. Then,
 ```
 python3 transfer.py -c config_example.yaml --skip_cropping
 ```
-8. **If you have only many images requires inference:** assume you have finishing cropping each testing image in separated folder. Please modify `TEST_X` and `TEST_DIR_X` in the `INFERENCE_SETTING` section and execute the following script for each image.
+- **If you have only many images requires inference:** assume you have finishing cropping each testing image in separated folder. Please modify `TEST_X` and `TEST_DIR_X` in the `INFERENCE_SETTING` section and execute the following script for each image.
 ```
 python3 transfer.py -c config_example.yaml --skip_cropping
 ```
