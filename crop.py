@@ -5,18 +5,7 @@ import cv2
 import numpy as np
 from PIL import Image
 
-
-def reduce_size(original_size, patch_size):
-    if original_size % patch_size == 0:
-        return original_size
-    else:
-        return (original_size // patch_size) * patch_size
-
-def extend_size(original_size, patch_size):
-    if original_size % patch_size == 0:
-        return original_size
-    else:
-        return (original_size // patch_size + 1) * patch_size
+from utils.util import extend_size, reduce_size
 
 if __name__ == "__main__":
     """

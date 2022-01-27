@@ -1,8 +1,7 @@
-import yaml
-from yaml.loader import SafeLoader
 import albumentations as A
+import yaml
 from albumentations.pytorch import ToTensorV2
-
+from yaml.loader import SafeLoader
 
 transforms = A.Compose(
     [
@@ -30,3 +29,15 @@ def read_yaml_config(config_path):
 
 def reverse_image_normalize(img, mean=0.5, std=0.5):
     return img * std + mean
+
+def reduce_size(original_size, patch_size):
+    if original_size % patch_size == 0:
+        return original_size
+    else:
+        return (original_size // patch_size) * patch_size
+
+def extend_size(original_size, patch_size):
+    if original_size % patch_size == 0:
+        return original_size
+    else:
+        return (original_size // patch_size + 1) * patch_size
