@@ -13,7 +13,7 @@ def main():
         python3 transfer.py -c config_example.yaml -i ./data/example/HE_cropped.jpg --skip_cropping
     """
     parser = argparse.ArgumentParser("Model inference")
-    parser.add_argument("-c", "--config", type=str, default="./config.yaml", help="Path to the config file.")
+    parser.add_argument("-c", "--config", type=str, default="./data/example/config.yaml", help="Path to the config file.")
     parser.add_argument("-i", "--image", type=str, required=True)
     parser.add_argument("-o", "--cropped_output", type=str, default=None)
     parser.add_argument("--skip_cropping", action="store_true")

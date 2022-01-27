@@ -18,7 +18,14 @@ def main():
 
     config = read_yaml_config(args.config)
 
-    filenames = os.listdir(os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", config['INFERENCE_SETTING']["NORMALIZATION"]))
+    path_base =  os.path.join(
+        config["EXPERIMENT_ROOT_PATH"], 
+        config["EXPERIMENT_NAME"], 
+        "test", 
+        config['INFERENCE_SETTING']["NORMALIZATION"],
+        config['INFERENCE_SETTING']["MODEL_VERSION"]
+    )
+    filenames = os.listdir(path_base)
     try:
         filenames.remove("thumbnail_Y_fake.png")
     except:
@@ -38,7 +45,7 @@ def main():
         _, _, y_anchor, x_anchor, _ = filename.split("_", 4)
         y_anchor = int(y_anchor)
         x_anchor = int(x_anchor)
-        image = cv2.imread(os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", config['INFERENCE_SETTING']["NORMALIZATION"], filename))
+        image = cv2.imread(os.path.join(path_base, filename))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         matrix[y_anchor:y_anchor + 512, x_anchor:x_anchor + 512, :] = image
 
@@ -46,7 +53,14 @@ def main():
         matrix = cv2.resize(matrix, (args.resize_w, args.resize_h), cv2.INTER_CUBIC)
 
     matrix_image = Image.fromarray(matrix)
-    matrix_image.save(os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", f"combined_{config['INFERENCE_SETTING']['NORMALIZATION']}.png"))
+    matrix_image.save(
+        os.path.join(
+            config["EXPERIMENT_ROOT_PATH"], 
+            config["EXPERIMENT_NAME"], 
+            "test",
+            f"combined_{config['INFERENCE_SETTING']['NORMALIZATION']}_{config['INFERENCE_SETTING']['MODEL_VERSION']}.png"
+        )
+    )
 
 if __name__ == "__main__":
     main()
