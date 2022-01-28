@@ -42,30 +42,15 @@ class KernelizedInstanceNorm(nn.Module):
             self.mean_table[y_anchor, x_anchor, :] = instance_mean
             self.std_table[y_anchor, x_anchor, :] = instnace_std
     
-    def query_neighbors(self, y_anchor, x_anchor, padding=1, return_anchors=False):
+    def query_neighbors(self, y_anchor, x_anchor, padding=1):
         """
         return_anchors:: [top, down], [left, right] all are inclusive
         """
-        if not return_anchors:
-            y_anchor_top = max(0, y_anchor - padding)
-            y_anchor_down = min(self.y_anchor_num, y_anchor + padding)
-            x_anchor_left = max(0, x_anchor - padding)
-            x_anchor_right = min(self.x_anchor_num, x_anchor + padding)
-            return [y_anchor_top, y_anchor_down, x_anchor_left, x_anchor_right]
-        else:
-            neighbors = []
-            if padding == 0:
-                return neighbors
-            cross = [
-                    np.arange(-padding, padding+1),
-                    np.arange(-padding, padding+1)
-                    ]
-            for y_i, x_i in itertools.product(*cross):
-                neighbor_y_anchor = y_anchor + y_i
-                neighbor_x_anchor = x_anchor + x_i
-                if (neighbor_y_anchor < 0 or neighbor_y_anchor >= self.y_anchor_num) or (neighbor_x_anchor < 0 or neighbor_x_anchor >= self.x_anchor_num): continue
-                neighbors.append([neighbor_y_anchor, neighbor_x_anchor])
-            return neighbors
+        y_anchor_top = max(0, y_anchor - padding)
+        y_anchor_down = min(self.y_anchor_num, y_anchor + padding)
+        x_anchor_left = max(0, x_anchor - padding)
+        x_anchor_right = min(self.x_anchor_num, x_anchor + padding)
+        return [y_anchor_top, y_anchor_down, x_anchor_left, x_anchor_right]
 
     def pad_table(self, padding):
         pad_func = nn.ReplicationPad2d((padding, padding, padding, padding))
