@@ -35,7 +35,23 @@ As the testing data have been cropped during the first step, we can skip this st
 python3 transfer.py -c config_example.yaml --skip_cropping
 ```
 The output will be in the `./experiments/example/test/` folder.
-
+The following is an example of output file structure.
+```
+./example/
+├── test
+│   ├── in
+│   │   └── 30
+│   ├── kin
+│   │   └── 30
+│   │       ├── constant_1
+│   │       └── constant_5
+│   ├── tin
+│   │   └── 30
+│   ├── combined_in_30.png
+│   ├── combined_tin_30.png
+│   └── combined_kin_30_constant_5.png
+└── train
+```
 ## Train your own model with your own dataset
 1. Create a folder in `./data/`
 2. Put a `config.yaml` in `./data/$your_folder/`
