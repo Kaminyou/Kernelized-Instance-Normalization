@@ -66,11 +66,11 @@ python3 train.py -c ./data/$your_folder/config.yaml
 8. Inference
 - **If you have only one image requires inference:** modify `INFERENCE_SETTING` section in `./data/$your_folder/config.yaml`, especially the `TEST_X` and `TEST_DIR_X`. Then,
 ```
-python3 transfer.py -c config_example.yaml --skip_cropping
+python3 transfer.py -c ./data/$your_folder/config.yaml --skip_cropping
 ```
 - **If you have only many images requires inference:** assume you have finishing cropping each testing image in separated folder. Please modify `TEST_X` and `TEST_DIR_X` in the `INFERENCE_SETTING` section and execute the following script for each image.
 ```
-python3 transfer.py -c config_example.yaml --skip_cropping
+python3 transfer.py -c ./data/$your_folder/config.yaml --skip_cropping
 ```
 
 ## Acknowledgement
