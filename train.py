@@ -19,8 +19,19 @@ def main():
     
     model = ContrastiveModel(config)
 
-    dataset = XYDataset(root_X=config["TRAINING_SETTING"]["TRAIN_DIR_X"], root_Y=config["TRAINING_SETTING"]["TRAIN_DIR_Y"], transform=transforms)
-    dataloader = DataLoader(dataset, batch_size=config["TRAINING_SETTING"]["BATCH_SIZE"], shuffle=True, num_workers=config["TRAINING_SETTING"]["NUM_WORKERS"])
+    dataset = XYDataset(
+        root_X=config["TRAINING_SETTING"]["TRAIN_DIR_X"], 
+        root_Y=config["TRAINING_SETTING"]["TRAIN_DIR_Y"], 
+        paired=config["TRAINING_SETTING"]["PAIRED_TRAINING"],
+        transform=transforms
+    )
+    
+    dataloader = DataLoader(
+        dataset, 
+        batch_size=config["TRAINING_SETTING"]["BATCH_SIZE"], 
+        shuffle=True, 
+        num_workers=config["TRAINING_SETTING"]["NUM_WORKERS"]
+    )
 
     for epoch in range(config["TRAINING_SETTING"]["NUM_EPOCHS"]):
         out = defaultdict(int)

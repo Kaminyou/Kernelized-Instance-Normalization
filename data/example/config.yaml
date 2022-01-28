@@ -13,6 +13,7 @@ CROPPING_SETTING:
   STRIDE: 256
 
 TRAINING_SETTING:
+  PAIRED_TRAINING: False
   TRAIN_DIR_X: "./data/example/trainX/"
   TRAIN_DIR_Y: "./data/example/trainY/"
   NUM_EPOCHS: 200

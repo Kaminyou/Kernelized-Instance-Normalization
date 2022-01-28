@@ -1,4 +1,5 @@
 import os
+import random
 from pathlib import Path
 
 import numpy as np
@@ -7,23 +8,37 @@ from torch.utils.data import Dataset
 
 
 class XYDataset(Dataset):
-    def __init__(self, root_X, root_Y, transform=None):
+    def __init__(self, root_X, root_Y, paired=False, transform=None):
         self.root_X = root_X
         self.root_Y = root_Y
+        self.paired = paired
         self.transform = transform
 
         self.X_images = os.listdir(root_X)
         self.Y_images = os.listdir(root_Y)
-        self.length_dataset = max(len(self.X_images), len(self.Y_images))
-        self.X_len = len(self.X_images)
-        self.Y_len = len(self.Y_images)
+        if paired:
+            assert len(self.X_images) == len(self.Y_images)
+            self.X_images = sorted(self.X_images)
+            self.Y_images = sorted(self.Y_images)
+            self.length_dataset = len(self.X_images)
+
+        else:
+            self.length_dataset = max(len(self.X_images), len(self.Y_images))
+            self.X_len = len(self.X_images)
+            self.Y_len = len(self.Y_images)
 
     def __len__(self):
         return self.length_dataset
 
     def __getitem__(self, index):
-        X_img = self.X_images[index % self.X_len]
-        Y_img = self.Y_images[index % self.Y_len]
+        if self.paired:
+            X_img = self.X_images[index % self.length_dataset]
+            Y_img = self.Y_images[index % self.length_dataset]
+
+        else:
+            X_img = self.X_images[index % self.X_len]
+            random_y_index = random.randint(0, self.Y_len)
+            Y_img = self.Y_images[random_y_index % self.Y_len]
 
         X_path = os.path.join(self.root_X, X_img)
         Y_path = os.path.join(self.root_Y, Y_img)
@@ -105,5 +120,3 @@ if __name__ == "__main__":
     dataset = XInferenceDataset(root_X="./", transform=test_transforms, thumbnail="./data/my_photo/IMG_7867.jpg")
     img = dataset.get_thumbnail()
     print(img.shape)
-
-
