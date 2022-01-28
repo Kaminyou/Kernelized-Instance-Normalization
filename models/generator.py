@@ -100,7 +100,7 @@ class GeneratorBasicBlock(nn.Module):
 
 
 class Generator(nn.Module):
-    def __init__(self, in_channels=3, features=64, residuals=9, normalization="in"):
+    def __init__(self, in_channels=3, middle_channels=3, features=64, residuals=9, normalization="in"):
         super().__init__()
         self.residuals = residuals
         self.normalization = normalization
@@ -120,9 +120,10 @@ class Generator(nn.Module):
         self.upsampleblock5 = GeneratorBasicBlock(features * 4, features * 2, do_upsample=True, do_downsample=False, normalization=normalization)
         self.upsampleblock6 = GeneratorBasicBlock(features * 2, features, do_upsample=True, do_downsample=False, normalization=normalization)
 
+        self.middle_channels = middle_channels
         self.block7 = nn.Sequential(
                         nn.ReflectionPad2d(3),
-                        nn.Conv2d(features, in_channels, kernel_size=7),
+                        nn.Conv2d(features, middle_channels, kernel_size=7),
                         nn.Tanh(),
                         )
 
@@ -164,6 +165,9 @@ class Generator(nn.Module):
         feature_maps["upsampleblock6"] = feature_map.cpu().numpy()
 
         x = self.block7(x)
+        if self.middle_channels == 1:
+            x = x.expand(-1, 3, -1, -1)
+
         return x, feature_maps
 
     def forward_with_anchor(self, x, y_anchor, x_anchor, padding):
@@ -179,6 +183,8 @@ class Generator(nn.Module):
         x = self.upsampleblock5.forward_with_anchor(x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
         x = self.upsampleblock6.forward_with_anchor(x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
         x = self.block7(x)
+        if self.middle_channels == 1:
+            x = x.expand(-1, 3, -1, -1)
         return x
 
     def forward(self, x, encode_only=False, num_patches=256, patch_ids=None):
@@ -190,7 +196,9 @@ class Generator(nn.Module):
             x = self.resnetblocks4(x)
             x = self.upsampleblock5(x)
             x = self.upsampleblock6(x)
-            x = self.block7(x)
+            x = self.block7(x)  # N, C, H, W
+            if self.middle_channels == 1:
+                x = x.expand(-1, 3, -1, -1)
             return x
 
         else:

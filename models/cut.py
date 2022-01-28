@@ -30,8 +30,7 @@ class ContrastiveModel(BaseModel):
         # Discrimnator would not be used during inference, 
         # so specification of instane normalization is not required
         self.D_Y = Discriminator().to(self.device) 
-        
-        self.G = Generator(normalization=normalization).to(self.device)
+        self.G = Generator(middle_channels=self.config["TRAINING_SETTING"]['MIDDLE_CHANNELS'], normalization=normalization).to(self.device)
         self.H = Head().to(self.device)
 
         self.opt_D_Y = optim.Adam(self.D_Y.parameters(), lr=self.config["TRAINING_SETTING"]["LEARNING_RATE"], betas=(0.5, 0.999),)
