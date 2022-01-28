@@ -1,0 +1,26 @@
+EXPERIMENT_ROOT_PATH: "./experiments/"
+EXPERIMENT_NAME: "example2"
+DEVICE: "cuda"
+TRAINING_SETTING:
+  PAIRED_TRAINING: True
+  TRAIN_DIR_X: "./data/example2/trainA/"
+  TRAIN_DIR_Y: "./data/example2/trainB/"
+  NUM_EPOCHS: 10
+  LAMBDA_Y: 1
+  LEARNING_RATE: 0.0002
+  BATCH_SIZE: 1
+  NUM_WORKERS: 4
+  SAVE_MODEL: true
+  SAVE_MODEL_EPOCH_STEP: 2
+  VISUALIZATION_STEP: 250
+  LOAD_MODEL: false
+  LOAD_EPOCH: 0
+  MIDDLE_CHANNELS: 1
+
+INFERENCE_SETTING:
+  TEST_DIR_X: "./data/example2/testX/"
+  MODEL_VERSION: "latast"
+  SAVE_ORIGINAL_IMAGE: False
+  NORMALIZATION: "kin"
+  THUMBNAIL: "None" # set to "None" if it's not required
+  PADDING: 1 # for kin
