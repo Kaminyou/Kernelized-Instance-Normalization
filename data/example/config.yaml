@@ -1,0 +1,37 @@
+EXPERIMENT_ROOT_PATH: "./experiments/"
+EXPERIMENT_NAME: "example"
+DEVICE: "cuda"
+
+CROPPING_SETTING:
+  TRAIN_X: "./data/example/HE_cropped.jpg"
+  TRAIN_DIR_X: "./data/example/trainX/"
+  TRAIN_Y: "./data/example/ER_cropped.jpg"
+  TRAIN_DIR_Y: "./data/example/trainY/"
+  TEST_X: "./data/example/HE_cropped.jpg"
+  TEST_DIR_X: "./data/example/testX/"
+  PATCH_SIZE: 512
+  STRIDE: 256
+
+TRAINING_SETTING:
+  TRAIN_DIR_X: "./data/example/trainX/"
+  TRAIN_DIR_Y: "./data/example/trainY/"
+  NUM_EPOCHS: 200
+  LAMBDA_Y: 1
+  LEARNING_RATE: 0.0002
+  BATCH_SIZE: 1
+  NUM_WORKERS: 4
+  SAVE_MODEL: true
+  SAVE_MODEL_EPOCH_STEP: 10
+  VISUALIZATION_STEP: 250
+  LOAD_MODEL: false
+  LOAD_EPOCH: 0
+
+INFERENCE_SETTING:
+  TEST_X: "./data/example/HE_cropped.jpg"
+  TEST_DIR_X: "./data/example/testX/"
+  MODEL_VERSION: "30"
+  SAVE_ORIGINAL_IMAGE: False
+  NORMALIZATION: "kin"
+  THUMBNAIL: "./data/example/testX/thumbnail.png" #"None" # set to "None" if it's not required
+  KIN_PADDING: 3 # for kin
+  KIN_KERNEL: "constant" #constant or gaussian
