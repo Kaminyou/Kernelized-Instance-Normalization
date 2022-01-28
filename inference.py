@@ -8,7 +8,7 @@ from torchvision.utils import save_image
 
 from models.cut import ContrastiveModel
 from utils.dataset import XInferenceDataset
-from utils.util import (read_yaml_config, reverse_image_normalize,
+from utils.util import (get_kernel, read_yaml_config, reverse_image_normalize,
                         test_transforms)
 
 
@@ -73,31 +73,33 @@ def main():
             )    
         
     elif config["INFERENCE_SETTING"]["NORMALIZATION"] == "kin":
+        save_path_base_kin = os.path.join(save_path_base, f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_{config['INFERENCE_SETTING']['KIN_PADDING']}")
+        os.makedirs(save_path_base_kin, exist_ok=True)
         y_anchor_num, x_anchor_num = test_dataset.get_boundary()
         # as the anchor num from 0 to N, anchor_num = N but it actually has N + 1 values
         model.init_kernelized_instance_norm_for_whole_model(
             y_anchor_num=y_anchor_num + 1, 
             x_anchor_num=x_anchor_num + 1, 
-            kernel=(torch.ones(1,1,3,3)/9) ### mind the kernel size and padding size
+            kernel=get_kernel(padding=config["INFERENCE_SETTING"]["KIN_PADDING"], mode=config["INFERENCE_SETTING"]["KIN_KERNEL"])
         )
         for idx, data in enumerate(test_loader):
             print(f"Caching {idx}", end="\r")
             X, X_path, y_anchor, x_anchor, _, _ = data
-            _ = model.inference_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=config["INFERENCE_SETTING"]["PADDING"])
+            _ = model.inference_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=config["INFERENCE_SETTING"]["KIN_PADDING"])
 
-        model.use_kernelized_instance_norm_for_whole_model(padding=config["INFERENCE_SETTING"]["PADDING"])
+        model.use_kernelized_instance_norm_for_whole_model(padding=config["INFERENCE_SETTING"]["KIN_PADDING"])
         for idx, data in enumerate(test_loader):
             print(f"Processing {idx}", end="\r")
             X, X_path, y_anchor, x_anchor, _, _ = data
-            Y_fake = model.inference_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=config["INFERENCE_SETTING"]["PADDING"])
+            Y_fake = model.inference_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=config["INFERENCE_SETTING"]["KIN_PADDING"])
             if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
                 save_image(
                     reverse_image_normalize(X), 
-                    os.path.join(save_path_base, f"{Path(X_path[0]).stem}_X_{idx}.png")
+                    os.path.join(save_path_base_kin, f"{Path(X_path[0]).stem}_X_{idx}.png")
                 )
             save_image(
                 reverse_image_normalize(Y_fake), 
-                os.path.join(save_path_base, f"{Path(X_path[0]).stem}_Y_fake_{idx}.png")
+                os.path.join(save_path_base_kin, f"{Path(X_path[0]).stem}_Y_fake_{idx}.png")
             )    
 
     else:

@@ -25,6 +25,13 @@ def main():
         config['INFERENCE_SETTING']["NORMALIZATION"],
         config['INFERENCE_SETTING']["MODEL_VERSION"]
     )
+
+    combined_image_name = f"combined_{config['INFERENCE_SETTING']['NORMALIZATION']}_{config['INFERENCE_SETTING']['MODEL_VERSION']}.png"
+
+    if config["INFERENCE_SETTING"]["NORMALIZATION"] == "kin":
+        path_base = os.path.join(path_base, f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_{config['INFERENCE_SETTING']['KIN_PADDING']}")
+        combined_image_name = f"combined_{config['INFERENCE_SETTING']['NORMALIZATION']}_{config['INFERENCE_SETTING']['MODEL_VERSION']}_{config['INFERENCE_SETTING']['KIN_KERNEL']}_{config['INFERENCE_SETTING']['KIN_PADDING']}.png"
+    
     filenames = os.listdir(path_base)
     try:
         filenames.remove("thumbnail_Y_fake.png")
@@ -58,7 +65,7 @@ def main():
             config["EXPERIMENT_ROOT_PATH"], 
             config["EXPERIMENT_NAME"], 
             "test",
-            f"combined_{config['INFERENCE_SETTING']['NORMALIZATION']}_{config['INFERENCE_SETTING']['MODEL_VERSION']}.png"
+            combined_image_name
         )
     )
 
