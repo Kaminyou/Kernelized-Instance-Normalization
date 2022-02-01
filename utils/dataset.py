@@ -75,7 +75,7 @@ class XInferenceDataset(Dataset):
         self.y_anchor_num = 0
         self.x_anchor_num = 0
         for X_image in self.X_images:
-            y_idx, x_idx, _, _ = Path(X_image).stem.split("_")
+            y_idx, x_idx, _, _ = Path(X_image).stem.split("_")[:4]
             y_idx = int(y_idx)
             x_idx = int(x_idx)
             self.y_anchor_num = max(self.y_anchor_num, y_idx)
