@@ -1,5 +1,6 @@
 import argparse
 import os
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -30,6 +31,7 @@ if __name__ == "__main__":
     os.makedirs(args.output, exist_ok=True)
 
     image = cv2.imread(args.input)
+    image_name = Path(args.input).stem
     try:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     except:
@@ -72,7 +74,7 @@ if __name__ == "__main__":
             image_crop_instance = Image.fromarray(image_crop)
 
             ## filename: {y-idx}_{x-idx}_{h-anchor}_{w-anchor}.png
-            image_crop_instance.save(os.path.join(args.output, f"{str(y_idx).zfill(max_idx_digits)}_{str(x_idx).zfill(max_idx_digits)}_{str(h_anchor).zfill(max_anchor_digits)}_{str(w_anchor).zfill(max_anchor_digits)}.png"))
+            image_crop_instance.save(os.path.join(args.output, f"{str(y_idx).zfill(max_idx_digits)}_{str(x_idx).zfill(max_idx_digits)}_{str(h_anchor).zfill(max_anchor_digits)}_{str(w_anchor).zfill(max_anchor_digits)}_{image_name}.png"))
             curr_idx += 1
 
 
