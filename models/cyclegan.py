@@ -67,12 +67,16 @@ class CycleGanModel(BaseModel):
             X = X.to(self.device)
             Y_fake, feature_map = self.G_X2Y.analyze_feature_map(X)
         return Y_fake, feature_map
+
+    def forward(self, X):
+        Y_fake = self.G_X2Y(X)
+        return Y_fake
     
     def inference(self, X):
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)
-            Y_fake = self.G_X2Y(X)
+            Y_fake = self.forward(X)
         return Y_fake
 
     def inference_with_anchor(self, X, y_anchor, x_anchor, padding):

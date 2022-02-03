@@ -60,6 +60,34 @@ class BaseModel(ABC):
         """Calculate losses, gradients, and update network weights; called in every training iteration"""
         pass
 
+    @abstractmethod
+    def inference(self):
+        pass
+    
+    @abstractmethod
+    def init_thumbnail_instance_norm_for_whole_model(self):
+        pass
+
+    @abstractmethod
+    def use_thumbnail_instance_norm_for_whole_model(self):
+        pass
+
+    @abstractmethod
+    def not_use_thumbnail_instance_norm_for_whole_model(self):
+        pass
+    
+    @abstractmethod
+    def init_kernelized_instance_norm_for_whole_model(self):
+        pass
+
+    @abstractmethod
+    def use_kernelized_instance_norm_for_whole_model(self):
+        pass
+
+    @abstractmethod
+    def not_use_kernelized_instance_norm_for_whole_model(self):
+        pass
+
     def train(self):
         """Make models eval mode during test time"""
         for name in self.model_names:
