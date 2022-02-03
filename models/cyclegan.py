@@ -183,50 +183,7 @@ class CycleGanModel(BaseModel):
         self.scheduler_G.step()
         self.scheduler_D_X.step()
         self.scheduler_D_Y.step()
-    """
-    def compute_D_loss(self):
-        # Fake
-        fake = self.Y_fake.detach()
-        pred_fake = self.D_Y(fake)
-        self.loss_D_fake = self.mse(pred_fake, torch.zeros_like(pred_fake))
-        # Real
-        self.pred_real = self.D_Y(self.Y)
-        self.loss_D_real = self.mse(self.pred_real, torch.ones_like(self.pred_real))
-
-        self.loss_D_Y = (self.loss_D_fake + self.loss_D_real) / 2
-        return self.loss_D_Y
-
-    def compute_G_loss(self):
-        fake = self.Y_fake
-        pred_fake = self.D_Y(fake)
-        self.loss_G_adv = self.mse(pred_fake, torch.ones_like(pred_fake))
-
-        self.loss_NCE = self.calculate_NCE_loss(self.X, self.Y_fake)
-        if self.config["TRAINING_SETTING"]["LAMBDA_Y"] > 0:
-            self.loss_NCE_Y = self.calculate_NCE_loss(self.Y, self.Y_idt)
-            self.loss_NCE = (self.loss_NCE + self.loss_NCE_Y) * 0.5
-
-        self.loss_G = self.loss_G_adv + self.loss_NCE
-        return self.loss_G
-
-    def calculate_NCE_loss(self, src, tgt):
-        feat_q, patch_ids_q = self.G(tgt, encode_only=True)
-        feat_k, _ = self.G(src, encode_only=True, patch_ids=patch_ids_q)
-        feat_k_pool = self.H(feat_k)
-        feat_q_pool = self.H(feat_q)
-
-        total_nce_loss = 0.0
-        for f_q, f_k in zip(feat_q_pool, feat_k_pool):
-            loss = self.patch_nce_loss(f_q, f_k)
-            total_nce_loss += loss.mean()
-        return total_nce_loss / 5
-
-    def patch_nce_loss(self, feat_q, feat_k):
-        feat_k = feat_k.detach()
-        out = torch.mm(feat_q, feat_k.transpose(1, 0)) / 0.07
-        loss = self.cross_entropy_loss(out, torch.arange(0, out.size(0), dtype=torch.long, device=self.device))
-        return loss
-    """
+        
     def init_thumbnail_instance_norm_for_whole_model(self):
         init_thumbnail_instance_norm(self.G)
 
