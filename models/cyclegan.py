@@ -23,7 +23,7 @@ class CycleGanModel(BaseModel):
     def __init__(self, config, normalization="in"):
         BaseModel.__init__(self, config)
         self.model_names = ['G_X2Y', 'G_Y2X', 'D_X', 'D_Y']
-        self.loss_names = ['G_adv', 'D_Y', 'G', 'NCE']
+        self.loss_names = ['identity_X', 'identity_Y', 'GAN_X2Y', 'GAN_Y2X', 'cycle_XYX', 'cycle_YXY', 'errD_A', 'errD_B']
         self.visual_names = ['X', 'Y', 'identity_X', 'identity_Y', 'fake_X', 'fake_Y', 'recovered_X', 'recovered_Y']
         
         self.normalization = normalization
@@ -101,30 +101,30 @@ class CycleGanModel(BaseModel):
         # Identity loss
         # G_B2A(A) should equal A if real A is fed
         self.identity_X = self.G_Y2X(X)
-        loss_identity_X = self.identity_loss(self.identity_X, X) * 5.0
+        self.loss_identity_X = self.identity_loss(self.identity_X, X) * 5.0
         # G_A2B(B) should equal B if real B is fed
         self.identity_Y = self.G_X2Y(Y)
-        loss_identity_Y = self.identity_loss(self.identity_Y, Y) * 5.0
+        self.loss_identity_Y = self.identity_loss(self.identity_Y, Y) * 5.0
 
         # GAN loss
         # GAN loss D_A(G_A(A))
         self.fake_X = self.G_Y2X(Y)
         fake_output_X = self.D_X(self.fake_X)
-        loss_GAN_Y2X = self.adversarial_loss(fake_output_X, real_label)
+        self.loss_GAN_Y2X = self.adversarial_loss(fake_output_X, real_label)
         # GAN loss D_B(G_B(B))
         self.fake_Y = self.G_X2Y(X)
         fake_output_Y = self.D_Y(self.fake_Y)
-        loss_GAN_X2Y = self.adversarial_loss(fake_output_Y, real_label)
+        self.loss_GAN_X2Y = self.adversarial_loss(fake_output_Y, real_label)
         
         # Cycle loss
         self.recovered_X = self.G_Y2X(self.fake_Y)
-        loss_cycle_XYX = self.cycle_loss(self.recovered_X, X) * 10.0
+        self.loss_cycle_XYX = self.cycle_loss(self.recovered_X, X) * 10.0
 
         self.recovered_Y = self.G_X2Y(self.fake_X)
-        loss_cycle_YXY = self.cycle_loss(self.recovered_Y, Y) * 10.0
+        self.loss_cycle_YXY = self.cycle_loss(self.recovered_Y, Y) * 10.0
 
         # Combined loss and calculate gradients
-        errG = loss_identity_X + loss_identity_Y + loss_GAN_X2Y + loss_GAN_Y2X + loss_cycle_XYX + loss_cycle_YXY
+        errG = self.loss_identity_X + self.loss_identity_Y + self.loss_GAN_X2Y + self.loss_GAN_Y2X + self.loss_cycle_XYX + self.loss_cycle_YXY
 
         # Calculate gradients for G_A and G_B
         errG.backward()
@@ -148,10 +148,10 @@ class CycleGanModel(BaseModel):
         errD_fake_A = self.adversarial_loss(fake_output_X, fake_label)
 
         # Combined loss and calculate gradients
-        errD_A = (errD_real_X + errD_fake_A) / 2
+        self.loss_errD_A = (errD_real_X + errD_fake_A) / 2
 
         # Calculate gradients for D_A
-        errD_A.backward()
+        self.loss_errD_A.backward()
         # Update D_A weights
         self.opt_D_X.step()
 
@@ -172,10 +172,10 @@ class CycleGanModel(BaseModel):
         errD_fake_B = self.adversarial_loss(fake_output_Y, fake_label)
 
         # Combined loss and calculate gradients
-        errD_B = (errD_real_B + errD_fake_B) / 2
+        self.loss_errD_B = (errD_real_B + errD_fake_B) / 2
 
         # Calculate gradients for D_B
-        errD_B.backward()
+        self.loss_errD_B.backward()
         # Update D_B weights
         self.opt_D_Y.step()
 
