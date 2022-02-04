@@ -7,7 +7,8 @@ from torchvision.utils import save_image
 
 from models.cut import ContrastiveModel
 from utils.dataset import XYDataset
-from utils.util import read_yaml_config, reverse_image_normalize, transforms
+from utils.util import (get_model, read_yaml_config, reverse_image_normalize,
+                        transforms)
 
 
 def main():
@@ -17,7 +18,7 @@ def main():
     
     config = read_yaml_config(args.config)
     
-    model = ContrastiveModel(config)
+    model = get_model(config=config, model_name=config["MODEL_NAME"])
 
     dataset = XYDataset(
         root_X=config["TRAINING_SETTING"]["TRAIN_DIR_X"], 

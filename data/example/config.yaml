@@ -1,5 +1,6 @@
 EXPERIMENT_ROOT_PATH: "./experiments/"
 EXPERIMENT_NAME: "example"
+MODEL_NAME: "CUT"
 DEVICE: "cuda"
 
 CROPPING_SETTING:

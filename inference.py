@@ -8,8 +8,8 @@ from torchvision.utils import save_image
 
 from models.cut import ContrastiveModel
 from utils.dataset import XInferenceDataset
-from utils.util import (get_kernel, read_yaml_config, reverse_image_normalize,
-                        test_transforms)
+from utils.util import (get_kernel, get_model, read_yaml_config,
+                        reverse_image_normalize, test_transforms)
 
 
 def main():
@@ -19,7 +19,7 @@ def main():
 
     config = read_yaml_config(args.config)
 
-    model = ContrastiveModel(config, normalization=config["INFERENCE_SETTING"]["NORMALIZATION"])
+    model = get_model(config=config, model_name=config["MODEL_NAME"], normalization=config["INFERENCE_SETTING"]["NORMALIZATION"])
 
     if config["INFERENCE_SETTING"]["NORMALIZATION"] == "tin":
         test_dataset = XInferenceDataset(
