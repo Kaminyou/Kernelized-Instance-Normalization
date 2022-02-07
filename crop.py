@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Crop a large image into patches.")
     parser.add_argument("-i","--input", help="Input image path", required=True)
     parser.add_argument("-o","--output", help="Output image path", default="data/initial/trainX/")
-    parser.add_argument("--thumbnail", help="If crop a thumbnail or not", default=True)
+    parser.add_argument("--thumbnail", help="If crop a thumbnail or not", action="store_true")
     parser.add_argument("--thumbnail_output", help="Output image path", default="data/initial/")
     parser.add_argument("--patch_size", type=int, help="Patch size", default=512)
     parser.add_argument("--stride", type=int, help="Stride to crop patch", default=256)
