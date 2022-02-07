@@ -48,10 +48,9 @@ class Discriminator(nn.Module):
         x = self.block3(x)
         x = self.block4(x)
         x = self.conv(x)
-
         if self.avg_pooling:
             x = F.avg_pool2d(x, x.size()[2:])
-            x = x.flatten(x, 1)
+            x = torch.flatten(x, 1)
         return x
 
     def set_requires_grad(self, requires_grad=False):
@@ -61,6 +60,6 @@ class Discriminator(nn.Module):
 if __name__ == "__main__":
     x = torch.randn((5, 3, 256, 256))
     print(x.shape)
-    model = Discriminator(in_channels=3)
+    model = Discriminator(in_channels=3, avg_pooling=True)
     preds = model(x)
     print(preds.shape)

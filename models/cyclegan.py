@@ -42,9 +42,9 @@ class CycleGanModel(BaseModel):
         self.opt_D_X = torch.optim.Adam(self.D_X.parameters(), lr=self.config["TRAINING_SETTING"]["LEARNING_RATE"], betas=(0.5, 0.999))
         self.opt_D_Y = torch.optim.Adam(self.D_Y.parameters(), lr=self.config["TRAINING_SETTING"]["LEARNING_RATE"], betas=(0.5, 0.999))
 
-        self.self.cycle_loss = nn.L1Loss().to(self.device)
+        self.cycle_loss = nn.L1Loss().to(self.device)
         self.identity_loss = nn.L1Loss().to(self.device)
-        self.self.adversarial_loss = nn.MSELoss().to(self.device)
+        self.adversarial_loss = nn.MSELoss().to(self.device)
 
         if self.config["TRAINING_SETTING"]["LOAD_MODEL"]:
             self.load_networks(self.config["TRAINING_SETTING"]["EPOCH"])
