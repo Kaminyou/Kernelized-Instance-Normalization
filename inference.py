@@ -59,7 +59,7 @@ def main():
         model.use_thumbnail_instance_norm_for_whole_model()
         for idx, data in enumerate(test_loader):
             print(f"Processing {idx}", end="\r")
-            X, X_path, _, _, _, _ = data
+            X, X_path = data["X_img"], data["X_path"]
             Y_fake = model.inference(X)
             if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
                 save_image(
@@ -83,13 +83,13 @@ def main():
         )
         for idx, data in enumerate(test_loader):
             print(f"Caching {idx}", end="\r")
-            X, X_path, y_anchor, x_anchor, _, _ = data
+            X, X_path, y_anchor, x_anchor = data["X_img"], data["X_path"], data["y_idx"], data["x_idx"]
             _ = model.inference_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=config["INFERENCE_SETTING"]["KIN_PADDING"])
 
         model.use_kernelized_instance_norm_for_whole_model(padding=config["INFERENCE_SETTING"]["KIN_PADDING"])
         for idx, data in enumerate(test_loader):
             print(f"Processing {idx}", end="\r")
-            X, X_path, y_anchor, x_anchor, _, _ = data
+            X, X_path, y_anchor, x_anchor = data["X_img"], data["X_path"], data["y_idx"], data["x_idx"]
             Y_fake = model.inference_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=config["INFERENCE_SETTING"]["KIN_PADDING"])
             if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
                 save_image(
@@ -105,7 +105,7 @@ def main():
         for idx, data in enumerate(test_loader):
             print(f"Processing {idx}", end="\r")
 
-            X, X_path, _, _, _, _  = data
+            X, X_path = data["X_img"], data["X_path"]
             Y_fake = model.inference(X)
 
             if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:

@@ -50,8 +50,9 @@ class ContrastiveModel(BaseModel):
         self.scheduler_gen = lr_scheduler.LambdaLR(self.opt_G, lr_lambda=lambda_lr)
         self.scheduler_mlp = lr_scheduler.LambdaLR(self.opt_H, lr_lambda=lambda_lr)
 
-    def set_input(self, input):
-        self.X, self.Y = input
+    def set_input(self, data):
+        self.X = data["X_img"]
+        self.Y = data["Y_img"]
 
     def forward(self):
         self.Y = self.Y.to(self.device)

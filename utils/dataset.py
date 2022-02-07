@@ -51,7 +51,7 @@ class XYDataset(Dataset):
             X_img = augmentations["image"]
             Y_img = augmentations["image0"]
 
-        return X_img, Y_img
+        return {"X_img":X_img, "Y_img":Y_img}
 
 class XInferenceDataset(Dataset):
     def __init__(self, root_X, transform=None, return_anchor=False, thumbnail=None):
@@ -103,10 +103,10 @@ class XInferenceDataset(Dataset):
             y_idx, x_idx, y_anchor, x_anchor = Path(X_img_name).stem.split("_")[:4]
             y_idx = int(y_idx)
             x_idx = int(x_idx)
-            return (X_img, X_path, y_idx, x_idx, y_anchor, x_anchor)
+            return {"X_img": X_img, "X_path":X_path, "y_idx":y_idx, "x_idx":x_idx, "y_anchor":y_anchor, "x_anchor":x_anchor}
         
         else:
-            return (X_img, X_path)
+            return {"X_img": X_img, "X_path":X_path}
 
     def get_thumbnail(self):
         thumbnail_img = np.array(Image.open(self.thumbnail).convert("RGB"))

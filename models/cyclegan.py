@@ -57,8 +57,9 @@ class CycleGanModel(BaseModel):
         self.fake_X_buffer = ReplayBuffer()
         self.fake_Y_buffer = ReplayBuffer()
 
-    def set_input(self, input):
-        self.X, self.Y = input
+    def set_input(self, data):
+        self.X = data["X_img"]
+        self.Y = data["Y_img"]
 
     def analyze_feature_map(self, X):
         self.eval()
