@@ -6,8 +6,8 @@ from torch.utils.data import DataLoader
 from torchvision.utils import save_image
 
 from models.model import get_model
-from utils.dataset import XYDataset
-from utils.util import read_yaml_config, reverse_image_normalize, transforms
+from utils.dataset import get_dataset
+from utils.util import read_yaml_config, reverse_image_normalize
 
 
 def main():
@@ -19,12 +19,7 @@ def main():
     
     model = get_model(config=config, model_name=config["MODEL_NAME"])
 
-    dataset = XYDataset(
-        root_X=config["TRAINING_SETTING"]["TRAIN_DIR_X"], 
-        root_Y=config["TRAINING_SETTING"]["TRAIN_DIR_Y"], 
-        paired=config["TRAINING_SETTING"]["PAIRED_TRAINING"],
-        transform=transforms
-    )
+    dataset = get_dataset(config)
     
     dataloader = DataLoader(
         dataset, 

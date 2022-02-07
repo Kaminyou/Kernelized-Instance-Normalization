@@ -6,9 +6,11 @@ import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
 
+from utils.util import transforms, transforms_aug
+
 
 class XYDataset(Dataset):
-    def __init__(self, root_X, root_Y, paired=False, transform=None):
+    def __init__(self, root_X, root_Y, paired=False, augment=False, transform=None, transform_aug=None):
         self.root_X = root_X
         self.root_Y = root_Y
         self.paired = paired
@@ -16,6 +18,12 @@ class XYDataset(Dataset):
 
         self.X_images = os.listdir(root_X)
         self.Y_images = os.listdir(root_Y)
+
+        self.augment = augment
+        if self.augment:
+            assert transform_aug != None, "transform_aug is not provided while augment is True"
+            self.transform_aug = transform_aug
+
         if paired:
             assert len(self.X_images) == len(self.Y_images)
             self.X_images = sorted(self.X_images)
@@ -50,8 +58,15 @@ class XYDataset(Dataset):
             augmentations = self.transform(image=X_img, image0=Y_img)
             X_img = augmentations["image"]
             Y_img = augmentations["image0"]
-
-        return {"X_img":X_img, "Y_img":Y_img}
+        
+        if self.augment:
+            double_augmentations = self.transform_aug(image=X_img, image0=Y_img)
+            X_img_aug = double_augmentations["image"]
+            Y_img_aug = double_augmentations["image0"]
+        if not self.augment:
+            return {"X_img":X_img, "Y_img":Y_img}
+        else:
+            return {"X_img":X_img, "Y_img":Y_img, "X_img_aug":X_img_aug, "Y_img_aug":Y_img_aug}
 
 class XInferenceDataset(Dataset):
     def __init__(self, root_X, transform=None, return_anchor=False, thumbnail=None):
@@ -114,6 +129,26 @@ class XInferenceDataset(Dataset):
             augmentations = self.transform(image=thumbnail_img)
             thumbnail_img = augmentations["image"]
         return thumbnail_img.unsqueeze(0)
+
+def get_dataset(config):
+    if not "LSeSim" in config["MODEL_NAME"]:
+        dataset = XYDataset(
+            root_X=config["TRAINING_SETTING"]["TRAIN_DIR_X"], 
+            root_Y=config["TRAINING_SETTING"]["TRAIN_DIR_Y"], 
+            paired=config["TRAINING_SETTING"]["PAIRED_TRAINING"],
+            transform=transforms
+        )
+    else:
+        dataset = XYDataset(
+            root_X=config["TRAINING_SETTING"]["TRAIN_DIR_X"], 
+            root_Y=config["TRAINING_SETTING"]["TRAIN_DIR_Y"], 
+            paired=config["TRAINING_SETTING"]["PAIRED_TRAINING"],
+            transform=transforms,
+            augment=config["TRAINING_SETTING"]["Augment"],
+            transform_aug=transforms_aug
+        )
+
+    return dataset
 
 if __name__ == "__main__":
     from util import test_transforms
