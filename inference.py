@@ -2,11 +2,10 @@ import argparse
 import os
 from pathlib import Path
 
-import torch
 from torch.utils.data import DataLoader
 from torchvision.utils import save_image
 
-from models.cut import ContrastiveModel
+from models.model import get_model
 from utils.dataset import XInferenceDataset
 from utils.util import (get_kernel, get_model, read_yaml_config,
                         reverse_image_normalize, test_transforms)

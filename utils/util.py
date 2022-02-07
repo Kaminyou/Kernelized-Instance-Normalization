@@ -5,8 +5,6 @@ import numpy as np
 import torch
 import yaml
 from albumentations.pytorch import ToTensorV2
-from models.cut import ContrastiveModel
-from models.cyclegan import CycleGanModel
 from scipy import signal
 from yaml.loader import SafeLoader
 
@@ -72,14 +70,6 @@ def get_kernel(padding=1, gaussian_std=3, mode="constant"):
     
     return kernel
 
-def get_model(config, model_name="CUT", normalization="in"):
-    if model_name == "CUT":
-        model = ContrastiveModel(config, normalization=normalization)
-    elif model_name == "cycleGAN":
-        model = CycleGanModel(config, normalization=normalization)
-    else:
-        raise NotImplementedError
-    return model
 
 def weights_init(m):
     classname = m.__class__.__name__

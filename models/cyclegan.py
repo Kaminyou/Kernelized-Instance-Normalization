@@ -12,7 +12,6 @@ from models.generator import Generator
 from models.kin import (init_kernelized_instance_norm,
                         not_use_kernelized_instance_norm,
                         use_kernelized_instance_norm)
-from models.projector import Head
 from models.tin import (init_thumbnail_instance_norm,
                         not_use_thumbnail_instance_norm,
                         use_thumbnail_instance_norm)
