@@ -1,6 +1,6 @@
 EXPERIMENT_ROOT_PATH: "./experiments/"
-EXPERIMENT_NAME: "example"
-MODEL_NAME: "CUT"
+EXPERIMENT_NAME: "example_cycleGAN"
+MODEL_NAME: "cycleGAN" # currently only CUT and cycleGAN are support
 DEVICE: "cuda"
 
 CROPPING_SETTING:
