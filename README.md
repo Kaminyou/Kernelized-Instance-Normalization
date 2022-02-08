@@ -88,6 +88,18 @@ python3 transfer.py -c ./data/$your_folder/config.yaml --skip_cropping
 ```
 python3 transfer.py -c ./data/$your_folder/config.yaml --skip_cropping
 ```
+## Metrics
+### FID
+Given two folders `pathA` and `pathB` that store the original and generated images within the same domain.
+```
+python3 metric.py --path-A $pathA --path-B $pathB
+```
+If images are stored in multiple folders, please concatenate those paths with delimiters of `,`.
+```
+python3 metric.py --path-A $pathA1,$pathA2,... --path-B $pathB1,$pathB2,...
+```
+### No-Reference Blind Image Quality Assessment
+Please refer to the implementation of `NIQE` and `PIQE` calcuations in this [repo](https://github.com/buyizhiyou/NRVQA).
 
 ## Acknowledgement
 Besides our novel kernelized instance normalizatio module, we use [Contrastive Unpaired Translation](https://link.springer.com/chapter/10.1007/978-3-030-58545-7_19) as our backbone. Please refer to the official implementation [here](https://github.com/taesungp/contrastive-unpaired-translation). This code is a simplified version revised from [wilbertcaine's implementation](https://github.com/wilbertcaine/CUT).
