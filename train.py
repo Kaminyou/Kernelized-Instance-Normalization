@@ -17,7 +17,7 @@ def main():
     
     config = read_yaml_config(args.config)
     
-    model = get_model(config=config, model_name=config["MODEL_NAME"])
+    model = get_model(config=config, model_name=config["MODEL_NAME"], isTrain=True)
 
     dataset = get_dataset(config)
     
@@ -33,6 +33,10 @@ def main():
 
         for idx, data in enumerate(dataloader):
             print(f"[Epoch {epoch}][Iter {idx}] Processing ...", end="\r")
+            if (epoch == 0 and idx == 0):
+                model.data_dependent_initialize(data)
+                model.setup()
+
             model.set_input(data)
             model.optimize_parameters()
 

@@ -56,17 +56,17 @@ class XYDataset(Dataset):
 
         if self.transform:
             augmentations = self.transform(image=X_img, image0=Y_img)
-            X_img = augmentations["image"]
-            Y_img = augmentations["image0"]
+            X_img_aug = augmentations["image"]
+            Y_img_aug = augmentations["image0"]
         
         if self.augment:
             double_augmentations = self.transform_aug(image=X_img, image0=Y_img)
-            X_img_aug = double_augmentations["image"]
-            Y_img_aug = double_augmentations["image0"]
+            X_img_double_aug = double_augmentations["image"]
+            Y_img_double_aug = double_augmentations["image0"]
         if not self.augment:
-            return {"X_img":X_img, "Y_img":Y_img}
+            return {"X_img":X_img_aug, "Y_img":Y_img_aug}
         else:
-            return {"X_img":X_img, "Y_img":Y_img, "X_img_aug":X_img_aug, "Y_img_aug":Y_img_aug}
+            return {"X_img":X_img_aug, "Y_img":Y_img_aug, "X_img_aug":X_img_double_aug, "Y_img_aug":Y_img_double_aug}
 
 class XInferenceDataset(Dataset):
     def __init__(self, root_X, transform=None, return_anchor=False, thumbnail=None):

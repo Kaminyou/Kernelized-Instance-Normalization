@@ -196,3 +196,8 @@ class BaseModel(ABC):
                 for param in net.parameters():
                     param.requires_grad = requires_grad
 
+    def data_dependent_initialize(self, data):
+        pass
+
+    def setup(self):
+        pass

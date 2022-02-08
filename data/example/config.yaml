@@ -1,6 +1,6 @@
 EXPERIMENT_ROOT_PATH: "./experiments/"
-EXPERIMENT_NAME: "example_cycleGAN"
-MODEL_NAME: "cycleGAN" # currently only CUT and cycleGAN are support
+EXPERIMENT_NAME: "example_LSeSim"
+MODEL_NAME: "LSeSim" # currently only CUT, cycleGAN, and LSeSim are support
 DEVICE: "cuda"
 
 CROPPING_SETTING:
@@ -27,13 +27,14 @@ TRAINING_SETTING:
   VISUALIZATION_STEP: 250
   LOAD_MODEL: false
   LOAD_EPOCH: 0
+  Augment: True #LSeSim
 
 INFERENCE_SETTING:
   TEST_X: "./data/example/HE_cropped.jpg"
   TEST_DIR_X: "./data/example/testX/"
   MODEL_VERSION: "30"
   SAVE_ORIGINAL_IMAGE: False
-  NORMALIZATION: "kin"
+  NORMALIZATION: "in"
   THUMBNAIL: "./data/example/testX/thumbnail.png" #"None" # set to "None" if it's not required
   KIN_PADDING: 3 # for kin
   KIN_KERNEL: "constant" #constant or gaussian

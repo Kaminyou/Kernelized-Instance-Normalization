@@ -18,7 +18,7 @@ def main():
 
     config = read_yaml_config(args.config)
 
-    model = get_model(config=config, model_name=config["MODEL_NAME"], normalization=config["INFERENCE_SETTING"]["NORMALIZATION"])
+    model = get_model(config=config, model_name=config["MODEL_NAME"], normalization=config["INFERENCE_SETTING"]["NORMALIZATION"], isTrain=False)
 
     if config["INFERENCE_SETTING"]["NORMALIZATION"] == "tin":
         test_dataset = XInferenceDataset(
