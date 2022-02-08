@@ -7,8 +7,8 @@ from torchvision.utils import save_image
 
 from models.model import get_model
 from utils.dataset import XInferenceDataset
-from utils.util import (get_kernel, get_model, read_yaml_config,
-                        reverse_image_normalize, test_transforms)
+from utils.util import (get_kernel, read_yaml_config, reverse_image_normalize,
+                        test_transforms)
 
 
 def main():
