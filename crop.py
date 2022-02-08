@@ -71,6 +71,13 @@ if __name__ == "__main__":
         for x_idx, w_anchor in enumerate(w_anchors):
             print(f"[{curr_idx} / {output_num}] Processing ...", end="\r")
             image_crop = image[h_anchor:h_anchor + args.patch_size, w_anchor:w_anchor + args.patch_size, :]
+
+            # if stride < patch_size, some images will be cropped at the margin
+            # e.g., stride = 256, patch_size = 512, image_size = 600
+            # => [0, 512], [256, 600]
+            # thus the output size should be double checked
+            if (image_crop.shape[0] != args.patch_size): continue
+            if (image_crop.shape[1] != args.patch_size): continue
             image_crop_instance = Image.fromarray(image_crop)
 
             ## filename: {y-idx}_{x-idx}_{h-anchor}_{w-anchor}.png
