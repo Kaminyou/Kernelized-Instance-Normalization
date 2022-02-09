@@ -1,6 +1,7 @@
 import random
 
 import albumentations as A
+import cv2
 import numpy as np
 import torch
 import yaml
@@ -157,3 +158,8 @@ class ImagePool():
                     return_images.append(image)
         return_images = torch.cat(return_images, 0)   # collect all the images and return
         return return_images
+
+def is_blank_patch(image, s_thershold=10, thershold=0.08):
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    foreground_proportion = (hsv_image[..., 1]>s_thershold).sum()/hsv_image[..., 1].size
+    return foreground_proportion < thershold

@@ -1,4 +1,5 @@
 import argparse
+import csv
 import os
 from pathlib import Path
 
@@ -6,7 +7,7 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from utils.util import extend_size, reduce_size
+from utils.util import extend_size, is_blank_patch, reduce_size
 
 if __name__ == "__main__":
     """
@@ -67,6 +68,7 @@ if __name__ == "__main__":
     max_anchor_digits = max(len(str(h_anchors[-1])), len(str(w_anchors[-1])))
 
     curr_idx = 1
+    blank_patches_list = []
     for y_idx, h_anchor in enumerate(h_anchors):
         for x_idx, w_anchor in enumerate(w_anchors):
             print(f"[{curr_idx} / {output_num}] Processing ...", end="\r")
@@ -78,10 +80,18 @@ if __name__ == "__main__":
             # thus the output size should be double checked
             if (image_crop.shape[0] != args.patch_size): continue
             if (image_crop.shape[1] != args.patch_size): continue
+            
+
             image_crop_instance = Image.fromarray(image_crop)
 
             ## filename: {y-idx}_{x-idx}_{h-anchor}_{w-anchor}.png
-            image_crop_instance.save(os.path.join(args.output, f"{str(y_idx).zfill(max_idx_digits)}_{str(x_idx).zfill(max_idx_digits)}_{str(h_anchor).zfill(max_anchor_digits)}_{str(w_anchor).zfill(max_anchor_digits)}_{image_name}.png"))
+            filename = f"{str(y_idx).zfill(max_idx_digits)}_{str(x_idx).zfill(max_idx_digits)}_{str(h_anchor).zfill(max_anchor_digits)}_{str(w_anchor).zfill(max_anchor_digits)}_{image_name}.png"
+            image_crop_instance.save(os.path.join(args.output, filename))
+            blank_patches_list.append((filename, is_blank_patch(image_crop)))
             curr_idx += 1
+    
+    with open(os.path.join(args.output,'blank_patches_list.csv'), 'w', encoding='UTF8', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerows(blank_patches_list)
 
 
