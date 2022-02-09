@@ -9,6 +9,12 @@ from torch.utils.data import Dataset
 from utils.util import transforms, transforms_aug
 
 
+def remove_file(files, file_name):
+    try:
+        files.remove(file_name)
+    except Exception:
+        pass
+
 class XYDataset(Dataset):
     def __init__(self, root_X, root_Y, paired=False, augment=False, transform=None, transform_aug=None):
         self.root_X = root_X
@@ -18,6 +24,10 @@ class XYDataset(Dataset):
 
         self.X_images = os.listdir(root_X)
         self.Y_images = os.listdir(root_Y)
+        remove_file(self.X_images, "thumbnail.png")
+        remove_file(self.X_images, "blank_patches_list.csv")
+        remove_file(self.Y_images, "thumbnail.png")
+        remove_file(self.Y_images, "blank_patches_list.csv")
 
         self.augment = augment
         if self.augment:
@@ -76,10 +86,9 @@ class XInferenceDataset(Dataset):
         self.thumbnail = thumbnail
 
         self.X_images = os.listdir(root_X)
-        try:
-            self.X_images.remove("thumbnail.png")
-        except Exception:
-            pass
+
+        remove_file(self.X_images, "thumbnail.png")
+        remove_file(self.X_images, "blank_patches_list.csv")
             
         if self.return_anchor:
             self.__get_boundary()
