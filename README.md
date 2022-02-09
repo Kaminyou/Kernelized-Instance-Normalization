@@ -6,7 +6,7 @@ We invented a kernelized instance normalization module enabling ultra-resolution
 - All the required packages are listed in the `requirements.txt`.
 
 ## Quick instruction
-A simple example is provided for you here. Or you can jump to the next section to train a model for your own dataset.
+A simple example is provided for you here. Or you can jump to the next section to train a model for your own dataset. All the steps here will help you train a model with **CUT** framework.
 ### Prepare dataset
 A public dataset [ANHIR](https://anhir.grand-challenge.org/Data/) is used in this project. Please first download it from the offical website and put `ANHIR2019/dataset_medium/breast_1/scale-20pc/HE.jpg` and `ANHIR2019/dataset_medium/breast_1/scale-20pc/ER.jpg` in `data/example/` folder. We would like to transfer `HE (domain X)` to `ER (domain Y)`.
 
@@ -88,6 +88,64 @@ python3 transfer.py -c ./data/$your_folder/config.yaml --skip_cropping
 ```
 python3 transfer.py -c ./data/$your_folder/config.yaml --skip_cropping
 ```
+## Inference options
+Besides `kernelized instance normalization`, `thumbnail instance normalization` and `instance normalization` are also provided.
+### Kernelized instance normalization
+You can adjust `KIN_PADDING` and `KIN_KERNEL` for inference.
+```yaml
+INFERENCE_SETTING:
+  ...
+  NORMALIZATION: "kin"
+  KIN_PADDING: 3 # for kin
+  KIN_KERNEL: "constant" #constant or gaussian
+```
+### Thumbnail instance normalization
+Please provide the path of the `THUMBNAIL`.
+```yaml
+INFERENCE_SETTING:
+  ...
+  NORMALIZATION: "tin"
+  THUMBNAIL: "./data/example/testX/thumbnail.png"
+```
+### Instance normalization
+Specification of `NORMALIZATION: in` is enough.
+```yaml
+INFERENCE_SETTING:
+  ...
+  NORMALIZATION: "in"
+```
+## Training framework options
+Besides `CUT`, `LSeSim` and `CycleGAN` are also provided.
+### CUT
+Has been described above.
+```yaml
+MODEL_NAME: "CUT"
+```
+### CycleGAN
+Specify in the `config.yaml`.
+```yaml
+MODEL_NAME: "cycleGAN"
+```
+### LSeSim
+Please use `F-LSeSim`, which is subtly modifed from the offical implementation.
+1. Training and testing data can be prepared in the current `./data/` where you might have already created during training other models. Duplicated work is not required.
+2. Move to `./F-LSeSim`.
+```
+cd ./F-LSeSim
+```
+3. Modify `--dataroot` and `--name` in `./scripts/train_sc.sh`.
+```script
+set -ex
+python train.py  \
+--dataroot ./../data/example/ \
+--name exampleL \
+...
+```
+4. Train the model
+```
+./scripts/train_sc.sh
+```
+
 ## Metrics
 ### FID
 Given two folders `pathA` and `pathB` that store the original and generated images within the same domain.
@@ -100,6 +158,8 @@ python3 metric.py --path-A $pathA1,$pathA2,... --path-B $pathB1,$pathB2,...
 ```
 ### No-Reference Blind Image Quality Assessment
 Please refer to the implementation of `NIQE` and `PIQE` calcuations in this [repo](https://github.com/buyizhiyou/NRVQA).
+
+## Training 
 
 ## Acknowledgement
 Besides our novel kernelized instance normalizatio module, we use [Contrastive Unpaired Translation](https://link.springer.com/chapter/10.1007/978-3-030-58545-7_19) as our backbone. Please refer to the official implementation [here](https://github.com/taesungp/contrastive-unpaired-translation). This code is a simplified version revised from [wilbertcaine's implementation](https://github.com/wilbertcaine/CUT).
