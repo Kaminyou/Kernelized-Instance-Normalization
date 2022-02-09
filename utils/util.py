@@ -161,5 +161,5 @@ class ImagePool():
 
 def is_blank_patch(image, s_thershold=10, thershold=0.08):
     hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    foreground_proportion = (hsv_image[..., 1]>s_thershold).sum()/hsv_image[..., 1].size
+    foreground_proportion = (hsv_image[..., 1] > s_thershold).sum() / hsv_image[..., 1].size
     return foreground_proportion < thershold
