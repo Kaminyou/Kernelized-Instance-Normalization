@@ -53,10 +53,10 @@ class LSeSim(BaseModel):
         self.normalization = normalization
 
         ###########################################################
-        self.netG = Generator(normalization=normalization).to(self.device)
+        self.G = Generator(normalization=normalization).to(self.device)
 
         if self.isTrain:
-            self.netD = Discriminator().to(self.device)
+            self.D = Discriminator().to(self.device)
 
             self.attn_layers = [int(i) for i in self.attn_layers.split(',')]
 
@@ -83,14 +83,14 @@ class LSeSim(BaseModel):
             self.normalization = Normalization(self.device)
 
             if self.learned_attn:
-                self.netF = self.criterionSpatial
+                self.F = self.criterionSpatial
                 self.model_names.append('F')
                 self.loss_names.append('spatial')
             else:
                 self.set_requires_grad([self.netPre], False)
             # initialize optimizers
-            self.optimizer_G = optim.Adam(itertools.chain(self.netG.parameters()), lr=0.0001, betas=(0.5, 0.999))
-            self.optimizer_D = optim.Adam(itertools.chain(self.netD.parameters()), lr=0.0001, betas=(0.5, 0.999))
+            self.optimizer_G = optim.Adam(itertools.chain(self.G.parameters()), lr=0.0001, betas=(0.5, 0.999))
+            self.optimizer_D = optim.Adam(itertools.chain(self.D.parameters()), lr=0.0001, betas=(0.5, 0.999))
             self.optimizers = [self.optimizer_G, self.optimizer_D]
 
     def Spatial_Loss(self, net, src, tgt, other=None):
@@ -128,7 +128,7 @@ class LSeSim(BaseModel):
     def forward(self):
         """Run forward pass"""
         self.real = torch.cat((self.real_A, self.real_B), dim=0) if (self.lambda_identity + self.lambda_spatial_idt > 0) and self.isTrain else self.real_A
-        self.fake = self.netG(self.real)
+        self.fake = self.G(self.real)
         self.fake_B = self.fake[:self.real_A.size(0)]
         if (self.lambda_identity + self.lambda_spatial_idt > 0) and self.isTrain:
             self.idt_B = self.fake[self.real_A.size(0):]
@@ -175,7 +175,7 @@ class LSeSim(BaseModel):
     def backward_D(self):
         """Calculate the GAN loss for discriminator"""
         fake_B = self.fake_B_pool.query(self.fake_B)
-        self.loss_D_A = self.backward_D_basic(self.netD, self.real_B, fake_B.detach())
+        self.loss_D_A = self.backward_D_basic(self.D, self.real_B, fake_B.detach())
     
     def backward_G(self):
         """Calculate the loss for generator G_A"""
@@ -185,7 +185,7 @@ class LSeSim(BaseModel):
         l_idt = self.lambda_identity
         l_spatial_idt = self.lambda_spatial_idt
         # GAN loss
-        self.loss_G_GAN = self.criterionGAN(self.netD(self.fake_B), True)
+        self.loss_G_GAN = self.criterionGAN(self.D(self.fake_B), True)
         # different structural loss
         norm_real_A = self.normalization((self.real_A + 1) * 0.5)
         norm_fake_B = self.normalization((self.fake_B + 1) * 0.5)
@@ -209,20 +209,20 @@ class LSeSim(BaseModel):
         # forward
         self.forward()
         if self.learned_attn:
-            self.set_requires_grad([self.netF, self.netPre], True)
+            self.set_requires_grad([self.F, self.netPre], True)
             self.optimizer_F.zero_grad()
             self.backward_F()
             self.optimizer_F.step()
         # D_A
-        self.set_requires_grad([self.netD], True)
+        self.set_requires_grad([self.D], True)
         self.optimizer_D.zero_grad()
         self.backward_D()
         self.optimizer_D.step()
         # G_A
-        self.set_requires_grad([self.netD], False)
+        self.set_requires_grad([self.D], False)
         self.optimizer_G.zero_grad()
         if self.learned_attn:
-            self.set_requires_grad([self.netF, self.netPre], False)
+            self.set_requires_grad([self.F, self.netPre], False)
         self.backward_G()
         self.optimizer_G.step()
    
@@ -243,7 +243,7 @@ class LSeSim(BaseModel):
             self.optimizer_G.zero_grad()
             if self.learned_attn:
                 self.optimizer_F = optim.Adam([{'params': list(filter(lambda p:p.requires_grad, self.netPre.parameters())), 'lr': 0.0001 * 0.0},
-                                               {'params': list(filter(lambda p:p.requires_grad, self.netF.parameters()))}],
+                                               {'params': list(filter(lambda p:p.requires_grad, self.F.parameters()))}],
                                                lr=0.0001, betas=(0.5, 0.999))
                 self.optimizers.append(self.optimizer_F)
                 self.optimizer_F.zero_grad()
@@ -260,14 +260,14 @@ class LSeSim(BaseModel):
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)
-            Y_fake, feature_map = self.netG.analyze_feature_map(X)
+            Y_fake, feature_map = self.G.analyze_feature_map(X)
         return Y_fake, feature_map
     
     def inference(self, X):
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)
-            Y_fake = self.netG(X)
+            Y_fake = self.G(X)
         return Y_fake
 
     def inference_with_anchor(self, X, y_anchor, x_anchor, padding):
@@ -275,7 +275,7 @@ class LSeSim(BaseModel):
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)
-            Y_fake = self.netG.forward_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+            Y_fake = self.G.forward_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
         return Y_fake
 
     def scheduler_step(self):
@@ -283,24 +283,24 @@ class LSeSim(BaseModel):
             scheduler.step()
 
     def init_thumbnail_instance_norm_for_whole_model(self):
-        init_thumbnail_instance_norm(self.netG)
+        init_thumbnail_instance_norm(self.G)
 
     def use_thumbnail_instance_norm_for_whole_model(self):
-        use_thumbnail_instance_norm(self.netG)
+        use_thumbnail_instance_norm(self.G)
     
     def not_use_thumbnail_instance_norm_for_whole_model(self):
-        not_use_thumbnail_instance_norm(self.netG)
+        not_use_thumbnail_instance_norm(self.G)
 
     def init_kernelized_instance_norm_for_whole_model(self, y_anchor_num, x_anchor_num, kernel=(torch.ones(1,1,3,3)/9)):
         init_kernelized_instance_norm(
-            self.netG, 
+            self.G, 
             y_anchor_num=y_anchor_num, 
             x_anchor_num=x_anchor_num, 
             kernel=kernel
         )
 
     def use_kernelized_instance_norm_for_whole_model(self, padding=1):
-        use_kernelized_instance_norm(self.netG, padding=padding)
+        use_kernelized_instance_norm(self.G, padding=padding)
     
     def not_use_kernelized_instance_norm_for_whole_model(self):
-        not_use_kernelized_instance_norm(self.netG)
+        not_use_kernelized_instance_norm(self.G)
