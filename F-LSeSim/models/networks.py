@@ -1,12 +1,14 @@
 from torch.optim import lr_scheduler
 from . import cyclegan_networks, stylegan_networks
+from models.generator import Generator
 
 
 ##################################################################################
 # Networks
 ##################################################################################
 def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, init_type='normal',
-             init_gain=0.02, no_antialias=False, no_antialias_up=False, gpu_ids=[], opt=None):
+             init_gain=0.02, no_antialias=False, no_antialias_up=False, gpu_ids=[], opt=None,
+             normalization="in"):
     """
     Create a generator
     :param input_nc: the number of channels in input images
@@ -26,7 +28,7 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
     norm_value = cyclegan_networks.get_norm_layer(norm)
 
     if netG == 'resnet_9blocks':
-        net = cyclegan_networks.ResnetGenerator(input_nc, output_nc, ngf, norm_value, use_dropout, n_blocks=9, no_antialias=no_antialias, no_antialias_up=no_antialias_up, opt=opt)
+        net = Generator(normalization=normalization)
     elif netG == 'stylegan2':
         net = stylegan_networks.StyleGAN2Generator(input_nc, output_nc, ngf, opt=opt)
     else:

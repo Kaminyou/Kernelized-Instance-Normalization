@@ -4,6 +4,12 @@ from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
 from . import losses
+from models.kin import (init_kernelized_instance_norm,
+                        not_use_kernelized_instance_norm,
+                        use_kernelized_instance_norm)
+from models.tin import (init_thumbnail_instance_norm,
+                        not_use_thumbnail_instance_norm,
+                        use_thumbnail_instance_norm)
 
 
 class SCModel(BaseModel):
@@ -36,7 +42,7 @@ class SCModel(BaseModel):
 
         return parser
 
-    def __init__(self, opt):
+    def __init__(self, opt, normalization_mode="in"):
         """
         Initialize the translation losses
         :param opt: stores all the experiment flags; needs to be a subclass of BaseOptions
@@ -50,7 +56,9 @@ class SCModel(BaseModel):
         self.model_names = ['G', 'D'] if self.isTrain else ['G']
         # define the networks
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm, not opt.no_dropout,
-                                opt.init_type, opt.init_gain, opt.no_antialias, opt.no_antialias_up, self.gpu_ids, opt)
+                                opt.init_type, opt.init_gain, opt.no_antialias, opt.no_antialias_up, self.gpu_ids, opt,
+                                normalization=normalization_mode)
+        self.normalization_mode = normalization_mode
 
         # define the training process
         if self.isTrain:
@@ -133,6 +141,21 @@ class SCModel(BaseModel):
         self.fake_B = self.fake[:self.real_A.size(0)]
         if (self.opt.lambda_identity + self.opt.lambda_spatial_idt > 0) and self.opt.isTrain:
             self.idt_B = self.fake[self.real_A.size(0):]
+    
+    def inference(self, X):
+        self.eval()
+        with torch.no_grad():
+            X = X.to(self.device)
+            Y_fake, _ = self.netG(X)
+        return Y_fake
+
+    def inference_with_anchor(self, X, y_anchor, x_anchor, padding):
+        assert self.normalization_mode == "kin"
+        self.eval()
+        with torch.no_grad():
+            X = X.to(self.device)
+            Y_fake = self.G.forward_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        return Y_fake
 
     def backward_F(self):
         """
@@ -246,3 +269,26 @@ class SCModel(BaseModel):
             self.criterionSpatial.update_init_()
 
         return total_loss / n_layers
+
+    def init_thumbnail_instance_norm_for_whole_model(self):
+        init_thumbnail_instance_norm(self.G)
+
+    def use_thumbnail_instance_norm_for_whole_model(self):
+        use_thumbnail_instance_norm(self.G)
+    
+    def not_use_thumbnail_instance_norm_for_whole_model(self):
+        not_use_thumbnail_instance_norm(self.G)
+
+    def init_kernelized_instance_norm_for_whole_model(self, y_anchor_num, x_anchor_num, kernel=(torch.ones(1,1,3,3)/9)):
+        init_kernelized_instance_norm(
+            self.G, 
+            y_anchor_num=y_anchor_num, 
+            x_anchor_num=x_anchor_num, 
+            kernel=kernel
+        )
+
+    def use_kernelized_instance_norm_for_whole_model(self, padding=1):
+        use_kernelized_instance_norm(self.G, padding=padding)
+    
+    def not_use_kernelized_instance_norm_for_whole_model(self):
+        not_use_kernelized_instance_norm(self.G)

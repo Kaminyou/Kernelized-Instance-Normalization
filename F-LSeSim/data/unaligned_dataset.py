@@ -8,6 +8,11 @@ from PIL import Image
 from data.base_dataset import BaseDataset, get_transform
 from data.image_folder import make_dataset
 
+def remove_file(files, file_name):
+    try:
+        files.remove(file_name)
+    except Exception:
+        pass
 
 class UnalignedDataset(BaseDataset):
     """

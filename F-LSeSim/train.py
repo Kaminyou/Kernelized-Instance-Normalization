@@ -39,7 +39,7 @@ if __name__ == '__main__':
     dataset_size = len(dataset)    # get the number of images in the dataset.
     print('The number of training images = %d' % dataset_size)
 
-    model = create_model(opt)      # create a model given opt.model and other options
+    model = create_model(opt, normalization_mode="in")      # create a model given opt.model and other options
 
     total_iters = 0                # the total number of training iterations
 
