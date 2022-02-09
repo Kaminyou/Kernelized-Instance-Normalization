@@ -80,6 +80,11 @@ class XInferenceDataset(Dataset):
             self.X_images.remove("thumbnail.png")
         except Exception:
             pass
+        
+        try:
+            self.X_images.remove("blank_patches_list.csv")
+        except Exception:
+            pass
             
         if self.return_anchor:
             self.__get_boundary()
