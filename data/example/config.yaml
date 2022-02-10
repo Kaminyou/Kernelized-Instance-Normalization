@@ -1,6 +1,6 @@
 EXPERIMENT_ROOT_PATH: "/home/kaminyouho/URUST/experiments/"
-EXPERIMENT_NAME: "example_LSeSim"
-MODEL_NAME: "LSeSim" # currently only CUT, cycleGAN, and LSeSim are support
+EXPERIMENT_NAME: "example_cycleGAN2"
+MODEL_NAME: "cycleGAN" # currently only CUT, cycleGAN, and LSeSim are support
 DEVICE: "cuda"
 
 CROPPING_SETTING:
@@ -15,10 +15,11 @@ CROPPING_SETTING:
 
 TRAINING_SETTING:
   PAIRED_TRAINING: False
+  RANDOM_CROP_AUG: False
   TRAIN_ROOT: "/home/kaminyouho/URUST/data/example/"
   TRAIN_DIR_X: "/home/kaminyouho/URUST/data/example/trainX/"
   TRAIN_DIR_Y: "/home/kaminyouho/URUST/data/example/trainY/"
-  NUM_EPOCHS: 200
+  NUM_EPOCHS: 100
   LAMBDA_Y: 1
   LEARNING_RATE: 0.0002
   BATCH_SIZE: 1
