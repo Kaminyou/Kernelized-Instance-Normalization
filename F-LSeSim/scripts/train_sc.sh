@@ -22,7 +22,7 @@ if [ "$mode" = "LSeSim" ]; then
         --learned_attn \
         --augment
     else
-            set -ex
+        set -ex
         python train.py  \
         --dataroot $data \
         --name $exp \
