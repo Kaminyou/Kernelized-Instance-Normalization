@@ -9,7 +9,8 @@ def get_model(config, model_name="CUT", normalization="in", isTrain=True):
     elif model_name == "cycleGAN":
         model = CycleGanModel(config, normalization=normalization)
     elif model_name == "LSeSim":
-        model = LSeSim(config, normalization=normalization, isTrain=isTrain)
+        print("Please use the scripts prepared in the F-LSeSim folder")
+        raise NotImplementedError
     else:
         raise NotImplementedError
     return model

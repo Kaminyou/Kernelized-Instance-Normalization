@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
 
-from utils.util import transforms, transforms_aug
+from utils.util import get_transforms
 
 
 def remove_file(files, file_name):
@@ -145,7 +145,7 @@ def get_dataset(config):
             root_X=config["TRAINING_SETTING"]["TRAIN_DIR_X"], 
             root_Y=config["TRAINING_SETTING"]["TRAIN_DIR_Y"], 
             paired=config["TRAINING_SETTING"]["PAIRED_TRAINING"],
-            transform=transforms
+            transform=get_transforms(random_crop=config["TRAINING_SETTING"]["RANDOM_CROP_AUG"], augment=False)
         )
     else:
         dataset = XYDataset(
@@ -154,7 +154,7 @@ def get_dataset(config):
             paired=config["TRAINING_SETTING"]["PAIRED_TRAINING"],
             transform=transforms,
             augment=config["TRAINING_SETTING"]["Augment"],
-            transform_aug=transforms_aug
+            transform_aug=get_transforms(random_crop=True, augment=True)
         )
 
     return dataset

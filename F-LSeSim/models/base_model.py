@@ -1,7 +1,9 @@
 import os
-import torch
-from collections import OrderedDict
 from abc import ABC, abstractmethod
+from collections import OrderedDict
+
+import torch
+
 from . import networks
 
 
@@ -207,7 +209,12 @@ class BaseModel(ABC):
                 # patch InstanceNorm checkpoints prior to 0.4
                 for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop
                     self.__patch_instance_norm_state_dict(state_dict, net, key.split('.'))
-                net.load_state_dict(state_dict)
+                
+                model_dict = net.state_dict()
+                state_dict = {k: v for k, v in state_dict.items() if k in model_dict}
+                model_dict.update(state_dict)
+
+                net.load_state_dict(model_dict)
 
     def print_networks(self, verbose):
         """Print the total number of parameters in the network and (if verbose) network architecture

@@ -16,26 +16,28 @@ def gkern(kernlen=1, std=3):
     gkern2d = np.outer(gkern1d, gkern1d)
     return gkern2d
 
-transforms = A.Compose(
-    [
-        A.Resize(width=512, height=512),
-        A.HorizontalFlip(p=0.5),
-        A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
-        ToTensorV2(),
-    ],
-    additional_targets={"image0": "image"},
-)
+def get_transforms(random_crop=False, augment=False):
+    transforms_list = []
+    
+    if random_crop:
+        transforms_list.append(A.Resize(width=572, height=572, interpolation=cv2.INTER_CUBIC))
+        transforms_list.append(A.RandomCrop(width=512, height=512))
+    else:
+        transforms_list.append(A.Resize(width=512, height=512))
+    
+    transforms_list.append(A.HorizontalFlip(p=0.5))
+    
+    if augment:
+        transforms_list.append(A.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2))
 
-transforms_aug = A.Compose(
-    [
-        A.Resize(width=512, height=512),
-        A.HorizontalFlip(p=0.5),
-        A.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
-        A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
-        ToTensorV2(),
-    ],
-    additional_targets={"image0": "image"},
-)
+    transforms_list.append(A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255))
+    transforms_list.append(ToTensorV2())
+
+    transforms = A.Compose(
+        transforms_list,
+        additional_targets={"image0": "image"},
+    )
+    return transforms
 
 test_transforms = A.Compose(
     [

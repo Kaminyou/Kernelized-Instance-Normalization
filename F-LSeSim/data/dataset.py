@@ -2,12 +2,20 @@ import os
 import random
 from pathlib import Path
 
+import albumentations as A
 import numpy as np
+from albumentations.pytorch import ToTensorV2
 from PIL import Image
 from torch.utils.data import Dataset
 
-from utils.util import transforms, transforms_aug
-
+test_transforms = A.Compose(
+    [
+        A.Resize(width=512, height=512),
+        A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
+        ToTensorV2(),
+    ],
+    additional_targets={"image0": "image"},
+)
 
 def remove_file(files, file_name):
     try:

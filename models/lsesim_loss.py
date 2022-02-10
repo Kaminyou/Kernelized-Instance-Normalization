@@ -505,7 +505,7 @@ def init_net(net, init_type='normal', init_gain=0.02, debug=False, initialize_we
         init_weights(net, init_type, init_gain=init_gain, debug=debug)
     return net
 
-def init_weights(net, init_type='normal', init_gain=0.02, debug=False):
+def init_weights(net, init_type='xavier', init_gain=0.02, debug=False):
     """Initialize network weights.
     Parameters:
         net (network)   -- network to be initialized
