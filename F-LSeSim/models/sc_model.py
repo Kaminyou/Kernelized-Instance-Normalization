@@ -1,15 +1,17 @@
-import torch
 import itertools
+
+import torch
 from util.image_pool import ImagePool
-from .base_model import BaseModel
-from . import networks
-from . import losses
+
 from models.kin import (init_kernelized_instance_norm,
                         not_use_kernelized_instance_norm,
                         use_kernelized_instance_norm)
 from models.tin import (init_thumbnail_instance_norm,
                         not_use_thumbnail_instance_norm,
                         use_thumbnail_instance_norm)
+
+from . import losses, networks
+from .base_model import BaseModel
 
 
 class SCModel(BaseModel):
@@ -154,7 +156,7 @@ class SCModel(BaseModel):
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)
-            Y_fake = self.G.forward_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+            Y_fake = self.netG.forward_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
         return Y_fake
 
     def backward_F(self):
@@ -271,24 +273,24 @@ class SCModel(BaseModel):
         return total_loss / n_layers
 
     def init_thumbnail_instance_norm_for_whole_model(self):
-        init_thumbnail_instance_norm(self.G)
+        init_thumbnail_instance_norm(self.netG)
 
     def use_thumbnail_instance_norm_for_whole_model(self):
-        use_thumbnail_instance_norm(self.G)
+        use_thumbnail_instance_norm(self.netG)
     
     def not_use_thumbnail_instance_norm_for_whole_model(self):
-        not_use_thumbnail_instance_norm(self.G)
+        not_use_thumbnail_instance_norm(self.netG)
 
     def init_kernelized_instance_norm_for_whole_model(self, y_anchor_num, x_anchor_num, kernel=(torch.ones(1,1,3,3)/9)):
         init_kernelized_instance_norm(
-            self.G, 
+            self.netG, 
             y_anchor_num=y_anchor_num, 
             x_anchor_num=x_anchor_num, 
             kernel=kernel
         )
 
     def use_kernelized_instance_norm_for_whole_model(self, padding=1):
-        use_kernelized_instance_norm(self.G, padding=padding)
+        use_kernelized_instance_norm(self.netG, padding=padding)
     
     def not_use_kernelized_instance_norm_for_whole_model(self):
-        not_use_kernelized_instance_norm(self.G)
+        not_use_kernelized_instance_norm(self.netG)
