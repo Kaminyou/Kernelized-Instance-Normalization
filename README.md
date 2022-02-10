@@ -115,7 +115,7 @@ INFERENCE_SETTING:
   NORMALIZATION: "in"
 ```
 ## Training framework options
-Besides `CUT`, `LSeSim` and `CycleGAN` are also provided.
+Besides `CUT`, `LSeSim` and `CycleGAN` are also provided. For each experiment, you should rename `EXPERIMENT_NAME` to avoid overwritting.
 ### CUT
 Has been described above.
 ```yaml
@@ -129,22 +129,36 @@ MODEL_NAME: "cycleGAN"
 ### LSeSim
 Please use `F-LSeSim`, which is subtly modifed from the offical implementation.
 1. Training and testing data can be prepared in the current `./data/` where you might have already created during training other models. Duplicated work is not required.
-2. Move to `./F-LSeSim`.
+2. Modify your `config.yaml`. Please set `Augment` to `True` for `L-LSeSim` or `False` for `F-LSeSim`. 
+```yaml
+MODEL_NAME: "LSeSim"
+...
+TRAINING_SETTING:
+  Augment: True #LSeSim
+```
+3. Move to `./F-LSeSim`.
 ```
 cd ./F-LSeSim
 ```
-3. Modify `--dataroot` and `--name` in `./scripts/train_sc.sh`.
+4. Run script
 ```script
-set -ex
-python train.py  \
---dataroot ./../data/example/ \
---name exampleL \
-...
+./scripts/train_sc.sh $path_to_yaml
 ```
-4. Train the model
+- e.g.
+```script
+./scripts/train_sc.sh ./../data/example/config.yaml
 ```
-./scripts/train_sc.sh
+- Then the model weights and generated samples will be in `./F-LSeSim/checkpoints/$EXPERIMENT_NAME`
+5. Inference
+```script
+./scripts/transfer_sc.sh $path_to_yaml
 ```
+- e.g.
+```script
+./scripts/train_sc.sh ./../data/example/config.yaml
+```
+- The generated images will be in `./experiments/$EXPERIMENT_NAME`
+
 
 ## Metrics
 ### FID
