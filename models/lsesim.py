@@ -31,15 +31,15 @@ class LSeSim(BaseModel):
         self.patch_size = 64
         self.loss_mode = 'cos'
         self.use_norm = True #
-        self.learned_attn = True
-        self.augment = True
+        self.learned_attn = False ##
+        self.augment = False ##
         self.T = 0.07
         self.lambda_spatial = 10.0
         self.lambda_spatial_idt = 0.0
         self.lambda_perceptual = 0.0
         self.lambda_style = 0.0
         self.lambda_identity = 0.0
-        self.lambda_gradient = 0.1
+        self.lambda_gradient = 0.0
         
         self.gan_mode = 'lsgan'
         self.pool_size = 50

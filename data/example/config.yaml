@@ -1,27 +1,28 @@
-EXPERIMENT_ROOT_PATH: "./experiments/"
+EXPERIMENT_ROOT_PATH: "/home/kaminyouho/URUST/experiments/"
 EXPERIMENT_NAME: "example_LSeSim"
 MODEL_NAME: "LSeSim" # currently only CUT, cycleGAN, and LSeSim are support
 DEVICE: "cuda"
 
 CROPPING_SETTING:
-  TRAIN_X: "./data/example/HE_cropped.jpg"
-  TRAIN_DIR_X: "./data/example/trainX/"
-  TRAIN_Y: "./data/example/ER_cropped.jpg"
-  TRAIN_DIR_Y: "./data/example/trainY/"
-  TEST_X: "./data/example/HE_cropped.jpg"
-  TEST_DIR_X: "./data/example/testX/"
+  TRAIN_X: "/home/kaminyouho/URUST/data/example/HE_cropped.jpg"
+  TRAIN_DIR_X: "/home/kaminyouho/URUST/data/example/trainX/"
+  TRAIN_Y: "/home/kaminyouho/URUST/data/example/ER_cropped.jpg"
+  TRAIN_DIR_Y: "/home/kaminyouho/URUST/data/example/trainY/"
+  TEST_X: "/home/kaminyouho/URUST/data/example/HE_cropped.jpg"
+  TEST_DIR_X: "/home/kaminyouho/URUST/data/example/testX/"
   PATCH_SIZE: 512
   STRIDE: 256
 
 TRAINING_SETTING:
   PAIRED_TRAINING: False
-  TRAIN_DIR_X: "./data/example/trainX/"
-  TRAIN_DIR_Y: "./data/example/trainY/"
+  TRAIN_ROOT: "/home/kaminyouho/URUST/data/example/"
+  TRAIN_DIR_X: "/home/kaminyouho/URUST/data/example/trainX/"
+  TRAIN_DIR_Y: "/home/kaminyouho/URUST/data/example/trainY/"
   NUM_EPOCHS: 200
   LAMBDA_Y: 1
   LEARNING_RATE: 0.0002
   BATCH_SIZE: 1
-  NUM_WORKERS: 4
+  NUM_WORKERS: 8
   SAVE_MODEL: true
   SAVE_MODEL_EPOCH_STEP: 10
   VISUALIZATION_STEP: 250
@@ -30,11 +31,11 @@ TRAINING_SETTING:
   Augment: True #LSeSim
 
 INFERENCE_SETTING:
-  TEST_X: "./data/example/HE_cropped.jpg"
-  TEST_DIR_X: "./data/example/testX/"
-  MODEL_VERSION: "30"
+  TEST_X: "/home/kaminyouho/URUST/data/example/HE_cropped.jpg"
+  TEST_DIR_X: "/home/kaminyouho/URUST/data/example/testX/"
+  MODEL_VERSION: "10"
   SAVE_ORIGINAL_IMAGE: False
-  NORMALIZATION: "in"
-  THUMBNAIL: "./data/example/testX/thumbnail.png" #"None" # set to "None" if it's not required
+  NORMALIZATION: "kin"
+  THUMBNAIL: "/home/kaminyouho/URUST/data/example/testX/thumbnail.png" #"None" # set to "None" if it's not required
   KIN_PADDING: 3 # for kin
   KIN_KERNEL: "constant" #constant or gaussian
