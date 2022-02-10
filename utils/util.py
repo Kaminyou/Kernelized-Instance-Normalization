@@ -18,7 +18,8 @@ def gkern(kernlen=1, std=3):
 
 transforms = A.Compose(
     [
-        A.Resize(width=512, height=512),
+        A.Resize(width=572, height=572, interpolation=cv2.INTER_CUBIC),
+        A.RandomCrop(width=512, height=512),
         A.HorizontalFlip(p=0.5),
         A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
         ToTensorV2(),
@@ -28,7 +29,8 @@ transforms = A.Compose(
 
 transforms_aug = A.Compose(
     [
-        A.Resize(width=512, height=512),
+        A.Resize(width=572, height=572, interpolation=cv2.INTER_CUBIC),
+        A.RandomCrop(width=512, height=512),
         A.HorizontalFlip(p=0.5),
         A.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
         A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),

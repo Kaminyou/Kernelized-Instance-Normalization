@@ -3,11 +3,12 @@
 It also includes common transformation functions (e.g., get_transform, __scale_width), which can be later used in subclasses.
 """
 import random
+from abc import ABC, abstractmethod
+
 import numpy as np
 import torch.utils.data as data
-from PIL import Image
 import torchvision.transforms as transforms
-from abc import ABC, abstractmethod
+from PIL import Image
 
 
 class BaseDataset(data.Dataset, ABC):
@@ -128,6 +129,7 @@ def get_transform(opt, params=None, grayscale=False, method=Image.BICUBIC, conve
             transform_list += [transforms.Normalize((0.5,), (0.5,))]
         else:
             transform_list += [transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+    print(transform_list)
     return transforms.Compose(transform_list)
 
 
