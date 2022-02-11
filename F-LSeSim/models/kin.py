@@ -171,7 +171,7 @@ if __name__ == "__main__":
 
     kin = KernelizedInstanceNorm(out_channels=3)
     kin.eval()
-    init_kernelized_instance_norm(kin, y_anchor_num=10, x_anchor_num=10, kernel=torch.ones(3,3))
+    init_kernelized_instance_norm(kin, y_anchor_num=10, x_anchor_num=10, kernel=torch.ones(1,1,3,3))
 
     for (x, y_anchor, x_anchor) in test_dataloader:
         kin(x, y_anchor=y_anchor, x_anchor=x_anchor)
