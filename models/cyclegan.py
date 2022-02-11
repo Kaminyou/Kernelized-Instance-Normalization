@@ -189,24 +189,24 @@ class CycleGanModel(BaseModel):
         self.scheduler_D_Y.step()
         
     def init_thumbnail_instance_norm_for_whole_model(self):
-        init_thumbnail_instance_norm(self.G)
+        init_thumbnail_instance_norm(self.G_X2Y)
 
     def use_thumbnail_instance_norm_for_whole_model(self):
-        use_thumbnail_instance_norm(self.G)
+        use_thumbnail_instance_norm(self.G_X2Y)
     
     def not_use_thumbnail_instance_norm_for_whole_model(self):
-        not_use_thumbnail_instance_norm(self.G)
+        not_use_thumbnail_instance_norm(self.G_X2Y)
 
     def init_kernelized_instance_norm_for_whole_model(self, y_anchor_num, x_anchor_num, kernel=(torch.ones(1,1,3,3)/9)):
         init_kernelized_instance_norm(
-            self.G, 
+            self.G_X2Y, 
             y_anchor_num=y_anchor_num, 
             x_anchor_num=x_anchor_num, 
             kernel=kernel
         )
 
     def use_kernelized_instance_norm_for_whole_model(self, padding=1):
-        use_kernelized_instance_norm(self.G, padding=padding)
+        use_kernelized_instance_norm(self.G_X2Y, padding=padding)
     
     def not_use_kernelized_instance_norm_for_whole_model(self):
-        not_use_kernelized_instance_norm(self.G)
+        not_use_kernelized_instance_norm(self.G_X2Y)
