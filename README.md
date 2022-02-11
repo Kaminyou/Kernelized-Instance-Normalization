@@ -155,7 +155,7 @@ cd ./F-LSeSim
 ```
 - e.g.
 ```script
-./scripts/train_sc.sh ./../data/example/config.yaml
+./scripts/transfer_sc.sh ./../data/example/config.yaml
 ```
 - The generated images will be in `./experiments/$EXPERIMENT_NAME`
 
