@@ -28,8 +28,8 @@ class CycleGanModel(BaseModel):
         self.normalization = normalization
         # Discrimnator would not be used during inference, 
         # so specification of instane normalization is not required
-        self.G_X2Y = Generator().to(self.device)
-        self.G_Y2X = Generator().to(self.device) 
+        self.G_X2Y = Generator(normalization=normalization).to(self.device)
+        self.G_Y2X = Generator(normalization=normalization).to(self.device) 
         self.D_X = Discriminator(avg_pooling=True).to(self.device)
         self.D_Y = Discriminator(avg_pooling=True).to(self.device)
 
