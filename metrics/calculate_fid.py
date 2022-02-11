@@ -22,6 +22,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import csv
 import os
 import pathlib
 
@@ -197,7 +198,7 @@ def calculate_activation_statistics(files, model, batch_size=50, dims=2048,
 
 
 def compute_statistics_of_path(paths, model, batch_size, dims, device,
-                               num_workers=1):
+                               num_workers=1, blank_pathes_list=None):
     # if a precomputed .npz is given, only one path in paths is allowed
     if paths[0].endswith('.npz'):
         assert len(paths) == 1, f"npz file was given but multiple paths of {paths} were found"
@@ -210,13 +211,30 @@ def compute_statistics_of_path(paths, model, batch_size, dims, device,
             files += [file for ext in IMAGE_EXTENSIONS
                       for file in path.glob('*.{}'.format(ext))]
         files.sort()
+        if blank_pathes_list is not None:
+            non_blank_pathes_list = []
+            with open(blank_pathes_list, 'r') as f:
+                csvreader = csv.reader(f)
+                for row in csvreader:
+                    image_name = row[0]
+                    is_blank = row[1]
+                    if not eval(is_blank):
+                        non_blank_pathes_list.append(image_name)
+            non_blank_files = []
+            for file in files:
+                file_ext = file.suffix
+                file_stem = file.stem
+                if file_stem.split('_Y_fake')[0] + file_ext in non_blank_pathes_list:
+                    non_blank_files.append(file)
+            files = non_blank_files
+
         m, s = calculate_activation_statistics(files, model, batch_size,
                                                dims, device, num_workers)
 
     return m, s
 
 
-def calculate_fid_given_two_paths(path_As, path_Bs, batch_size, device, dims, num_workers=1):
+def calculate_fid_given_two_paths(path_As, path_Bs, batch_size, device, dims, num_workers=1, blank_pathes_list=None):
     """Calculates the FID of two paths"""
     for p in path_As:
         if not os.path.exists(p):
@@ -230,9 +248,9 @@ def calculate_fid_given_two_paths(path_As, path_Bs, batch_size, device, dims, nu
     model = InceptionV3([block_idx]).to(device)
 
     m1, s1 = compute_statistics_of_path(path_As, model, batch_size,
-                                        dims, device, num_workers)
+                                        dims, device, num_workers, blank_pathes_list)
     m2, s2 = compute_statistics_of_path(path_Bs, model, batch_size,
-                                        dims, device, num_workers)
+                                        dims, device, num_workers, blank_pathes_list)
     fid_value = calculate_frechet_distance(m1, s1, m2, s2)
 
     return fid_value
