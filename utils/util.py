@@ -75,9 +75,9 @@ def get_kernel(padding=1, gaussian_std=3, mode="constant"):
         kernel = kernel / (kernel_size * kernel_size)
 
     elif mode == "gaussian":
-        kernel = gkern(kernel_size, std=gaussian_std)
+        kernel = np.expand_dims(gkern(kernel_size, std=gaussian_std), axis=(0, 1))
         kernel = kernel / kernel.sum()
-        kernel = torch.from_numpy(kernel)
+        kernel = torch.from_numpy(kernel.astype(np.float32))
     
     else:
         raise NotImplementedError
