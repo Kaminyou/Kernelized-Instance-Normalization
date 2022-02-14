@@ -161,15 +161,31 @@ cd ./F-LSeSim
 
 
 ## Metrics
-### FID
-Given two folders `pathA` and `pathB` that store the original and generated images within the same domain.
+### For two distributions
+Given two folders `pathA` and `pathB` that store the original and generated images within the same domain, following metrics will be calculated. 
+- FID
 ```
-python3 metric.py --path-A $pathA --path-B $pathB
+python3 metric_images_with_ref.py --path-A $pathA --path-B $pathB
 ```
-If images are stored in multiple folders, please concatenate those paths with delimiters of `,`.
+**If images are stored in multiple folders, please concatenate those paths with delimiters of `,`**.
 ```
-python3 metric.py --path-A $pathA1,$pathA2,... --path-B $pathB1,$pathB2,...
+python3 metric_images_with_ref.py --path-A $pathA1,$pathA2,... --path-B $pathB1,$pathB2,...
 ```
+### For two whole images
+- Histogram correlation
+```
+python3 metric_whole_image_with_ref.py --image_A_path $path_to_ref_image --image_B_path $path_to_compared_image
+```
+### For single whole image (NO REFERENCE)
+- Sobel gradient
+- NIQE
+- PIQE
+```
+python3 metric_whole_image_no_ref.py --path $image_path
+```
+
+
+
 ### No-Reference Blind Image Quality Assessment
 Please refer to the implementation of `NIQE` and `PIQE` calcuations in this [repo](https://github.com/buyizhiyou/NRVQA).
 
