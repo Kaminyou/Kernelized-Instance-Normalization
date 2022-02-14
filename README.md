@@ -189,7 +189,15 @@ python3 metric_whole_image_no_ref.py --path $image_path
 ### No-Reference Blind Image Quality Assessment
 Please refer to the implementation of `NIQE` and `PIQE` calcuations in this [repo](https://github.com/buyizhiyou/NRVQA).
 
-## Training 
+## Prove of concept
+Script has been provided to visualize the relationship between thumbnail's features and patches' features, which shows that the concept using the same mean and variance calcuated from the thumbnail is incorrect and patches nearby each other share similar features.
+![concept](./imgs/proof_of_concept.png)
+Please specify the image that would be tested in the `inference` part of `config.yaml`. Then:
+```
+python3 appendix/proof_of_concept.py -c $path_to_config_file
+```
+Generated images would be saved in `./proof_of_concept/`
+ 
 
 ## Acknowledgement
 Besides our novel kernelized instance normalizatio module, we use [Contrastive Unpaired Translation](https://link.springer.com/chapter/10.1007/978-3-030-58545-7_19) as our backbone. Please refer to the official implementation [here](https://github.com/taesungp/contrastive-unpaired-translation). This code is a simplified version revised from [wilbertcaine's implementation](https://github.com/wilbertcaine/CUT).
