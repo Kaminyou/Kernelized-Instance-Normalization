@@ -38,10 +38,17 @@ def main():
 
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])
 
-    save_path_base = os.path.join(
+    save_path_root = os.path.join(
         config["EXPERIMENT_ROOT_PATH"], 
         config["EXPERIMENT_NAME"], 
-        "test", 
+        "test"
+    )
+
+    if "OVERWRITE_OUTPUT_PATH" in config["INFERENCE_SETTING"] and config["INFERENCE_SETTING"]["OVERWRITE_OUTPUT_PATH"] != "":
+        save_path_root = config["INFERENCE_SETTING"]["OVERWRITE_OUTPUT_PATH"]
+
+    save_path_base = os.path.join(
+        save_path_root,
         config["INFERENCE_SETTING"]["NORMALIZATION"], 
         config["INFERENCE_SETTING"]["MODEL_VERSION"]
     )

@@ -24,10 +24,16 @@ def main():
 
     config = read_yaml_config(args.config)
 
-    path_base =  os.path.join(
+    path_root = os.path.join(
         config["EXPERIMENT_ROOT_PATH"], 
         config["EXPERIMENT_NAME"], 
-        "test", 
+        "test"
+    )
+    if "OVERWRITE_OUTPUT_PATH" in config["INFERENCE_SETTING"] and config["INFERENCE_SETTING"]["OVERWRITE_OUTPUT_PATH"] != "":
+        path_root = config["INFERENCE_SETTING"]["OVERWRITE_OUTPUT_PATH"]
+
+    path_base = os.path.join(
+        path_root, 
         config['INFERENCE_SETTING']["NORMALIZATION"],
         config['INFERENCE_SETTING']["MODEL_VERSION"]
     )
@@ -72,9 +78,7 @@ def main():
     matrix_image = Image.fromarray(matrix)
     matrix_image.save(
         os.path.join(
-            config["EXPERIMENT_ROOT_PATH"], 
-            config["EXPERIMENT_NAME"], 
-            "test",
+            path_root,
             combined_image_name
         )
     )
