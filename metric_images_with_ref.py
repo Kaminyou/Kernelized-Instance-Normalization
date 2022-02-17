@@ -30,12 +30,14 @@ parser.add_argument('--path-B', type=str,
                           'to .npz statistic files. '
                           'Support multiple paths by using:'
                           'path_a1,path_a2,path_a3 ... seperated by ",". '))
-parser.add_argument('--blank_patches_list', type=str, default=None, required=False, 
+parser.add_argument('--blank_patches_list_A', type=str, default=None, required=False, 
+                    help='Paths to the lsit of blank patches')
+parser.add_argument('--blank_patches_list_B', type=str, default=None, required=False, 
                     help='Paths to the lsit of blank patches')
 
 def main():
     args = parser.parse_args()
-    print('Exp.: ', args.exp_name)
+    #print('Exp.: ', args.exp_name)
     if args.device is None:
         device = torch.device('cuda' if (torch.cuda.is_available()) else 'cpu')
     else:
@@ -56,8 +58,9 @@ def main():
                                               device,
                                               args.dims,
                                               num_workers,
-                                              args.blank_patches_list)
-    print('FID: ', fid_value)
+                                              args.blank_patches_list_A,
+                                              args.blank_patches_list_B)
+    print(f'Exp::{args.exp_name}:: || FID: {fid_value:.4f}')
 
 if __name__ == '__main__':
     main()

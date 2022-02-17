@@ -234,7 +234,7 @@ def compute_statistics_of_path(paths, model, batch_size, dims, device,
     return m, s
 
 
-def calculate_fid_given_two_paths(path_As, path_Bs, batch_size, device, dims, num_workers=1, blank_pathes_list=None):
+def calculate_fid_given_two_paths(path_As, path_Bs, batch_size, device, dims, num_workers=1, blank_pathes_list_A=None, blank_pathes_list_B=None):
     """Calculates the FID of two paths"""
     for p in path_As:
         if not os.path.exists(p):
@@ -248,9 +248,9 @@ def calculate_fid_given_two_paths(path_As, path_Bs, batch_size, device, dims, nu
     model = InceptionV3([block_idx]).to(device)
 
     m1, s1 = compute_statistics_of_path(path_As, model, batch_size,
-                                        dims, device, num_workers, blank_pathes_list)
+                                        dims, device, num_workers, blank_pathes_list_A)
     m2, s2 = compute_statistics_of_path(path_Bs, model, batch_size,
-                                        dims, device, num_workers, blank_pathes_list)
+                                        dims, device, num_workers, blank_pathes_list_B)
     fid_value = calculate_frechet_distance(m1, s1, m2, s2)
 
     return fid_value
