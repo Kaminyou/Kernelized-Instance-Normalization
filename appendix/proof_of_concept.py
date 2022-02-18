@@ -122,9 +122,10 @@ def main():
         ax2.set_xlabel("Cosine similarity")
         ax2.set_ylabel("# of patches")
         if not "resnetblock" in key1:
-            plt.savefig(os.path.join(args.output, f"thumbnail_with_patch_{key1.split('_')[0]}"))
+            plt.savefig(os.path.join(args.output, f"thumbnail_with_patch_{key1.split('_')[0]}"), bbox_inches = 'tight')
         else:
-            plt.savefig(os.path.join(args.output, f"thumbnail_with_patch_{key1.rsplit('_', 2)[0]}"))
+            plt.savefig(os.path.join(args.output, f"thumbnail_with_patch_{key1.rsplit('_', 2)[0]}"), bbox_inches = 'tight')
+        plt.close('all')
 
     # others with others
     print("Calculating patches v.s. patches")
@@ -163,9 +164,74 @@ def main():
         ax2.set_xlabel("Distance")
         ax2.set_ylabel("Cosine similarity")
         if not "resnetblock" in key1:
-            plt.savefig(os.path.join(args.output, f"patch_with_patch_{key1.split('_')[0]}"))
+            plt.savefig(os.path.join(args.output, f"patch_with_patch_{key1.split('_')[0]}"), bbox_inches = 'tight')
         else:
-            plt.savefig(os.path.join(args.output, f"patch_with_patch_{key1.rsplit('_', 2)[0]}"))
+            plt.savefig(os.path.join(args.output, f"patch_with_patch_{key1.rsplit('_', 2)[0]}"), bbox_inches = 'tight')
+        plt.close('all')
+    
+    # others with others (lineplot)
+    colors = ["#4A5FAB", "#609F5C", "#E3C454", "#A27CBA", "#B85031"]
+    ## block1 mean
+    plt.figure(figsize=(10,4))
+    for key1 in list(cos_sim_dict.keys())[0::2]:
+        if "block1" in key1:
+            value1 = np.array(cos_sim_dict[key1])
+            value1 = value1[value1[:,0] <= 10]
+            df = pd.DataFrame({"Distance (pixel)":value1[:,0] * 512, "Cosine similarity between μ(X)":value1[:,1]})
+            sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between μ(X)", label=key1.split("_")[0], color=colors[0])
+            break
+    plt.grid()
+    plt.savefig(os.path.join(args.output, f"patch_with_patch_lineplot_{key1.split('_')[0]}_mean"), bbox_inches='tight')
+    plt.close('all')
+
+    ## block1 std
+    plt.figure(figsize=(10,4))
+    for key2 in list(cos_sim_dict.keys())[1::2]:
+        if "block1" in key2:
+            value2 = np.array(cos_sim_dict[key2])
+            value2 = value2[value2[:,0] <= 10]
+            df = pd.DataFrame({"Distance (pixel)":value2[:,0] * 512, "Cosine similarity between σ(X)":value2[:,1]})
+            sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between σ(X)", label=key2.split("_")[0], color=colors[0])
+            break
+    plt.grid()
+    plt.savefig(os.path.join(args.output, f"patch_with_patch_lineplot_{key2.split('_')[0]}_std"), bbox_inches='tight')
+    plt.close('all')
+
+    ## other blocks mean
+    plt.figure(figsize=(10,4))
+    idx = 1
+    for key1 in list(cos_sim_dict.keys())[0::2]:
+        if "resnetblock" in key1: continue
+        if "block1" in key1: continue
+        
+        value1 = np.array(cos_sim_dict[key1])
+
+        # filter those are far away
+        value1 = value1[value1[:,0] <= 10]
+        df = pd.DataFrame({"Distance (pixel)":value1[:,0] * 512, "Cosine similarity between μ(X)":value1[:,1]})
+        sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between μ(X)", label=key1.split("_")[0], color=colors[idx])
+        idx += 1
+    plt.grid()
+    plt.savefig(os.path.join(args.output, f"patch_with_patch_lineplot_blocks_mean"), bbox_inches='tight')
+    plt.close('all')
+
+    ## other blocks std
+    plt.figure(figsize=(10,4))
+    idx = 1
+    for key2 in list(cos_sim_dict.keys())[1::2]:
+        if "resnetblock" in key2: continue
+        if "block1" in key2: continue
+
+        value2 = np.array(cos_sim_dict[key2])
+
+        # filter those are far away
+        value2 = value2[value2[:,0] <= 10]
+        df = pd.DataFrame({"Distance (pixel)":value2[:,0] * 512, "Cosine similarity between σ(X)":value2[:,1]})
+        sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between σ(X)", label=key2.split("_")[0], color=colors[idx])
+        idx += 1
+    plt.grid()
+    plt.savefig(os.path.join(args.output, f"patch_with_patch_lineplot_blocks_std"), bbox_inches='tight')
+    plt.close('all')
 
 if __name__ == "__main__":
     main()
