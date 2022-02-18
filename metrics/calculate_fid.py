@@ -33,13 +33,6 @@ from PIL import Image
 from scipy import linalg
 from torch.nn.functional import adaptive_avg_pool2d
 
-try:
-    from tqdm import tqdm
-except ImportError:
-    # If tqdm is not available, provide a mock version of it
-    def tqdm(x):
-        return x
-
 from metrics.inception import InceptionV3
 
 IMAGE_EXTENSIONS = {'bmp', 'jpg', 'jpeg', 'pgm', 'png', 'ppm',
@@ -99,7 +92,7 @@ def get_activations(files, model, batch_size=50, dims=2048, device='cpu',
 
     start_idx = 0
 
-    for batch in tqdm(dataloader):
+    for batch in dataloader:
         batch = batch.to(device)
 
         with torch.no_grad():
