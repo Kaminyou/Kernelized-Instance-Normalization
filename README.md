@@ -1,6 +1,6 @@
 # URUST: Ultra-resolution unpaired stain transformation via Kernelized Instance Normalization
 We invented a kernelized instance normalization module enabling ultra-resolution unpaired stain transformation
-
+![KIN](./imgs/KIN.jpg)
 ## Environment
 - Python 3.8.6
 - All the required packages are listed in the `requirements.txt`.
