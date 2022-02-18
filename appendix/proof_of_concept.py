@@ -162,7 +162,10 @@ def main():
         ax2.set_title(key2)
         ax2.set_xlabel("Distance")
         ax2.set_ylabel("Cosine similarity")
-        plt.savefig(os.path.join(args.output, f"patch_with_patch_{key1.split('_')[0]}"))
+        if not "resnetblock" in key1:
+            plt.savefig(os.path.join(args.output, f"patch_with_patch_{key1.split('_')[0]}"))
+        else:
+            plt.savefig(os.path.join(args.output, f"patch_with_patch_{key1.rsplit('_', 2)[0]}"))
 
 if __name__ == "__main__":
     main()
