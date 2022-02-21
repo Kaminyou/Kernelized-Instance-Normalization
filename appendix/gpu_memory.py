@@ -36,13 +36,13 @@ if __name__ == "__main__":
                 "x":[512, 1024], "y":[8571, 19269]
             },
             "Cyclegan+KIN (ours)":{
-                "x":[128, 256, 512, 1024, 2048], "y":[2307, 2307, 2307, 2307, 2307]
+                "x":[128, 256, 512, 1024, 2048, 4096, 9192], "y":[2307, 2307, 2307, 2307, 2307, 2307, 2307]
             },
             "CUT+KIN (ours)":{
-                "x":[128, 256, 512, 1024, 2048], "y":[2307, 2307, 2307, 2307, 2307]
+                "x":[128, 256, 512, 1024, 2048, 4096, 9192], "y":[2307, 2307, 2307, 2307, 2307, 2307, 2307]
             },
             "F/L-LSeSim+KIN (ours)":{
-                "x":[128, 256, 512, 1024, 2048], "y":[8581, 8581, 8581, 8581, 8581]
+                "x":[128, 256, 512, 1024, 2048, 4096, 9192], "y":[8581, 8581, 8581, 8581, 8581, 8581, 8581]
             }
         }
     }
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.grid()
     #plt.show()
-    plt.savefig("./training_usage.png")
+    plt.savefig("./training_usage.png", bbox_inches = 'tight')
 
     plt.figure(figsize=(9,4))
     for idx, model_name in enumerate(memory_dict['inference']):
@@ -99,7 +99,10 @@ if __name__ == "__main__":
         for x_ in x:
             marker_on.append(np.searchsorted(xp, x_, side='left'))
         plt.plot(xp, p2(xp) + rnd, color=hex_colors[idx], linewidth=3.0,linestyle='-',markersize=8, marker=marker_list[idx],markevery=marker_on,label=model_name)
-        plt.plot(xp_extra, p2(xp_extra) + rnd, color=hex_colors[idx], linewidth=3.0,linestyle='--')
+        if "KIN" in model_name:
+            plt.plot(xp_extra, p2(xp_extra) + rnd, color=hex_colors[idx], linewidth=3.0,linestyle='-')
+        else:
+            plt.plot(xp_extra, p2(xp_extra) + rnd, color=hex_colors[idx], linewidth=3.0,linestyle='--')
         
     plt.xticks([256, 512, 1024, 2048, 4096, 9192], [256, 512, 1024, 2048, 4096, 9192], rotation=45)
     plt.yticks([5000, 10000, 15000, 20000, 25000, 30000], [5, 10, 15, 20, 25, 30])
@@ -110,4 +113,4 @@ if __name__ == "__main__":
     plt.legend()
     plt.grid()
     #plt.show()
-    plt.savefig("./inference_usage.png")
+    plt.savefig("./inference_usage.png", bbox_inches = 'tight')
