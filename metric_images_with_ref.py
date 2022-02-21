@@ -60,7 +60,7 @@ def main():
                                               num_workers,
                                               args.blank_patches_list_A,
                                               args.blank_patches_list_B)
-    print(f'Exp::{args.exp_name}:: || FID: {fid_value:.4f}')
+    print(f'Exp::{args.exp_name} || FID: {fid_value:.4f}')
 
 if __name__ == '__main__':
     main()

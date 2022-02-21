@@ -10,6 +10,7 @@ from metrics.piqe import piqe
 from metrics.sobel import calculate_sobel_gradient_pipeline
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--exp_name', type=str, default="", help='Experiment name')
 parser.add_argument('--path', type=str, required=True, help='Path to the image')
 parser.add_argument('--save_grad', action='store_true', help='Whether to save the gardient image')
 
@@ -29,4 +30,4 @@ if __name__ == "__main__":
         im = Image.fromarray(sobel_gradient)
         im.save(os.path.join(parent_path, save_name))
     
-    print(f"{img_path.stem} || Grad = {sobel_gradient_avg:.4f} PIQE = {piqe_score:.4f} NIQE = {niqe_score:.4f}")
+    print(f"Exp::{args.exp_name}::{img_path.stem} || Grad = {sobel_gradient_avg:.4f} PIQE = {piqe_score:.4f} NIQE = {niqe_score:.4f}")
