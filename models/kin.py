@@ -24,7 +24,7 @@ class KernelizedInstanceNorm(nn.Module):
         feat_std = feat_var.sqrt().view(N, C, 1, 1)
         feat_mean = feat.view(N, C, -1).mean(dim=2).view(N, C, 1, 1)
         return feat_mean, feat_std
-    
+
     def init_collection(self, y_anchor_num, x_anchor_num):
         self.y_anchor_num = y_anchor_num
         self.x_anchor_num = x_anchor_num
@@ -41,7 +41,7 @@ class KernelizedInstanceNorm(nn.Module):
         for instance_mean, instnace_std, y_anchor, x_anchor in zip(instance_means, instnace_stds, y_anchors, x_anchors):
             self.mean_table[y_anchor, x_anchor, :] = instance_mean
             self.std_table[y_anchor, x_anchor, :] = instnace_std
-    
+
     def query_neighbors(self, y_anchor, x_anchor, padding=1):
         """
         return_anchors:: [top, down], [left, right] all are inclusive
@@ -56,7 +56,7 @@ class KernelizedInstanceNorm(nn.Module):
         pad_func = nn.ReplicationPad2d((padding, padding, padding, padding))
         self.padded_mean_table = pad_func(self.mean_table.permute(2, 0, 1).unsqueeze(0)) # [H, W, C] -> [C, H, W] -> [N, C, H, W]
         self.padded_std_table = pad_func(self.std_table.permute(2, 0, 1).unsqueeze(0)) # [H, W, C] -> [C, H, W] -> [N, C, H, W]
-    
+
     def __multiply_kernel(self, x_stat):
         # self.kernel = [1,1,H,W] || x_stat = [1,C,H,W]
         assert self.kernel.shape[2:] == x_stat.shape[2:]
@@ -75,11 +75,11 @@ class KernelizedInstanceNorm(nn.Module):
             return self.forward_normal(x)
 
         else:
-            x_mean, x_std = self.calc_mean_std(x)
             assert y_anchor != None
             assert x_anchor != None
 
             if self.collection_mode:
+                x_mean, x_std = self.calc_mean_std(x)
                 self.collection(instance_means=x_mean, instnace_stds=x_std, y_anchors=y_anchor, x_anchors=x_anchor)
 
             else:
@@ -116,15 +116,15 @@ def use_kernelized_instance_norm(model, padding=1):
             layer.pad_table(padding=padding)
             layer.collection_mode = False
             layer.normal_instance_normalization = False
-            
+
 
 """
 USAGE
     support a dataset with a dataloader would return (x, y_anchor, x_anchor) each time
-    
+
     kin = KernelizedInstanceNorm()
 
-    [TRAIN] anchors are not used during training 
+    [TRAIN] anchors are not used during training
     kin.train()
     for (x, _, _) in dataloader:
         kin(x)
@@ -156,15 +156,15 @@ if __name__ == "__main__":
             self.y_anchor_num = y_anchor_num
             self.x_anchor_num = x_anchor_num
             self.anchors = list(itertools.product(np.arange(0, y_anchor_num), np.arange(0, x_anchor_num)))
-        
+
         def __len__(self):
             return len(self.anchors)
-        
+
         def __getitem__(self, idx):
             x = torch.randn(3, 512, 512)
             y_anchor, x_anchor = self.anchors[idx]
             return (x, y_anchor, x_anchor)
-        
+
 
     test_dataset = TestDataset()
     test_dataloader = DataLoader(test_dataset, batch_size=5)
