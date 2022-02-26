@@ -16,15 +16,6 @@ class KernelizedInstanceNorm(nn.Module):
             self.weight = nn.Parameter(torch.ones(size=(1, out_channels, 1, 1), requires_grad=True)).to(device)
             self.bias = nn.Parameter(torch.zeros(size=(1, out_channels, 1, 1), requires_grad=True)).to(device)
 
-    def calc_mean_std(self, feat, eps=1e-5):
-        size = feat.size()
-        assert (len(size) == 4)
-        N, C = size[:2]
-        feat_var = feat.view(N, C, -1).var(dim=2) + eps
-        feat_std = feat_var.sqrt().view(N, C, 1, 1)
-        feat_mean = feat.view(N, C, -1).mean(dim=2).view(N, C, 1, 1)
-        return feat_mean, feat_std
-
     def init_collection(self, y_anchor_num, x_anchor_num):
         self.y_anchor_num = y_anchor_num
         self.x_anchor_num = x_anchor_num
@@ -66,7 +57,7 @@ class KernelizedInstanceNorm(nn.Module):
         return x_stat
 
     def forward_normal(self, x):
-        x_mean, x_std = self.calc_mean_std(x)
+        x_std, x_mean = torch.std_mean(x, dim=(2, 3), keepdim=True)
         x = (x - x_mean) / x_std #* self.weight + self.bias
         return x
 
@@ -79,7 +70,7 @@ class KernelizedInstanceNorm(nn.Module):
             assert x_anchor != None
 
             if self.collection_mode:
-                x_mean, x_std = self.calc_mean_std(x)
+                x_std, x_mean = torch.std_mean(x, dim=(2, 3), keepdim=True)
                 self.collection(instance_means=x_mean, instnace_stds=x_std, y_anchors=y_anchor, x_anchors=x_anchor)
 
             else:
