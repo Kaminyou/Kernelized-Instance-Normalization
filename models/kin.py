@@ -26,13 +26,6 @@ class KernelizedInstanceNorm(nn.Module):
         kernel = kernel.to(self.device)
         self.kernel = kernel
 
-    def collection(self, instance_means, instnace_stds, y_anchors, x_anchors):
-        instance_means = instance_means.squeeze(-1).squeeze(-1)
-        instnace_stds = instnace_stds.squeeze(-1).squeeze(-1)
-        for instance_mean, instnace_std, y_anchor, x_anchor in zip(instance_means, instnace_stds, y_anchors, x_anchors):
-            self.mean_table[y_anchor, x_anchor, :] = instance_mean
-            self.std_table[y_anchor, x_anchor, :] = instnace_std
-
     def query_neighbors(self, y_anchor, x_anchor, padding=1):
         """
         return_anchors:: [top, down], [left, right] all are inclusive
@@ -70,8 +63,9 @@ class KernelizedInstanceNorm(nn.Module):
             assert x_anchor != None
 
             if self.collection_mode:
-                x_std, x_mean = torch.std_mean(x, dim=(2, 3), keepdim=True)
-                self.collection(instance_means=x_mean, instnace_stds=x_std, y_anchors=y_anchor, x_anchors=x_anchor)
+                x_std, x_mean = torch.std_mean(x, dim=(2, 3))
+                self.mean_table[y_anchor, x_anchor] = x_mean
+                self.std_table[y_anchor, x_anchor] = x_std
 
             else:
                 assert x.shape[0] == 1 # currently, could support batch size = 1 for kernelized instance normalization
