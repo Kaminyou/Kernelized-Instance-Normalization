@@ -63,7 +63,10 @@ class KernelizedInstanceNorm(nn.Module):
             assert x_anchor != None
 
             if self.collection_mode:
-                x_std, x_mean = torch.std_mean(x, dim=(2, 3))
+                x_std, x_mean = torch.std_mean(x, dim=(2, 3))  # [B, C]
+                # x_anchor, y_anchor = [B], [B]
+                # table = [H, W, C]
+                # update std and mean to corresponing coordinates
                 self.mean_table[y_anchor, x_anchor] = x_mean
                 self.std_table[y_anchor, x_anchor] = x_std
 
