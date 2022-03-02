@@ -23,30 +23,29 @@ class KernelizedInstanceNorm(nn.Module):
         self.std_table = torch.zeros(y_anchor_num, x_anchor_num, self.out_channels).to(self.device)
 
     def init_kernel(self, kernel=(torch.ones(1,1,3,3)/9)):
+        # modify 
         kernel = kernel.to(self.device)
         self.kernel = kernel
 
-    def query_neighbors(self, y_anchor, x_anchor, padding=1):
-        """
-        return_anchors:: [top, down], [left, right] all are inclusive
-        """
-        y_anchor_top = max(0, y_anchor - padding)
-        y_anchor_down = min(self.y_anchor_num, y_anchor + padding)
-        x_anchor_left = max(0, x_anchor - padding)
-        x_anchor_right = min(self.x_anchor_num, x_anchor + padding)
-        return [y_anchor_top, y_anchor_down, x_anchor_left, x_anchor_right]
-
     def pad_table(self, padding):
+        # modify
+        # padded table shape inconsisency
         pad_func = nn.ReplicationPad2d((padding, padding, padding, padding))
-        self.padded_mean_table = pad_func(self.mean_table.permute(2, 0, 1).unsqueeze(0)) # [H, W, C] -> [C, H, W] -> [N, C, H, W]
-        self.padded_std_table = pad_func(self.std_table.permute(2, 0, 1).unsqueeze(0)) # [H, W, C] -> [C, H, W] -> [N, C, H, W]
-
+        self.padded_mean_table = pad_func(
+            self.mean_table.permute(2, 0, 1).unsqueeze(0)
+        ) # [H, W, C] -> [C, H, W] -> [N, C, H, W]
+        self.padded_std_table = pad_func(
+            self.std_table.permute(2, 0, 1).unsqueeze(0)
+        ) # [H, W, C] -> [C, H, W] -> [N, C, H, W]
+    
     def __multiply_kernel(self, x_stat):
         # self.kernel = [1,1,H,W] || x_stat = [1,C,H,W]
+        # modify: check boardcasting of kernel [H, W]
+        # modify: use pytorch conv. F.conv
         assert self.kernel.shape[2:] == x_stat.shape[2:]
         x_stat = x_stat * self.kernel # [1,C,H,W] = [1,C,H,W] * [1,1,H,W]
         x_stat = x_stat.flatten(start_dim=2).sum(dim=2) # [1, C, H, W] -> [1, C, H * W] -> [1, C]
-        x_stat = x_stat.unsqueeze(-1).unsqueeze(-1) # [1, C] -> [1, C, 1, 1]
+        x_stat = x_stat.view(1, -1, 1, 1) # [1, C] -> [1, C, 1, 1]
         return x_stat
 
     def forward_normal(self, x):
