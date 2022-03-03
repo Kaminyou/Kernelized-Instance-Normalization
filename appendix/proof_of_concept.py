@@ -172,7 +172,7 @@ def main():
     # others with others (lineplot)
     colors = ["#4A5FAB", "#609F5C", "#E3C454", "#A27CBA", "#B85031"]
     ## block1 mean
-    plt.figure(figsize=(10,4))
+    plt.figure(figsize=(8,3.2))
     for key1 in list(cos_sim_dict.keys())[0::2]:
         if "block1" in key1:
             value1 = np.array(cos_sim_dict[key1])
@@ -185,7 +185,7 @@ def main():
     plt.close('all')
 
     ## block1 std
-    plt.figure(figsize=(10,4))
+    plt.figure(figsize=(8,3.2))
     for key2 in list(cos_sim_dict.keys())[1::2]:
         if "block1" in key2:
             value2 = np.array(cos_sim_dict[key2])
