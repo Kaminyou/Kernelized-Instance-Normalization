@@ -16,10 +16,8 @@ import pandas as pd
 import seaborn as sns
 from models.model import get_model
 from torch.utils.data import DataLoader
-from torchvision.utils import save_image
 from utils.dataset import XInferenceDataset
-from utils.util import (get_kernel, read_yaml_config, reverse_image_normalize,
-                        test_transforms)
+from utils.util import read_yaml_config, test_transforms
 
 
 def cos_sim(a, b):
