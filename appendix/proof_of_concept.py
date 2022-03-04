@@ -178,7 +178,7 @@ def main():
             value1 = np.array(cos_sim_dict[key1])
             value1 = value1[value1[:,0] <= 10]
             df = pd.DataFrame({"Distance (pixel)":value1[:,0] * 512, "Cosine similarity between μ(X)":value1[:,1]})
-            sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between μ(X)", label=key1.split("_")[0], color=colors[0])
+            sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between μ(X)", label="layer 1", color=colors[0])
             break
     plt.grid()
     plt.savefig(os.path.join(args.output, f"patch_with_patch_lineplot_{key1.split('_')[0]}_mean"), bbox_inches='tight')
@@ -191,7 +191,7 @@ def main():
             value2 = np.array(cos_sim_dict[key2])
             value2 = value2[value2[:,0] <= 10]
             df = pd.DataFrame({"Distance (pixel)":value2[:,0] * 512, "Cosine similarity between σ(X)":value2[:,1]})
-            sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between σ(X)", label=key2.split("_")[0], color=colors[0])
+            sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between σ(X)", label="layer 1", color=colors[0])
             break
     plt.grid()
     plt.savefig(os.path.join(args.output, f"patch_with_patch_lineplot_{key2.split('_')[0]}_std"), bbox_inches='tight')
@@ -209,7 +209,7 @@ def main():
         # filter those are far away
         value1 = value1[value1[:,0] <= 10]
         df = pd.DataFrame({"Distance (pixel)":value1[:,0] * 512, "Cosine similarity between μ(X)":value1[:,1]})
-        sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between μ(X)", label=key1.split("_")[0], color=colors[idx])
+        sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between μ(X)", label="layer " + key1.split("_")[0][-1], color=colors[idx])
         idx += 1
     plt.grid()
     plt.savefig(os.path.join(args.output, f"patch_with_patch_lineplot_blocks_mean"), bbox_inches='tight')
@@ -227,7 +227,7 @@ def main():
         # filter those are far away
         value2 = value2[value2[:,0] <= 10]
         df = pd.DataFrame({"Distance (pixel)":value2[:,0] * 512, "Cosine similarity between σ(X)":value2[:,1]})
-        sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between σ(X)", label=key2.split("_")[0], color=colors[idx])
+        sns.lineplot(data=df, x="Distance (pixel)", y="Cosine similarity between σ(X)", label="layer " + key2.split("_")[0][-1], color=colors[idx])
         idx += 1
     plt.grid()
     plt.savefig(os.path.join(args.output, f"patch_with_patch_lineplot_blocks_std"), bbox_inches='tight')
