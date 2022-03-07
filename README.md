@@ -1,6 +1,6 @@
 # URUST: Ultra-resolution unpaired stain transformation via Kernelized Instance Normalization
 We invented a kernelized instance normalization module enabling ultra-resolution unpaired stain transformation
-![KIN](./imgs/KIN.jpg)
+![KIN](./imgs/Figure_KIN.jpg)
 ## Environment
 - Python 3.8.6
 - All the required packages are listed in the `requirements.txt`.
@@ -196,7 +196,8 @@ Please refer to the implementation of `NIQE` and `PIQE` calcuations in this [rep
 
 ## Prove of concept
 Script has been provided to visualize the relationship between thumbnail's features and patches' features, which shows that the concept using the same mean and variance calcuated from the thumbnail is incorrect and patches nearby each other share similar features.
-![concept](./imgs/proof_of_concept.png)
+![concept](./imgs/Figure_patch_with_patch_lineplot_block1_mean.jpg)
+![concept](./imgs/Figure_patch_with_patch_lineplot_blocks_mean.jpg)
 Please specify the image that would be tested in the `inference` part of `config.yaml`. Then:
 ```
 python3 appendix/proof_of_concept.py -c $path_to_config_file
