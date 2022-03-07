@@ -164,6 +164,8 @@ cd ./F-LSeSim
 
 
 ## Metrics
+### Human evaluation study
+We open-source the [web server](https://github.com/Kaminyou/Computer-Vision-Research-Human-Evaluation-Server) for human evaluation study. Researchers can easily modify the config to conduct their human evaluation study.
 ### For two distributions
 Given two folders `pathA` and `pathB` that store the original and generated images within the same domain, following metrics will be calculated. 
 - FID
