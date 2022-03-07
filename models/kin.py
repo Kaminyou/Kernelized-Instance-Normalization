@@ -1,8 +1,7 @@
-import itertools
-
 import numpy as np
 import torch
 import torch.nn as nn
+from utils.util import get_kernel
 
 
 class KernelizedInstanceNorm(nn.Module):
@@ -22,9 +21,9 @@ class KernelizedInstanceNorm(nn.Module):
         self.mean_table = torch.zeros(y_anchor_num, x_anchor_num, self.out_channels).to(self.device)
         self.std_table = torch.zeros(y_anchor_num, x_anchor_num, self.out_channels).to(self.device)
 
-    def init_kernel(self, kernel=(torch.ones(1,1,3,3)/9)):
+    def init_kernel(self, kernel_padding, kernel_mode):
         # modify 
-        kernel = kernel.to(self.device)
+        kernel = get_kernel(padding=kernel_padding, mode=kernel_mode)
         self.kernel = kernel
 
     def pad_table(self, padding):
@@ -89,13 +88,13 @@ def not_use_kernelized_instance_norm(model):
             layer.collection_mode = False
             layer.normal_instance_normalization = True
 
-def init_kernelized_instance_norm(model, y_anchor_num, x_anchor_num, kernel=(torch.ones(1,1,3,3)/9)):
+def init_kernelized_instance_norm(model, y_anchor_num, x_anchor_num, kernel_padding, kernel_mode):
     for _, layer in model.named_modules():
         if isinstance(layer, KernelizedInstanceNorm):
             layer.collection_mode = True
             layer.normal_instance_normalization = False
             layer.init_collection(y_anchor_num=y_anchor_num, x_anchor_num=x_anchor_num)
-            layer.init_kernel(kernel=kernel)
+            layer.init_kernel(kernel_padding=kernel_padding, kernel_mode=kernel_mode)
 
 def use_kernelized_instance_norm(model, padding=1):
     for _, layer in model.named_modules():
@@ -136,6 +135,8 @@ USAGE
 """
 
 if __name__ == "__main__":
+    import itertools
+
     from torch.utils.data import DataLoader, Dataset
 
     class TestDataset(Dataset):

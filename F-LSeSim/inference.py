@@ -119,7 +119,8 @@ if __name__ == '__main__':
         model.init_kernelized_instance_norm_for_whole_model(
             y_anchor_num=y_anchor_num + 1, 
             x_anchor_num=x_anchor_num + 1, 
-            kernel=get_kernel(padding=config["INFERENCE_SETTING"]["KIN_PADDING"], mode=config["INFERENCE_SETTING"]["KIN_KERNEL"])
+            kernel_padding=config["INFERENCE_SETTING"]["KIN_PADDING"],
+            kernel_mode=config["INFERENCE_SETTING"]["KIN_KERNEL"]
         )
         for idx, data in enumerate(test_loader):
             print(f"Caching {idx}", end="\r")
