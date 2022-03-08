@@ -22,7 +22,6 @@ class KernelizedInstanceNorm(nn.Module):
         self.std_table = torch.zeros(y_anchor_num, x_anchor_num, self.out_channels).to(self.device)
 
     def init_kernel(self, kernel_padding, kernel_mode):
-        # modify 
         kernel = get_kernel(padding=kernel_padding, mode=kernel_mode)
         self.kernel = kernel
 
@@ -38,11 +37,11 @@ class KernelizedInstanceNorm(nn.Module):
         ) # [H, W, C] -> [C, H, W] -> [N, C, H, W]
     
     def __multiply_kernel(self, x_stat):
-        # self.kernel = [1,1,H,W] || x_stat = [1,C,H,W]
+        # self.kernel = [H,W] || x_stat = [1,C,H,W]
         # modify: check boardcasting of kernel [H, W]
         # modify: use pytorch conv. F.conv
-        assert self.kernel.shape[2:] == x_stat.shape[2:]
-        x_stat = x_stat * self.kernel # [1,C,H,W] = [1,C,H,W] * [1,1,H,W]
+        assert self.kernel.shape[-2:] == x_stat.shape[-2:]
+        x_stat = x_stat * self.kernel # [1,C,H,W] = [1,C,H,W] * [H,W]
         x_stat = x_stat.flatten(start_dim=2).sum(dim=2) # [1, C, H, W] -> [1, C, H * W] -> [1, C]
         x_stat = x_stat.view(1, -1, 1, 1) # [1, C] -> [1, C, 1, 1]
         return x_stat

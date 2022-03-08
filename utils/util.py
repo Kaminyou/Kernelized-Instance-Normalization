@@ -71,11 +71,11 @@ def extend_size(original_size, patch_size):
 def get_kernel(padding=1, gaussian_std=3, mode="constant"):
     kernel_size = padding * 2 + 1
     if mode == "constant":
-        kernel = torch.ones(1,1,kernel_size,kernel_size)
+        kernel = torch.ones(kernel_size,kernel_size)
         kernel = kernel / (kernel_size * kernel_size)
 
     elif mode == "gaussian":
-        kernel = np.expand_dims(gkern(kernel_size, std=gaussian_std), axis=(0, 1))
+        kernel = gkern(kernel_size, std=gaussian_std)
         kernel = kernel / kernel.sum()
         kernel = torch.from_numpy(kernel.astype(np.float32))
     
