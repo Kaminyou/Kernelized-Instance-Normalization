@@ -164,9 +164,9 @@ cd ./F-LSeSim
 
 
 ## Metrics
-### Human evaluation study
+### 1. Human evaluation study
 We open-source the [web server](https://github.com/Kaminyou/Computer-Vision-Research-Human-Evaluation-Server) for human evaluation study. Researchers can easily modify the config to conduct their human evaluation study.
-### For two distributions
+### 2. Comparison between two distributions (WITH REFERENCE)
 Given two folders `pathA` and `pathB` that store the original and generated images within the same domain, following metrics will be calculated. 
 - FID
 ```
@@ -176,24 +176,20 @@ python3 metric_images_with_ref.py --path-A $pathA --path-B $pathB
 ```
 python3 metric_images_with_ref.py --path-A $pathA1,$pathA2,... --path-B $pathB1,$pathB2,...
 ```
-### For two whole images
+### 3. For two whole images (WITH REFERENCE)
 - Histogram correlation
 ```
 python3 metric_whole_image_with_ref.py --image_A_path $path_to_ref_image --image_B_path $path_to_compared_image
 ```
-### For single whole image (NO REFERENCE)
+### 4. For single whole image (NO REFERENCE)
+Please refer to the implementation of `NIQE` and `PIQE` calcuations in this [repo](https://github.com/buyizhiyou/NRVQA).
 - Sobel gradient
 - NIQE
 - PIQE
+
 ```
 python3 metric_whole_image_no_ref.py --path $image_path
 ```
-
-
-
-### No-Reference Blind Image Quality Assessment
-Please refer to the implementation of `NIQE` and `PIQE` calcuations in this [repo](https://github.com/buyizhiyou/NRVQA).
-
 ## Prove of concept
 Script has been provided to visualize the relationship between thumbnail's features and patches' features, which shows that the concept using the same mean and variance calcuated from the thumbnail is incorrect and patches nearby each other share similar features.
 ![concept](./imgs/Figure_patch_with_patch_lineplot_block1_mean.jpg)
@@ -206,4 +202,4 @@ Generated images would be saved in `./proof_of_concept/`
  
 
 ## Acknowledgement
-Besides our novel kernelized instance normalizatio module, we use [Contrastive Unpaired Translation](https://link.springer.com/chapter/10.1007/978-3-030-58545-7_19) as our backbone. Please refer to the official implementation [here](https://github.com/taesungp/contrastive-unpaired-translation). This code is a simplified version revised from [wilbertcaine's implementation](https://github.com/wilbertcaine/CUT).
+Besides our novel kernelized instance normalizatio module, we use [CycleGAN](https://arxiv.org/abs/1703.10593), [Contrastive Unpaired Translation (CUT)](https://link.springer.com/chapter/10.1007/978-3-030-58545-7_19) as our backbone, and [LSeSim](https://arxiv.org/abs/2104.00854). For the CUT model, please refer to the official implementation [here](https://github.com/taesungp/contrastive-unpaired-translation). This code is a simplified version revised from [wilbertcaine's implementation](https://github.com/wilbertcaine/CUT).
