@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
+
 from utils.util import get_kernel
 
 
@@ -35,15 +36,6 @@ class KernelizedInstanceNorm(nn.Module):
         self.padded_std_table = pad_func(
             self.std_table.permute(2, 0, 1).unsqueeze(0)
         ) # [H, W, C] -> [C, H, W] -> [N, C, H, W]
-    
-    def __multiply_kernel(self, x_stat):
-        # self.kernel = [H, W] || x_stat = [1, C, H, W]
-        # modify: use pytorch conv. F.conv
-        assert self.kernel.shape[-2:] == x_stat.shape[-2:]
-        x_stat = x_stat * self.kernel # [1, C, H, W] = [1, C, H, W] * [H, W]
-        x_stat = x_stat.flatten(start_dim=2).sum(dim=2) # [1, C, H, W] -> [1, C, H * W] -> [1, C]
-        x_stat = x_stat.view(1, -1, 1, 1) # [1, C] -> [1, C, 1, 1]
-        return x_stat
 
     def forward_normal(self, x):
         x_std, x_mean = torch.std_mean(x, dim=(2, 3), keepdim=True)
@@ -67,15 +59,22 @@ class KernelizedInstanceNorm(nn.Module):
                 self.std_table[y_anchor, x_anchor] = x_std
 
             else:
+
+                def multiply_kernel(x):
+                    x = x * self.kernel  # [1, C, H, W] * [H, W] = [1, C, H, W]
+                    x = x.sum(dim=(2, 3), keepdim=True)  # [1, C, 1, 1]
+                    return x
+
                 assert x.shape[0] == 1 # currently, could support batch size = 1 for kernelized instance normalization
+
                 top = y_anchor
                 down = y_anchor + 2 * padding + 1
                 left = x_anchor
-                right = x_anchor + 2 *padding + 1
+                right = x_anchor + 2 * padding + 1
                 x_mean = self.padded_mean_table[:,:,top:down, left:right] # 1, C, H, W
                 x_std = self.padded_std_table[:,:,top:down, left:right] # 1, C, H, W
-                x_mean = self.__multiply_kernel(x_mean)
-                x_std = self.__multiply_kernel(x_std)
+                x_mean = multiply_kernel(x_mean)
+                x_std = multiply_kernel(x_std)
 
             x = (x - x_mean) / x_std * self.weight + self.bias
             return x
