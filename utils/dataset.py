@@ -40,9 +40,8 @@ class XYDataset(Dataset):
 
         self.augment = augment
         if self.augment:
-            assert (
-                transform_aug != None
-            ), "transform_aug is not provided while augment is True"
+            ERR_MESSAGE = "transform_aug is not provided while augment is True"
+            assert transform_aug is not None, ERR_MESSAGE
             self.transform_aug = transform_aug
 
         if paired:
@@ -81,7 +80,9 @@ class XYDataset(Dataset):
             Y_img_aug = augmentations["image0"]
 
         if self.augment:
-            double_augmentations = self.transform_aug(image=X_img, image0=Y_img)
+            double_augmentations = self.transform_aug(
+                image=X_img, image0=Y_img
+            )
             X_img_double_aug = double_augmentations["image"]
             Y_img_double_aug = double_augmentations["image0"]
         if not self.augment:
@@ -96,7 +97,9 @@ class XYDataset(Dataset):
 
 
 class XInferenceDataset(Dataset):
-    def __init__(self, root_X, transform=None, return_anchor=False, thumbnail=None):
+    def __init__(
+        self, root_X, transform=None, return_anchor=False, thumbnail=None
+    ):
         self.root_X = root_X
         self.transform = transform
         self.return_anchor = return_anchor
@@ -123,7 +126,7 @@ class XInferenceDataset(Dataset):
             self.x_anchor_num = max(self.x_anchor_num, x_idx)
 
     def get_boundary(self):
-        assert self.return_anchor == True
+        assert self.return_anchor
         return (self.y_anchor_num, self.x_anchor_num)
 
     def __len__(self):
@@ -141,7 +144,9 @@ class XInferenceDataset(Dataset):
             X_img = augmentations["image"]
 
         if self.return_anchor:
-            y_idx, x_idx, y_anchor, x_anchor = Path(X_img_name).stem.split("_")[:4]
+            y_idx, x_idx, y_anchor, x_anchor = Path(
+                X_img_name
+            ).stem.split("_")[:4]
             y_idx = int(y_idx)
             x_idx = int(x_idx)
             return {
@@ -165,13 +170,14 @@ class XInferenceDataset(Dataset):
 
 
 def get_dataset(config):
-    if not "LSeSim" in config["MODEL_NAME"]:
+    if "LSeSim" not in config["MODEL_NAME"]:
         dataset = XYDataset(
             root_X=config["TRAINING_SETTING"]["TRAIN_DIR_X"],
             root_Y=config["TRAINING_SETTING"]["TRAIN_DIR_Y"],
             paired=config["TRAINING_SETTING"]["PAIRED_TRAINING"],
             transform=get_transforms(
-                random_crop=config["TRAINING_SETTING"]["RANDOM_CROP_AUG"], augment=False
+                random_crop=config["TRAINING_SETTING"]["RANDOM_CROP_AUG"],
+                augment=False,
             ),
         )
     else:
@@ -179,7 +185,10 @@ def get_dataset(config):
             root_X=config["TRAINING_SETTING"]["TRAIN_DIR_X"],
             root_Y=config["TRAINING_SETTING"]["TRAIN_DIR_Y"],
             paired=config["TRAINING_SETTING"]["PAIRED_TRAINING"],
-            transform=transforms,
+            transform=get_transforms(
+                random_crop=config["TRAINING_SETTING"]["RANDOM_CROP_AUG"],
+                augment=False,
+            ),
             augment=config["TRAINING_SETTING"]["Augment"],
             transform_aug=get_transforms(random_crop=True, augment=True),
         )
@@ -191,7 +200,9 @@ if __name__ == "__main__":
     from util import test_transforms
 
     dataset = XInferenceDataset(
-        root_X="./", transform=test_transforms, thumbnail="./data/my_photo/IMG_7867.jpg"
+        root_X="./",
+        transform=test_transforms,
+        thumbnail="./data/my_photo/IMG_7867.jpg",
     )
     img = dataset.get_thumbnail()
     print(img.shape)
