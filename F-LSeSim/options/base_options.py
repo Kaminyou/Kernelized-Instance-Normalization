@@ -1,9 +1,10 @@
 import argparse
 import os
 
+import torch
+
 import data
 import models
-import torch
 from util import util
 
 

@@ -1,7 +1,8 @@
-from .pix2pix_model import Pix2PixModel
+import numpy as np
 import torch
 from skimage import color  # used for lab2rgb
-import numpy as np
+
+from .pix2pix_model import Pix2PixModel
 
 
 class ColorizationModel(Pix2PixModel):

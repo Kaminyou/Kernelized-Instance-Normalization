@@ -1,7 +1,8 @@
 # The following code is modified from https://github.com/shelhamer/clockwork-fcn
-import sys
-import os
 import glob
+import os
+import sys
+
 import numpy as np
 from PIL import Image
 

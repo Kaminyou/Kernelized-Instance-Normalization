@@ -1,10 +1,12 @@
-import numpy as np
+import ntpath
 import os
 import sys
-import ntpath
 import time
-from . import util, html
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
+
+import numpy as np
+
+from . import html, util
 
 if sys.version_info[0] == 2:
     VisdomExceptionBase = Exception

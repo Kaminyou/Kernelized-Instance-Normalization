@@ -27,12 +27,12 @@ See training and test tips at: https://github.com/junyanz/pytorch-CycleGAN-and-p
 See frequently asked questions at: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/docs/qa.md
 """
 import os
-from options.test_options import TestOptions
+
 from data import create_dataset
 from models import create_model
-from util.visualizer import save_images
+from options.test_options import TestOptions
 from util import html
-
+from util.visualizer import save_images
 
 if __name__ == '__main__':
     opt = TestOptions().parse()  # get test options

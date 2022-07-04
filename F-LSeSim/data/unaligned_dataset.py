@@ -2,11 +2,12 @@ import os
 import random
 
 import torchvision.transforms as transforms
-import util.util as util
 from PIL import Image
 
+import util.util as util
 from data.base_dataset import BaseDataset, get_transform
 from data.image_folder import make_dataset
+
 
 def remove_file(files, file_name):
     try:

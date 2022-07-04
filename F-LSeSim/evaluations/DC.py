@@ -1,13 +1,12 @@
 import os
 import pathlib
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import numpy as np
 import torch
+from PIL import Image
 from scipy import linalg
 from torch.nn.functional import adaptive_avg_pool2d
-
-from PIL import Image
 
 try:
     from tqdm import tqdm
@@ -15,8 +14,9 @@ except ImportError:
     # If not tqdm is not available, provide a mock version of it
     def tqdm(x): return x
 
-from evaluations.inception import InceptionV3
 from prdc import compute_prdc
+
+from evaluations.inception import InceptionV3
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 parser.add_argument('--batch-size', type=int, default=100,

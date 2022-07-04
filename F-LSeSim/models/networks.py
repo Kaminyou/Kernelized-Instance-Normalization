@@ -1,6 +1,8 @@
 from torch.optim import lr_scheduler
-from . import cyclegan_networks, stylegan_networks
+
 from models.generator import Generator
+
+from . import cyclegan_networks, stylegan_networks
 
 
 ##################################################################################

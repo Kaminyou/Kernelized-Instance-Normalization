@@ -1,11 +1,13 @@
 from __future__ import print_function
+
 import os
 import tarfile
-import requests
+from os.path import abspath, basename, isdir, join
 from warnings import warn
 from zipfile import ZipFile
+
+import requests
 from bs4 import BeautifulSoup
-from os.path import abspath, isdir, join, basename
 
 
 class GetData(object):

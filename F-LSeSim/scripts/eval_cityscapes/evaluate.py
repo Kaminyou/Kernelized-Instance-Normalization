@@ -1,11 +1,13 @@
-import os
-import caffe
 import argparse
+import os
+
+import caffe
 import numpy as np
 import scipy.misc
-from PIL import Image
-from util import segrun, fast_hist, get_scores
 from cityscapes import cityscapes
+from PIL import Image
+
+from util import fast_hist, get_scores, segrun
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--cityscapes_dir", type=str, required=True, help="Path to the original cityscapes dataset")

@@ -1,5 +1,6 @@
-import os
 import glob
+import os
+
 from PIL import Image
 
 help_msg = """

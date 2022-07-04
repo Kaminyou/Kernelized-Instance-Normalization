@@ -1,8 +1,9 @@
-import os
-import numpy as np
-import cv2
 import argparse
+import os
 from multiprocessing import Pool
+
+import cv2
+import numpy as np
 
 
 def image_write(path_A, path_B, path_AB):

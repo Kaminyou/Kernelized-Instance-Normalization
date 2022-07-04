@@ -1,9 +1,12 @@
-import torch
 import itertools
+
+import torch
+
 from util.image_pool import ImagePool
+
+from . import losses, networks
 from .base_model import BaseModel
-from . import networks
-from . import losses
+
 
 class CycleGANModel(BaseModel):
     """

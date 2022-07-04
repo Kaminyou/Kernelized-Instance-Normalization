@@ -1,9 +1,11 @@
-import numpy as np
 import os.path
+import random
+
+import numpy as np
+from PIL import Image
+
 from data.base_dataset import BaseDataset, get_transform
 from data.image_folder import make_dataset
-from PIL import Image
-import random
 
 
 class SingleImageDataset(BaseDataset):

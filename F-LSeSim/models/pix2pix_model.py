@@ -1,6 +1,7 @@
 import torch
-from .base_model import BaseModel
+
 from . import networks
+from .base_model import BaseModel
 
 
 class Pix2PixModel(BaseModel):

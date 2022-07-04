@@ -6,8 +6,9 @@ Origianl StyelGAN2 paper: https://github.com/NVlabs/stylegan2
 We　use the network architecture for our single-image traning setting.
 """
 import math
-import numpy as np
 import random
+
+import numpy as np
 import torch
 from torch import nn
 from torch.nn import functional as F

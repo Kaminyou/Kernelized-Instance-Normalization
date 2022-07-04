@@ -1,7 +1,6 @@
 import itertools
 
 import torch
-from util.image_pool import ImagePool
 
 from models.kin import (init_kernelized_instance_norm,
                         not_use_kernelized_instance_norm,
@@ -9,6 +8,7 @@ from models.kin import (init_kernelized_instance_norm,
 from models.tin import (init_thumbnail_instance_norm,
                         not_use_thumbnail_instance_norm,
                         use_thumbnail_instance_norm)
+from util.image_pool import ImagePool
 
 from . import losses, networks
 from .base_model import BaseModel

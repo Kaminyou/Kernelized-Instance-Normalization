@@ -6,11 +6,12 @@ Original CycleGAN paper: https://arxiv.org/pdf/1703.10593.pdf
 Original CUT paper: https://arxiv.org/pdf/2007.15651.pdf
 We use the network architecture for our default modal image translation
 """
+import functools
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import functools
-import numpy as np
 from torch.nn import init
 
 

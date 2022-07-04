@@ -9,13 +9,14 @@
 # Step 5: run the MATLAB post-processing script "PostprocessHED.m"
 
 
+import argparse
+import os
+import sys
+
 import caffe
 import numpy as np
-from PIL import Image
-import os
-import argparse
-import sys
 import scipy.io as sio
+from PIL import Image
 
 
 def parse_args():

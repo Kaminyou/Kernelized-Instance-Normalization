@@ -24,14 +24,13 @@ limitations under the License.
 """
 import os
 import pathlib
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import numpy as np
 import torch
+from PIL import Image
 from scipy import linalg
 from torch.nn.functional import adaptive_avg_pool2d
-
-from PIL import Image
 
 try:
     from tqdm import tqdm
