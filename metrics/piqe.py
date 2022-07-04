@@ -1,14 +1,17 @@
 # https://github.com/buyizhiyou/NRVQA/blob/master/piqe.py
 import cv2
 import numpy as np
-from scipy.special import gamma
 
 
 def calculate_mscn(dis_image):
-    dis_image = dis_image.astype(np.float32)  # 类型转换十分重要
+    dis_image = dis_image.astype(np.float32)
     ux = cv2.GaussianBlur(dis_image, (7, 7), 7 / 6)
     ux_sq = ux * ux
-    sigma = np.sqrt(np.abs(cv2.GaussianBlur(dis_image**2, (7, 7), 7 / 6) - ux_sq))
+    sigma = np.sqrt(
+        np.abs(
+            cv2.GaussianBlur(dis_image**2, (7, 7), 7 / 6) - ux_sq
+        )
+    )
 
     mscn = (dis_image - ux) / (1 + sigma)
 
@@ -39,24 +42,33 @@ def noticeDistCriterion(
     # Right side edge of block
     rightSideEdge = Block[:, N - 1]
     rightSideEdge = np.transpose(rightSideEdge)
-    segRightSideEdge = segmentEdge(rightSideEdge, nSegments, blockSize, windowSize)
+    segRightSideEdge = segmentEdge(
+        rightSideEdge, nSegments, blockSize, windowSize
+    )
 
     # Down side edge of block
     downSideEdge = Block[N - 1, :]
-    segDownSideEdge = segmentEdge(downSideEdge, nSegments, blockSize, windowSize)
+    segDownSideEdge = segmentEdge(
+        downSideEdge, nSegments, blockSize, windowSize
+    )
 
     # Left side edge of block
     leftSideEdge = Block[:, 0]
     leftSideEdge = np.transpose(leftSideEdge)
-    segLeftSideEdge = segmentEdge(leftSideEdge, nSegments, blockSize, windowSize)
+    segLeftSideEdge = segmentEdge(
+        leftSideEdge, nSegments, blockSize, windowSize
+    )
 
-    # Compute standard deviation of segments in left, right, top and down side edges of a block
+    # Compute standard deviation of segments in left,
+    # right, top and down side edges of a block
     segTopEdge_stdDev = np.std(segTopEdge, axis=1)
     segRightSideEdge_stdDev = np.std(segRightSideEdge, axis=1)
     segDownSideEdge_stdDev = np.std(segDownSideEdge, axis=1)
     segLeftSideEdge_stdDev = np.std(segLeftSideEdge, axis=1)
 
-    # Check for segment in block exhibits impairedness, if the standard deviation of the segment is less than blockImpairedThreshold.
+    # Check for segment in block exhibits impairedness,
+    # if the standard deviation of the segment is less
+    # than blockImpairedThreshold.
     blockImpaired = 0
     for segIndex in range(segTopEdge.shape[0]):
         if (
@@ -76,7 +88,8 @@ def noiseCriterion(Block, blockSize, blockVar):
     blockSigma = np.sqrt(blockVar)
     # Compute ratio of center and surround standard deviation
     cenSurDev = centerSurDev(Block, blockSize)
-    # Relation between center-surround deviation and the block standard deviation
+    # Relation between center-surround deviation and the
+    # block standard deviation
     blockBeta = (abs(blockSigma - cenSurDev)) / (max(blockSigma, cenSurDev))
 
     return blockSigma, blockBeta
@@ -117,8 +130,8 @@ def piqe(im):
         0.1  # Threshold identify blocks having noticeable artifacts
     )
     windowSize = 6  # Considered segment size in a block edge.
-    nSegments = blockSize - windowSize + 1  # Number of segments for each block edge
-    distBlockScores = 0  # Accumulation of distorted block scores
+    # Number of segments for each block edge
+    nSegments = blockSize - windowSize + 1
     NHSA = 0  # Number of high spatial active blocks.
 
     # pad if size is not divisible by blockSize
@@ -135,7 +148,6 @@ def piqe(im):
         if columnsPad > 0:
             columnsPad = blockSize - columnsPad
         isPadded = True
-        padSize = [rowsPad, columnsPad]
     im = np.pad(im, ((0, rowsPad), (0, columnsPad)), "edge")
 
     # Normalize image to zero mean and ~unit std
@@ -162,11 +174,11 @@ def piqe(im):
             WNC = 0
 
             # Compute block variance
-            Block = imnorm[i : i + blockSize, j : j + blockSize]
+            Block = imnorm[i:i + blockSize, j:j + blockSize]
             blockVar = np.var(Block)
 
             if blockVar > activityThreshold:
-                ActivityMask[i : i + blockSize, j : j + blockSize] = 1
+                ActivityMask[i:i + blockSize, j:j + blockSize] = 1
                 NHSA = NHSA + 1
 
                 # Analyze Block for noticeable artifacts
@@ -182,15 +194,17 @@ def piqe(im):
                 if blockImpaired:
                     WNDC = 1
                     NoticeableArtifactsMask[
-                        i : i + blockSize, j : j + blockSize
+                        i:i + blockSize, j:j + blockSize
                     ] = blockVar
 
                 # Analyze Block for guassian noise distortions
-                [blockSigma, blockBeta] = noiseCriterion(Block, blockSize - 1, blockVar)
+                [blockSigma, blockBeta] = noiseCriterion(
+                    Block, blockSize - 1, blockVar
+                )
 
                 if blockSigma > 2 * blockBeta:
                     WNC = 1
-                    NoiseMask[i : i + blockSize, j : j + blockSize] = blockVar
+                    NoiseMask[i:i + blockSize, j:j + blockSize] = blockVar
 
                 # Pooling/ distortion assigment
                 # distBlockScores = distBlockScores + \
@@ -202,7 +216,9 @@ def piqe(im):
                     )
 
                 total_var = [total_var, blockVar]
-                total_bscore = [total_bscore, WNDC * (1 - blockVar) + WNC * (blockVar)]
+                total_bscore = [
+                    total_bscore, WNDC * (1 - blockVar) + WNC * (blockVar)
+                ]
                 total_ndc = [total_ndc, WNDC]
                 total_nc = [total_nc, WNC]
 
@@ -218,9 +234,9 @@ def piqe(im):
     # are always M-by-N.
     if isPadded:
         NoticeableArtifactsMask = NoticeableArtifactsMask[
-            0 : originalSize[0], 0 : originalSize[1]
+            0:originalSize[0], 0:originalSize[1]
         ]
-        NoiseMask = NoiseMask[0 : originalSize[0], 0 : originalSize[1]]
-        ActivityMask = ActivityMask[0 : originalSize[0], 1 : originalSize[1]]
+        NoiseMask = NoiseMask[0:originalSize[0], 0:originalSize[1]]
+        ActivityMask = ActivityMask[0:originalSize[0], 1:originalSize[1]]
 
     return Score, NoticeableArtifactsMask, NoiseMask, ActivityMask

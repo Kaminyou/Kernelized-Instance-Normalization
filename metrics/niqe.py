@@ -9,7 +9,6 @@ import scipy.io
 import scipy.misc
 import scipy.ndimage
 import scipy.special
-from PIL import Image
 
 gamma_range = np.arange(0.2, 10, 0.001)
 a = scipy.special.gamma(2.0 / gamma_range)
@@ -105,7 +104,9 @@ def gen_gauss_window(lw, sigma):
     return weights
 
 
-def compute_image_mscn_transform(image, C=1, avg_window=None, extend_mode="constant"):
+def compute_image_mscn_transform(
+    image, C=1, avg_window=None, extend_mode="constant"
+):
     if avg_window is None:
         avg_window = gen_gauss_window(3, 7.0 / 6.0)
     assert len(np.shape(image)) == 2
@@ -113,10 +114,18 @@ def compute_image_mscn_transform(image, C=1, avg_window=None, extend_mode="const
     mu_image = np.zeros((h, w), dtype=np.float32)
     var_image = np.zeros((h, w), dtype=np.float32)
     image = np.array(image).astype("float32")
-    scipy.ndimage.correlate1d(image, avg_window, 0, mu_image, mode=extend_mode)
-    scipy.ndimage.correlate1d(mu_image, avg_window, 1, mu_image, mode=extend_mode)
-    scipy.ndimage.correlate1d(image**2, avg_window, 0, var_image, mode=extend_mode)
-    scipy.ndimage.correlate1d(var_image, avg_window, 1, var_image, mode=extend_mode)
+    scipy.ndimage.correlate1d(
+        image, avg_window, 0, mu_image, mode=extend_mode
+    )
+    scipy.ndimage.correlate1d(
+        mu_image, avg_window, 1, mu_image, mode=extend_mode
+    )
+    scipy.ndimage.correlate1d(
+        image**2, avg_window, 0, var_image, mode=extend_mode
+    )
+    scipy.ndimage.correlate1d(
+        var_image, avg_window, 1, var_image, mode=extend_mode
+    )
     var_image = np.sqrt(np.abs(var_image - mu_image**2))
     return (image - mu_image) / (var_image + C), var_image, mu_image
 
@@ -167,7 +176,7 @@ def extract_on_patches(img, patch_size):
     patches = []
     for j in range(0, h - patch_size + 1, patch_size):
         for i in range(0, w - patch_size + 1, patch_size):
-            patch = img[j : j + patch_size, i : i + patch_size]
+            patch = img[j:j + patch_size, i:i + patch_size]
             patches.append(patch)
 
     patches = np.array(patches)
@@ -227,13 +236,14 @@ def niqe(inputImgData):
         inputImgData = cv2.cvtColor(inputImgData, cv2.COLOR_BGR2GRAY)
     M, N = inputImgData.shape
 
-    # assert C == 1, "niqe called with videos containing %d channels. Please supply only the luminance channel" % (C,)
     assert M > (
         patch_size * 2 + 1
-    ), "niqe called with small frame size, requires > 192x192 resolution video using current training parameters"
+    ), "niqe called with small frame size, requires " \
+       "> 192x192 resolution video using current training parameters"
     assert N > (
         patch_size * 2 + 1
-    ), "niqe called with small frame size, requires > 192x192 resolution video using current training parameters"
+    ), "niqe called with small frame size, requires > 192x192 " \
+       "resolution video using current training parameters"
 
     feats = get_patches_test_features(inputImgData, patch_size)
     sample_mu = np.mean(feats, axis=0)

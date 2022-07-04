@@ -7,7 +7,9 @@ def read_img_toRGB(img_path):
     return img
 
 
-def calculate_histogram(image, channels=[0], hist_size=[10], hist_range=[0, 256]):
+def calculate_histogram(
+    image, channels=[0], hist_size=[10], hist_range=[0, 256]
+):
     # convert to different color space if needed
     image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
 

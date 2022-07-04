@@ -35,7 +35,17 @@ from torch.nn.functional import adaptive_avg_pool2d
 
 from metrics.inception import InceptionV3
 
-IMAGE_EXTENSIONS = {"bmp", "jpg", "jpeg", "pgm", "png", "ppm", "tif", "tiff", "webp"}
+IMAGE_EXTENSIONS = {
+    "bmp",
+    "jpg",
+    "jpeg",
+    "pgm",
+    "png",
+    "ppm",
+    "tif",
+    "tiff",
+    "webp",
+}
 
 
 class ImagePathDataset(torch.utils.data.Dataset):
@@ -111,7 +121,7 @@ def get_activations(
 
         pred = pred.squeeze(3).squeeze(2).cpu().numpy()
 
-        pred_arr[start_idx : start_idx + pred.shape[0]] = pred
+        pred_arr[start_idx:start_idx + pred.shape[0]] = pred
 
         start_idx = start_idx + pred.shape[0]
 
@@ -201,7 +211,13 @@ def calculate_activation_statistics(
 
 
 def compute_statistics_of_path(
-    paths, model, batch_size, dims, device, num_workers=1, blank_pathes_list=None
+    paths,
+    model,
+    batch_size,
+    dims,
+    device,
+    num_workers=1,
+    blank_pathes_list=None,
 ):
     # if a precomputed .npz is given, only one path in paths is allowed
     if paths[0].endswith(".npz"):
@@ -267,10 +283,22 @@ def calculate_fid_given_two_paths(
     model = InceptionV3([block_idx]).to(device)
 
     m1, s1 = compute_statistics_of_path(
-        path_As, model, batch_size, dims, device, num_workers, blank_pathes_list_A
+        path_As,
+        model,
+        batch_size,
+        dims,
+        device,
+        num_workers,
+        blank_pathes_list_A,
     )
     m2, s2 = compute_statistics_of_path(
-        path_Bs, model, batch_size, dims, device, num_workers, blank_pathes_list_B
+        path_Bs,
+        model,
+        batch_size,
+        dims,
+        device,
+        num_workers,
+        blank_pathes_list_B,
     )
     fid_value = calculate_frechet_distance(m1, s1, m2, s2)
 

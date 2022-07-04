@@ -1,5 +1,6 @@
 """
-Source: https://github.com/mseitzer/pytorch-fid/blob/master/src/pytorch_fid/inception.py
+Source:
+https://github.com/mseitzer/pytorch-fid/blob/master/src/pytorch_fid/inception.py
 """
 import torch
 import torch.nn as nn
@@ -145,7 +146,9 @@ class InceptionV3(nn.Module):
         x = inp
 
         if self.resize_input:
-            x = F.interpolate(x, size=(299, 299), mode="bilinear", align_corners=False)
+            x = F.interpolate(
+                x, size=(299, 299), mode="bilinear", align_corners=False
+            )
 
         if self.normalize_input:
             x = 2 * x - 1  # Scale from range (0, 1) to range (-1, 1)
@@ -185,7 +188,9 @@ def fid_inception_v3():
     This method first constructs torchvision's Inception and then patches the
     necessary parts that are different in the FID Inception model.
     """
-    inception = _inception_v3(num_classes=1008, aux_logits=False, pretrained=False)
+    inception = _inception_v3(
+        num_classes=1008, aux_logits=False, pretrained=False
+    )
     inception.Mixed_5b = FIDInceptionA(192, pool_features=32)
     inception.Mixed_5c = FIDInceptionA(256, pool_features=64)
     inception.Mixed_5d = FIDInceptionA(288, pool_features=64)
