@@ -1,10 +1,11 @@
 import random
 
-random.seed(20222022)
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+
+random.seed(20222022)
 
 if __name__ == "__main__":
     memory_dict = {
@@ -83,7 +84,10 @@ if __name__ == "__main__":
         [128, 256, 512, 1024, 2048, 4096],
         rotation=45,
     )
-    plt.yticks([5000, 10000, 15000, 20000, 25000, 30000], [5, 10, 15, 20, 25, 30])
+    plt.yticks(
+        [5000, 10000, 15000, 20000, 25000, 30000],
+        [5, 10, 15, 20, 25, 30],
+    )
     plt.ylim(0, 32000)
     plt.title("Training")
     plt.ylabel("GPU Memory (GB)")
@@ -97,7 +101,7 @@ if __name__ == "__main__":
     for idx, model_name in enumerate(memory_dict["inference"]):
         x = memory_dict["inference"][model_name]["x"]
         y = memory_dict["inference"][model_name]["y"]
-        if not "KIN" in model_name:
+        if "KIN" not in model_name:
             p2 = np.poly1d(np.polyfit(x, y, 2))
         else:
             p2 = np.poly1d(np.polyfit(x, y, 0))
@@ -144,7 +148,10 @@ if __name__ == "__main__":
         [256, 512, 1024, 2048, 4096, 9192],
         rotation=45,
     )
-    plt.yticks([5000, 10000, 15000, 20000, 25000, 30000], [5, 10, 15, 20, 25, 30])
+    plt.yticks(
+        [5000, 10000, 15000, 20000, 25000, 30000],
+        [5, 10, 15, 20, 25, 30],
+    )
     plt.ylim(0, 32000)
     plt.ylabel("GPU Memory (GB)")
     plt.xlabel("Resolution (√x)")

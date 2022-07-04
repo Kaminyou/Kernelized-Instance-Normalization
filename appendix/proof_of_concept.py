@@ -2,13 +2,12 @@ import argparse
 import inspect
 import os
 import sys
+from collections import defaultdict
+from pathlib import Path
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
-
-from collections import defaultdict
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,6 +15,7 @@ import pandas as pd
 import seaborn as sns
 from models.model import get_model
 from torch.utils.data import DataLoader
+
 from utils.dataset import XInferenceDataset
 from utils.util import read_yaml_config, test_transforms
 
@@ -79,7 +79,12 @@ def main():
         thumbnail=config["INFERENCE_SETTING"]["THUMBNAIL"],
     )
 
-    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, pin_memory=True)
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=1,
+        shuffle=False,
+        pin_memory=True
+    )
 
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])
 
@@ -119,7 +124,9 @@ def main():
             continue
         print(f"Processing ... {img_name}     ", end="\r")
         for feature_name, feature_map in feature_maps.items():
-            other_feature_map_mean, other_feature_map_std = calc_mean_std(feature_map)
+            other_feature_map_mean, other_feature_map_std = calc_mean_std(
+                feature_map
+            )
             other_featuer_maps_precomputed[img_name][
                 f"{feature_name}_mean"
             ] = other_feature_map_mean
@@ -155,15 +162,19 @@ def main():
         ax2.set_title(key2)
         ax2.set_xlabel("Cosine similarity")
         ax2.set_ylabel("# of patches")
-        if not "resnetblock" in key1:
+        if "resnetblock" not in key1:
             plt.savefig(
-                os.path.join(args.output, f"thumbnail_with_patch_{key1.split('_')[0]}"),
+                os.path.join(
+                    args.output,
+                    f"thumbnail_with_patch_{key1.split('_')[0]}"
+                ),
                 bbox_inches="tight",
             )
         else:
             plt.savefig(
                 os.path.join(
-                    args.output, f"thumbnail_with_patch_{key1.rsplit('_', 2)[0]}"
+                    args.output,
+                    f"thumbnail_with_patch_{key1.rsplit('_', 2)[0]}"
                 ),
                 bbox_inches="tight",
             )
@@ -179,14 +190,19 @@ def main():
             other_featuer_maps_precomputed.items()
         ):
             if i < j:
-                print(f"Processing ... {img_name_a} {img_name_b}     ", end="\r")
+                print(
+                    f"Processing ... {img_name_a} {img_name_b}     ",
+                    end="\r",
+                )
                 distance = compute_img_distance(img_name_a, img_name_b)
                 for feature_name in featuer_maps_precomputed_a.keys():
                     cos_sim_value = cos_sim(
                         featuer_maps_precomputed_a[feature_name],
                         featuer_maps_precomputed_b[feature_name],
                     )
-                    cos_sim_dict[feature_name].append([distance, cos_sim_value])
+                    cos_sim_dict[feature_name].append(
+                        [distance, cos_sim_value]
+                    )
 
     print("Drawing ...")
     for key1, key2 in zip(
@@ -233,21 +249,27 @@ def main():
         ax2.set_title(key2)
         ax2.set_xlabel("Distance")
         ax2.set_ylabel("Cosine similarity")
-        if not "resnetblock" in key1:
+        if "resnetblock" not in key1:
             plt.savefig(
-                os.path.join(args.output, f"patch_with_patch_{key1.split('_')[0]}"),
+                os.path.join(
+                    args.output,
+                    f"patch_with_patch_{key1.split('_')[0]}",
+                ),
                 bbox_inches="tight",
             )
         else:
             plt.savefig(
-                os.path.join(args.output, f"patch_with_patch_{key1.rsplit('_', 2)[0]}"),
+                os.path.join(
+                    args.output,
+                    f"patch_with_patch_{key1.rsplit('_', 2)[0]}",
+                ),
                 bbox_inches="tight",
             )
         plt.close("all")
 
     # others with others (lineplot)
     colors = ["#4A5FAB", "#609F5C", "#E3C454", "#A27CBA", "#B85031"]
-    ## block1 mean
+    # block1 mean
     plt.figure(figsize=(8, 3.2))
     for key1 in list(cos_sim_dict.keys())[0::2]:
         if "block1" in key1:
@@ -276,7 +298,7 @@ def main():
     )
     plt.close("all")
 
-    ## block1 std
+    # block1 std
     plt.figure(figsize=(8, 3.2))
     for key2 in list(cos_sim_dict.keys())[1::2]:
         if "block1" in key2:
@@ -305,7 +327,7 @@ def main():
     )
     plt.close("all")
 
-    ## other blocks mean
+    # other blocks mean
     plt.figure(figsize=(10, 4))
     idx = 1
     for key1 in list(cos_sim_dict.keys())[0::2]:
@@ -334,12 +356,12 @@ def main():
         idx += 1
     plt.grid()
     plt.savefig(
-        os.path.join(args.output, f"patch_with_patch_lineplot_blocks_mean"),
+        os.path.join(args.output, "patch_with_patch_lineplot_blocks_mean"),
         bbox_inches="tight",
     )
     plt.close("all")
 
-    ## other blocks std
+    # other blocks std
     plt.figure(figsize=(10, 4))
     idx = 1
     for key2 in list(cos_sim_dict.keys())[1::2]:
@@ -368,7 +390,7 @@ def main():
         idx += 1
     plt.grid()
     plt.savefig(
-        os.path.join(args.output, f"patch_with_patch_lineplot_blocks_std"),
+        os.path.join(args.output, "patch_with_patch_lineplot_blocks_std"),
         bbox_inches="tight",
     )
     plt.close("all")
