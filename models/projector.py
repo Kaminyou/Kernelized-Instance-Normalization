@@ -7,12 +7,14 @@ from models.generator import Generator
 class MLP(nn.Module):
     def __init__(self, input_nc, output_nc):
         super().__init__()
-        self.mlp = nn.Sequential(*[
-            nn.Linear(input_nc, output_nc),
-            nn.ReLU(),
-            nn.Linear(output_nc, output_nc)
-        ])
-    
+        self.mlp = nn.Sequential(
+            *[
+                nn.Linear(input_nc, output_nc),
+                nn.ReLU(),
+                nn.Linear(output_nc, output_nc),
+            ]
+        )
+
     def forward(self, x):
         return self.mlp(x)
 
@@ -29,9 +31,9 @@ class Head(nn.Module):
     def forward(self, features):
         return_features = []
         for feature_id, feature in enumerate(features):
-            mlp = getattr(self, f'mlp_{feature_id}')
+            mlp = getattr(self, f"mlp_{feature_id}")
             feature = mlp(feature)
-            norm = feature.pow(2).sum(1, keepdim=True).pow(1. / 2)
+            norm = feature.pow(2).sum(1, keepdim=True).pow(1.0 / 2)
             feature = feature.div(norm + 1e-7)
             return_features.append(feature)
         return return_features

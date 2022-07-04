@@ -1,16 +1,21 @@
 import os
 
-exps = ['lung_lesion']
-models = ['cycleGAN', 'CUT', 'LSeSim']
-model_epochs = [60, 'latest', 100]
-norm_types = ['in', 'tin', 'kin']
-kernel_types = [None, 
-                None,
-                ['constant_1', 'gaussian_1',
-                 'constant_3', 'gaussian_3',
-                 'constant_5', 'gaussian_5',
-                ]
-               ]
+exps = ["lung_lesion"]
+models = ["cycleGAN", "CUT", "LSeSim"]
+model_epochs = [60, "latest", 100]
+norm_types = ["in", "tin", "kin"]
+kernel_types = [
+    None,
+    None,
+    [
+        "constant_1",
+        "gaussian_1",
+        "constant_3",
+        "gaussian_3",
+        "constant_5",
+        "gaussian_5",
+    ],
+]
 
 for exp in exps:
     for i, model in enumerate(models):

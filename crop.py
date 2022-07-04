@@ -20,10 +20,16 @@ if __name__ == "__main__":
         python3 crop.py -i ./data/example/HE_cropped.jpg -o ./data/example/testX/ --stride 512 --thumbnail_output ./data/example/testX/
     """
     parser = argparse.ArgumentParser(description="Crop a large image into patches.")
-    parser.add_argument("-i","--input", help="Input image path", required=True)
-    parser.add_argument("-o","--output", help="Output image path", default="data/initial/trainX/")
-    parser.add_argument("--thumbnail", help="If crop a thumbnail or not", action="store_true")
-    parser.add_argument("--thumbnail_output", help="Output image path", default="data/initial/")
+    parser.add_argument("-i", "--input", help="Input image path", required=True)
+    parser.add_argument(
+        "-o", "--output", help="Output image path", default="data/initial/trainX/"
+    )
+    parser.add_argument(
+        "--thumbnail", help="If crop a thumbnail or not", action="store_true"
+    )
+    parser.add_argument(
+        "--thumbnail_output", help="Output image path", default="data/initial/"
+    )
     parser.add_argument("--patch_size", type=int, help="Patch size", default=512)
     parser.add_argument("--stride", type=int, help="Stride to crop patch", default=256)
     parser.add_argument("--mode", type=str, help="reduce or extend", default="reduce")
@@ -39,10 +45,12 @@ if __name__ == "__main__":
         raise ValueError
 
     if args.thumbnail:
-        thumbnail = cv2.resize(image, (args.patch_size, args.patch_size), cv2.INTER_AREA)
+        thumbnail = cv2.resize(
+            image, (args.patch_size, args.patch_size), cv2.INTER_AREA
+        )
         thumbnail_instance = Image.fromarray(thumbnail)
         thumbnail_instance.save(os.path.join(args.thumbnail_output, "thumbnail.png"))
-    
+
     h, w, c = image.shape
 
     if args.mode == "reduce":
@@ -60,7 +68,7 @@ if __name__ == "__main__":
     print(f"Resize to: h={h_resize} w={w_resize}")
 
     image = cv2.resize(image, (w_resize, h_resize), resize_code)
-    
+
     h_anchors = np.arange(0, h_resize, args.stride)
     w_anchors = np.arange(0, w_resize, args.stride)
     output_num = len(h_anchors) * len(w_anchors)
@@ -72,15 +80,20 @@ if __name__ == "__main__":
     for y_idx, h_anchor in enumerate(h_anchors):
         for x_idx, w_anchor in enumerate(w_anchors):
             print(f"[{curr_idx} / {output_num}] Processing ...", end="\r")
-            image_crop = image[h_anchor:h_anchor + args.patch_size, w_anchor:w_anchor + args.patch_size, :]
+            image_crop = image[
+                h_anchor : h_anchor + args.patch_size,
+                w_anchor : w_anchor + args.patch_size,
+                :,
+            ]
 
             # if stride < patch_size, some images will be cropped at the margin
             # e.g., stride = 256, patch_size = 512, image_size = 600
             # => [0, 512], [256, 600]
             # thus the output size should be double checked
-            if (image_crop.shape[0] != args.patch_size): continue
-            if (image_crop.shape[1] != args.patch_size): continue
-            
+            if image_crop.shape[0] != args.patch_size:
+                continue
+            if image_crop.shape[1] != args.patch_size:
+                continue
 
             image_crop_instance = Image.fromarray(image_crop)
 
@@ -89,9 +102,12 @@ if __name__ == "__main__":
             image_crop_instance.save(os.path.join(args.output, filename))
             blank_patches_list.append((filename, is_blank_patch(image_crop)))
             curr_idx += 1
-    
-    with open(os.path.join(args.output,'blank_patches_list.csv'), 'w', encoding='UTF8', newline='') as f:
+
+    with open(
+        os.path.join(args.output, "blank_patches_list.csv"),
+        "w",
+        encoding="UTF8",
+        newline="",
+    ) as f:
         writer = csv.writer(f)
         writer.writerows(blank_patches_list)
-
-

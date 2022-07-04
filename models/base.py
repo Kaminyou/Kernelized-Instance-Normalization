@@ -30,9 +30,13 @@ class BaseModel(ABC):
         """
         self.config = config
         self.device = config["DEVICE"]
-        self.path_train = os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], 'train')
-        self.path_test = os.path.join(config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], 'test')
-        
+        self.path_train = os.path.join(
+            config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "train"
+        )
+        self.path_test = os.path.join(
+            config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test"
+        )
+
         for path in [self.path_train, self.path_test]:
             os.makedirs(path, exist_ok=True)
 
@@ -63,7 +67,7 @@ class BaseModel(ABC):
     @abstractmethod
     def inference(self):
         pass
-    
+
     @abstractmethod
     def init_thumbnail_instance_norm_for_whole_model(self):
         pass
@@ -75,7 +79,7 @@ class BaseModel(ABC):
     @abstractmethod
     def not_use_thumbnail_instance_norm_for_whole_model(self):
         pass
-    
+
     @abstractmethod
     def init_kernelized_instance_norm_for_whole_model(self):
         pass
@@ -109,13 +113,13 @@ class BaseModel(ABC):
     def update_learning_rate(self):
         """Update learning rates for all the networks; called at the end of every epoch"""
         for scheduler in self.schedulers:
-            if self.opt.lr_policy == 'plateau':
+            if self.opt.lr_policy == "plateau":
                 scheduler.step(self.metric)
             else:
                 scheduler.step()
 
-        lr = self.optimizers[0].param_groups[0]['lr']
-        print('learning rate = %.7f' % lr)
+        lr = self.optimizers[0].param_groups[0]["lr"]
+        print("learning rate = %.7f" % lr)
 
     def get_current_visuals(self):
         """Return visualization images"""
@@ -130,7 +134,9 @@ class BaseModel(ABC):
         errors_ret = OrderedDict()
         for name in self.loss_names:
             if isinstance(name, str):
-                errors_ret[name] = float(getattr(self, 'loss_' + name))  # float(...) works for both scalar tensor and float number
+                errors_ret[name] = float(
+                    getattr(self, "loss_" + name)
+                )  # float(...) works for both scalar tensor and float number
         return errors_ret
 
     def save_networks(self, epoch):
@@ -141,7 +147,7 @@ class BaseModel(ABC):
         """
         for name in self.model_names:
             if isinstance(name, str):
-                save_filename = f'{epoch}_{name}.pth'
+                save_filename = f"{epoch}_{name}.pth"
                 save_path = os.path.join(self.path_train, save_filename)
                 net = getattr(self, name)
 
@@ -155,7 +161,7 @@ class BaseModel(ABC):
         """
         for name in self.model_names:
             if isinstance(name, str):
-                load_filename = f'{epoch}_{name}.pth'
+                load_filename = f"{epoch}_{name}.pth"
                 load_path = os.path.join(self.path_train, load_filename)
                 net = getattr(self, name)
 
@@ -171,7 +177,7 @@ class BaseModel(ABC):
         Parameters:
             verbose (bool) -- if verbose: print the network architecture
         """
-        print('---------- Networks initialized -------------')
+        print("---------- Networks initialized -------------")
         for name in self.model_names:
             if isinstance(name, str):
                 net = getattr(self, name)
@@ -180,8 +186,10 @@ class BaseModel(ABC):
                     num_params += param.numel()
                 if verbose:
                     print(net)
-                print(f'[Network {name}] Total number of parameters : {(num_params / 1e6):.3f} M')
-        print('-----------------------------------------------')
+                print(
+                    f"[Network {name}] Total number of parameters : {(num_params / 1e6):.3f} M"
+                )
+        print("-----------------------------------------------")
 
     def set_requires_grad(self, nets, requires_grad=False):
         """Set requies_grad=Fasle for all the networks to avoid unnecessary computations

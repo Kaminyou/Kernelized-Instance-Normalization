@@ -6,46 +6,64 @@ from torch.optim import lr_scheduler
 from models.base import BaseModel
 from models.discriminator import Discriminator
 from models.generator import Generator
-from models.kin import (init_kernelized_instance_norm,
-                        not_use_kernelized_instance_norm,
-                        use_kernelized_instance_norm)
+from models.kin import (
+    init_kernelized_instance_norm,
+    not_use_kernelized_instance_norm,
+    use_kernelized_instance_norm,
+)
 from models.projector import Head
-from models.tin import (init_thumbnail_instance_norm,
-                        not_use_thumbnail_instance_norm,
-                        use_thumbnail_instance_norm)
+from models.tin import (
+    init_thumbnail_instance_norm,
+    not_use_thumbnail_instance_norm,
+    use_thumbnail_instance_norm,
+)
 
 
 class ContrastiveModel(BaseModel):
     # instance normalization can be different from the one specified during training
     def __init__(self, config, normalization="in"):
         BaseModel.__init__(self, config)
-        self.model_names = ['D_Y', 'G', 'H']
-        self.loss_names = ['G_adv', 'D_Y', 'G', 'NCE']
-        self.visual_names = ['X', 'Y', 'Y_fake']
+        self.model_names = ["D_Y", "G", "H"]
+        self.loss_names = ["G_adv", "D_Y", "G", "NCE"]
+        self.visual_names = ["X", "Y", "Y_fake"]
         if self.config["TRAINING_SETTING"]["LAMBDA_Y"] > 0:
-            self.loss_names += ['NCE_Y']
-            self.visual_names += ['Y_idt']
-        
+            self.loss_names += ["NCE_Y"]
+            self.visual_names += ["Y_idt"]
+
         self.normalization = normalization
-        # Discrimnator would not be used during inference, 
+        # Discrimnator would not be used during inference,
         # so specification of instane normalization is not required
-        self.D_Y = Discriminator().to(self.device) 
-        
+        self.D_Y = Discriminator().to(self.device)
+
         self.G = Generator(normalization=normalization).to(self.device)
         self.H = Head().to(self.device)
 
-        self.opt_D_Y = optim.Adam(self.D_Y.parameters(), lr=self.config["TRAINING_SETTING"]["LEARNING_RATE"], betas=(0.5, 0.999),)
-        self.opt_G = optim.Adam(self.G.parameters(), lr=self.config["TRAINING_SETTING"]["LEARNING_RATE"], betas=(0.5, 0.999),)
-        self.opt_H = optim.Adam(self.H.parameters(), lr=self.config["TRAINING_SETTING"]["LEARNING_RATE"], betas=(0.5, 0.999),)
+        self.opt_D_Y = optim.Adam(
+            self.D_Y.parameters(),
+            lr=self.config["TRAINING_SETTING"]["LEARNING_RATE"],
+            betas=(0.5, 0.999),
+        )
+        self.opt_G = optim.Adam(
+            self.G.parameters(),
+            lr=self.config["TRAINING_SETTING"]["LEARNING_RATE"],
+            betas=(0.5, 0.999),
+        )
+        self.opt_H = optim.Adam(
+            self.H.parameters(),
+            lr=self.config["TRAINING_SETTING"]["LEARNING_RATE"],
+            betas=(0.5, 0.999),
+        )
 
         self.l1 = nn.L1Loss()
         self.mse = nn.MSELoss()
-        self.cross_entropy_loss = torch.nn.CrossEntropyLoss(reduction='none')
+        self.cross_entropy_loss = torch.nn.CrossEntropyLoss(reduction="none")
 
         if self.config["TRAINING_SETTING"]["LOAD_MODEL"]:
             self.load_networks(self.config["TRAINING_SETTING"]["EPOCH"])
 
-        lambda_lr = lambda epoch: 1.0 - max(0, epoch - self.config["TRAINING_SETTING"]["NUM_EPOCHS"] / 2) / (self.config["TRAINING_SETTING"]["NUM_EPOCHS"] / 2)
+        lambda_lr = lambda epoch: 1.0 - max(
+            0, epoch - self.config["TRAINING_SETTING"]["NUM_EPOCHS"] / 2
+        ) / (self.config["TRAINING_SETTING"]["NUM_EPOCHS"] / 2)
         self.scheduler_disc = lr_scheduler.LambdaLR(self.opt_D_Y, lr_lambda=lambda_lr)
         self.scheduler_gen = lr_scheduler.LambdaLR(self.opt_G, lr_lambda=lambda_lr)
         self.scheduler_mlp = lr_scheduler.LambdaLR(self.opt_H, lr_lambda=lambda_lr)
@@ -67,7 +85,7 @@ class ContrastiveModel(BaseModel):
             X = X.to(self.device)
             Y_fake, feature_map = self.G.analyze_feature_map(X)
         return Y_fake, feature_map
-    
+
     def inference(self, X):
         self.eval()
         with torch.no_grad():
@@ -80,7 +98,9 @@ class ContrastiveModel(BaseModel):
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)
-            Y_fake = self.G.forward_with_anchor(X, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+            Y_fake = self.G.forward_with_anchor(
+                X, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding
+            )
         return Y_fake
 
     def optimize_parameters(self):
@@ -148,7 +168,9 @@ class ContrastiveModel(BaseModel):
     def patch_nce_loss(self, feat_q, feat_k):
         feat_k = feat_k.detach()
         out = torch.mm(feat_q, feat_k.transpose(1, 0)) / 0.07
-        loss = self.cross_entropy_loss(out, torch.arange(0, out.size(0), dtype=torch.long, device=self.device))
+        loss = self.cross_entropy_loss(
+            out, torch.arange(0, out.size(0), dtype=torch.long, device=self.device)
+        )
         return loss
 
     def init_thumbnail_instance_norm_for_whole_model(self):
@@ -156,21 +178,23 @@ class ContrastiveModel(BaseModel):
 
     def use_thumbnail_instance_norm_for_whole_model(self):
         use_thumbnail_instance_norm(self.G)
-    
+
     def not_use_thumbnail_instance_norm_for_whole_model(self):
         not_use_thumbnail_instance_norm(self.G)
 
-    def init_kernelized_instance_norm_for_whole_model(self, y_anchor_num, x_anchor_num, kernel_padding=1, kernel_mode="constant"):
+    def init_kernelized_instance_norm_for_whole_model(
+        self, y_anchor_num, x_anchor_num, kernel_padding=1, kernel_mode="constant"
+    ):
         init_kernelized_instance_norm(
-            self.G, 
-            y_anchor_num=y_anchor_num, 
-            x_anchor_num=x_anchor_num, 
+            self.G,
+            y_anchor_num=y_anchor_num,
+            x_anchor_num=x_anchor_num,
             kernel_padding=kernel_padding,
-            kernel_mode=kernel_mode
+            kernel_mode=kernel_mode,
         )
 
     def use_kernelized_instance_norm_for_whole_model(self, padding=1):
         use_kernelized_instance_norm(self.G, padding=padding)
-    
+
     def not_use_kernelized_instance_norm_for_whole_model(self):
         not_use_kernelized_instance_norm(self.G)
