@@ -12,24 +12,35 @@ try:
     from tqdm import tqdm
 except ImportError:
     # If not tqdm is not available, provide a mock version of it
-    def tqdm(x): return x
+    def tqdm(x):
+        return x
+
 
 from prdc import compute_prdc
 
 from evaluations.inception import InceptionV3
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
-parser.add_argument('--batch-size', type=int, default=100,
-                    help='Batch size to use')
-parser.add_argument('--dims', type=int, default=2048,
-                    choices=list(InceptionV3.BLOCK_INDEX_BY_DIM),
-                    help=('Dimensionality of Inception features to use. '
-                          'By default, uses pool3 features'))
-parser.add_argument('-c', '--gpu', default='', type=str,
-                    help='GPU to use (leave blank for CPU only)')
-parser.add_argument('path', type=str, nargs=2,
-                    help=('Paths to the generated images or '
-                          'to .npz statistic files'))
+parser.add_argument("--batch-size", type=int, default=100, help="Batch size to use")
+parser.add_argument(
+    "--dims",
+    type=int,
+    default=2048,
+    choices=list(InceptionV3.BLOCK_INDEX_BY_DIM),
+    help=(
+        "Dimensionality of Inception features to use. "
+        "By default, uses pool3 features"
+    ),
+)
+parser.add_argument(
+    "-c", "--gpu", default="", type=str, help="GPU to use (leave blank for CPU only)"
+)
+parser.add_argument(
+    "path",
+    type=str,
+    nargs=2,
+    help=("Paths to the generated images or " "to .npz statistic files"),
+)
 
 
 def imread(filename):
@@ -59,8 +70,12 @@ def get_activations(files, model, batch_size=50, dims=2048, cuda=False):
     model.eval()
 
     if batch_size > len(files):
-        print(('Warning: batch size is bigger than the data size. '
-               'Setting batch size to data size'))
+        print(
+            (
+                "Warning: batch size is bigger than the data size. "
+                "Setting batch size to data size"
+            )
+        )
         batch_size = len(files)
 
     pred_arr = np.empty((len(files), dims))
@@ -69,8 +84,7 @@ def get_activations(files, model, batch_size=50, dims=2048, cuda=False):
         start = i
         end = i + batch_size
 
-        images = np.array([imread(str(f)).astype(np.float32)
-                           for f in files[start:end]])
+        images = np.array([imread(str(f)).astype(np.float32) for f in files[start:end]])
 
         # Reshape to (n_images, 3, height, width)
         images = images.transpose((0, 3, 1, 2))
@@ -93,13 +107,13 @@ def get_activations(files, model, batch_size=50, dims=2048, cuda=False):
 
 
 def _compute_statistics_of_path(path, model, batch_size, dims, cuda):
-    if path.endswith('.npz'):
+    if path.endswith(".npz"):
         f = np.load(path)
-        m, s = f['mu'][:], f['sigma'][:]
+        m, s = f["mu"][:], f["sigma"][:]
         f.close()
     else:
         path = pathlib.Path(path)
-        files = list(path.glob('*.jpg')) + list(path.glob('*.png'))
+        files = list(path.glob("*.jpg")) + list(path.glob("*.png"))
         f = get_activations(files, model, batch_size, dims, cuda)
 
     return f
@@ -109,7 +123,7 @@ def calculate_DC_given_paths(paths, batch_size, cuda, dims):
 
     for p in paths:
         if not os.path.exists(p):
-            raise RuntimeError('Invalid path: %s' % p)
+            raise RuntimeError("Invalid path: %s" % p)
 
     block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[dims]
 
@@ -128,14 +142,13 @@ def calculate_DC_given_paths(paths, batch_size, cuda, dims):
 
 def main():
     args = parser.parse_args()
-    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
-    dc_value = calculate_DC_given_paths(args.path,
-                                          args.batch_size,
-                                          args.gpu != '',
-                                          args.dims)
+    dc_value = calculate_DC_given_paths(
+        args.path, args.batch_size, args.gpu != "", args.dims
+    )
     print(dc_value)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

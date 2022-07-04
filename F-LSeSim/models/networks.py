@@ -8,9 +8,21 @@ from . import cyclegan_networks, stylegan_networks
 ##################################################################################
 # Networks
 ##################################################################################
-def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, init_type='normal',
-             init_gain=0.02, no_antialias=False, no_antialias_up=False, gpu_ids=[], opt=None,
-             normalization="in"):
+def define_G(
+    input_nc,
+    output_nc,
+    ngf,
+    netG,
+    norm="batch",
+    use_dropout=False,
+    init_type="normal",
+    init_gain=0.02,
+    no_antialias=False,
+    no_antialias_up=False,
+    gpu_ids=[],
+    opt=None,
+    normalization="in",
+):
     """
     Create a generator
     :param input_nc: the number of channels in input images
@@ -29,16 +41,29 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
     """
     norm_value = cyclegan_networks.get_norm_layer(norm)
 
-    if netG == 'resnet_9blocks':
+    if netG == "resnet_9blocks":
         net = Generator(normalization=normalization)
-    elif netG == 'stylegan2':
+    elif netG == "stylegan2":
         net = stylegan_networks.StyleGAN2Generator(input_nc, output_nc, ngf, opt=opt)
     else:
-        raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
-    return cyclegan_networks.init_net(net, init_type, init_gain, gpu_ids, initialize_weights=('stylegan2' not in netG))
+        raise NotImplementedError("Generator model name [%s] is not recognized" % netG)
+    return cyclegan_networks.init_net(
+        net, init_type, init_gain, gpu_ids, initialize_weights=("stylegan2" not in netG)
+    )
 
 
-def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal', init_gain=0.02, no_antialias=False, gpu_ids=[], opt=None):
+def define_D(
+    input_nc,
+    ndf,
+    netD,
+    n_layers_D=3,
+    norm="batch",
+    init_type="normal",
+    init_gain=0.02,
+    no_antialias=False,
+    gpu_ids=[],
+    opt=None,
+):
     """
     Create a discriminator
     :param input_nc: the number of channels in input images
@@ -54,15 +79,23 @@ def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal'
     :return:
     """
     norm_value = cyclegan_networks.get_norm_layer(norm)
-    if netD == 'basic':
-        net = cyclegan_networks.NLayerDiscriminator(input_nc, ndf, n_layers_D, norm_value, no_antialias)
-    elif netD == 'bimulti':
-        net = cyclegan_networks.D_NLayersMulti(input_nc, ndf, n_layers=n_layers_D, norm_layer=norm_value, num_D=2)
-    elif 'stylegan2' in netD:
+    if netD == "basic":
+        net = cyclegan_networks.NLayerDiscriminator(
+            input_nc, ndf, n_layers_D, norm_value, no_antialias
+        )
+    elif netD == "bimulti":
+        net = cyclegan_networks.D_NLayersMulti(
+            input_nc, ndf, n_layers=n_layers_D, norm_layer=norm_value, num_D=2
+        )
+    elif "stylegan2" in netD:
         net = stylegan_networks.StyleGAN2Discriminator(input_nc, ndf, opt=opt)
     else:
-        raise NotImplementedError('Discriminator model name [%s] is not recognized' % netD)
-    return cyclegan_networks.init_net(net, init_type, init_gain, gpu_ids, initialize_weights=('stylegan2' not in netD))
+        raise NotImplementedError(
+            "Discriminator model name [%s] is not recognized" % netD
+        )
+    return cyclegan_networks.init_net(
+        net, init_type, init_gain, gpu_ids, initialize_weights=("stylegan2" not in netD)
+    )
 
 
 ###############################################################################
@@ -73,7 +106,7 @@ def get_scheduler(optimizer, opt):
 
     Parameters:
         optimizer          -- the optimizer of the network
-        opt (option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions．　
+        opt (option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions．
                               opt.lr_policy is the name of learning rate policy: linear | step | plateau | cosine
 
     For 'linear', we keep the same learning rate for the first <opt.n_epochs> epochs
@@ -81,17 +114,29 @@ def get_scheduler(optimizer, opt):
     For other schedulers (step, plateau, and cosine), we use the default PyTorch schedulers.
     See https://pytorch.org/docs/stable/optim.html for more details.
     """
-    if opt.lr_policy == 'linear':
+    if opt.lr_policy == "linear":
+
         def lambda_rule(epoch):
-            lr_l = 1.0 - max(0, epoch + opt.epoch_count - opt.n_epochs) / float(opt.n_epochs_decay + 1)
+            lr_l = 1.0 - max(0, epoch + opt.epoch_count - opt.n_epochs) / float(
+                opt.n_epochs_decay + 1
+            )
             return lr_l
+
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
-    elif opt.lr_policy == 'step':
-        scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=0.1)
-    elif opt.lr_policy == 'plateau':
-        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, threshold=0.01, patience=5)
-    elif opt.lr_policy == 'cosine':
-        scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=opt.n_epochs, eta_min=0)
+    elif opt.lr_policy == "step":
+        scheduler = lr_scheduler.StepLR(
+            optimizer, step_size=opt.lr_decay_iters, gamma=0.1
+        )
+    elif opt.lr_policy == "plateau":
+        scheduler = lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode="min", factor=0.2, threshold=0.01, patience=5
+        )
+    elif opt.lr_policy == "cosine":
+        scheduler = lr_scheduler.CosineAnnealingLR(
+            optimizer, T_max=opt.n_epochs, eta_min=0
+        )
     else:
-        return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
+        return NotImplementedError(
+            "learning rate policy [%s] is not implemented", opt.lr_policy
+        )
     return scheduler

@@ -27,19 +27,28 @@ class SingleImageDataset(BaseDataset):
         """
         BaseDataset.__init__(self, opt)
 
-        self.dir_A = os.path.join(opt.dataroot, 'trainA')  # create a path '/path/to/data/trainA'
-        self.dir_B = os.path.join(opt.dataroot, 'trainB')  # create a path '/path/to/data/trainB'
+        self.dir_A = os.path.join(
+            opt.dataroot, "trainA"
+        )  # create a path '/path/to/data/trainA'
+        self.dir_B = os.path.join(
+            opt.dataroot, "trainB"
+        )  # create a path '/path/to/data/trainB'
 
         if os.path.exists(self.dir_A) and os.path.exists(self.dir_B):
-            self.A_paths = sorted(make_dataset(self.dir_A, opt.max_dataset_size))   # load images from '/path/to/data/trainA'
-            self.B_paths = sorted(make_dataset(self.dir_B, opt.max_dataset_size))    # load images from '/path/to/data/trainB'
+            self.A_paths = sorted(
+                make_dataset(self.dir_A, opt.max_dataset_size)
+            )  # load images from '/path/to/data/trainA'
+            self.B_paths = sorted(
+                make_dataset(self.dir_B, opt.max_dataset_size)
+            )  # load images from '/path/to/data/trainB'
         self.A_size = len(self.A_paths)  # get the size of dataset A
         self.B_size = len(self.B_paths)  # get the size of dataset B
 
-        assert len(self.A_paths) == 1 and len(self.B_paths) == 1,\
-            "SingleImageDataset class should be used with one image in each domain"
-        A_img = Image.open(self.A_paths[0]).convert('RGB')
-        B_img = Image.open(self.B_paths[0]).convert('RGB')
+        assert (
+            len(self.A_paths) == 1 and len(self.B_paths) == 1
+        ), "SingleImageDataset class should be used with one image in each domain"
+        A_img = Image.open(self.A_paths[0]).convert("RGB")
+        B_img = Image.open(self.B_paths[0]).convert("RGB")
         print("Image sizes %s and %s" % (str(A_img.size), str(B_img.size)))
 
         self.A_img = A_img
@@ -50,12 +59,20 @@ class SingleImageDataset(BaseDataset):
         # amount of scaling is the same within a minibatch. To do this,
         # we precompute the random scaling values, and repeat them by |batch_size|.
         A_zoom = 1 / self.opt.random_scale_max
-        zoom_levels_A = np.random.uniform(A_zoom, 1.0, size=(len(self) // opt.batch_size + 1, 1, 2))
-        self.zoom_levels_A = np.reshape(np.tile(zoom_levels_A, (1, opt.batch_size, 1)), [-1, 2])
+        zoom_levels_A = np.random.uniform(
+            A_zoom, 1.0, size=(len(self) // opt.batch_size + 1, 1, 2)
+        )
+        self.zoom_levels_A = np.reshape(
+            np.tile(zoom_levels_A, (1, opt.batch_size, 1)), [-1, 2]
+        )
 
         B_zoom = 1 / self.opt.random_scale_max
-        zoom_levels_B = np.random.uniform(B_zoom, 1.0, size=(len(self) // opt.batch_size + 1, 1, 2))
-        self.zoom_levels_B = np.reshape(np.tile(zoom_levels_B, (1, opt.batch_size, 1)), [-1, 2])
+        zoom_levels_B = np.random.uniform(
+            B_zoom, 1.0, size=(len(self) // opt.batch_size + 1, 1, 2)
+        )
+        self.zoom_levels_B = np.reshape(
+            np.tile(zoom_levels_B, (1, opt.batch_size, 1)), [-1, 2]
+        )
 
         # While the crop locations are randomized, the negative samples should
         # not come from the same location. To do this, we precompute the
@@ -84,16 +101,20 @@ class SingleImageDataset(BaseDataset):
 
         # apply image transformation
         if self.opt.phase == "train":
-            param = {'scale_factor': self.zoom_levels_A[index],
-                     'patch_index': self.patch_indices_A[index],
-                     'flip': random.random() > 0.5}
+            param = {
+                "scale_factor": self.zoom_levels_A[index],
+                "patch_index": self.patch_indices_A[index],
+                "flip": random.random() > 0.5,
+            }
 
             transform_A = get_transform(self.opt, params=param, method=Image.BILINEAR)
             A = transform_A(A_img)
 
-            param = {'scale_factor': self.zoom_levels_B[index],
-                     'patch_index': self.patch_indices_B[index],
-                     'flip': random.random() > 0.5}
+            param = {
+                "scale_factor": self.zoom_levels_B[index],
+                "patch_index": self.patch_indices_B[index],
+                "flip": random.random() > 0.5,
+            }
             transform_B = get_transform(self.opt, params=param, method=Image.BILINEAR)
             B = transform_B(B_img)
         else:
@@ -101,9 +122,8 @@ class SingleImageDataset(BaseDataset):
             A = transform(A_img)
             B = transform(B_img)
 
-        return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path}
+        return {"A": A, "B": B, "A_paths": A_path, "B_paths": B_path}
 
     def __len__(self):
-        """ Let's pretend the single image contains 100,000 crops for convenience.
-        """
+        """Let's pretend the single image contains 100,000 crops for convenience."""
         return 100000

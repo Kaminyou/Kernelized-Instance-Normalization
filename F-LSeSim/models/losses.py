@@ -15,7 +15,7 @@ class GANLoss(nn.Module):
     """
 
     def __init__(self, gan_mode, target_real_label=1.0, target_fake_label=0.0):
-        """ Initialize the GANLoss class.
+        """Initialize the GANLoss class.
 
         Parameters:
             gan_mode (str) - - the type of GAN objective. It currently supports vanilla, lsgan, and wgangp.
@@ -26,19 +26,19 @@ class GANLoss(nn.Module):
         LSGAN needs no sigmoid. vanilla GANs will handle it with BCEWithLogitsLoss.
         """
         super(GANLoss, self).__init__()
-        self.register_buffer('real_label', torch.tensor(target_real_label))
-        self.register_buffer('fake_label', torch.tensor(target_fake_label))
+        self.register_buffer("real_label", torch.tensor(target_real_label))
+        self.register_buffer("fake_label", torch.tensor(target_fake_label))
         self.gan_mode = gan_mode
-        if gan_mode == 'lsgan':
+        if gan_mode == "lsgan":
             self.loss = nn.MSELoss()
-        elif gan_mode == 'vanilla':
+        elif gan_mode == "vanilla":
             self.loss = nn.BCEWithLogitsLoss()
-        elif gan_mode == 'hinge':
+        elif gan_mode == "hinge":
             self.loss = nn.ReLU()
-        elif gan_mode in ['wgangp', 'nonsaturating']:
+        elif gan_mode in ["wgangp", "nonsaturating"]:
             self.loss = None
         else:
-            raise NotImplementedError('gan mode %s not implemented' % gan_mode)
+            raise NotImplementedError("gan mode %s not implemented" % gan_mode)
 
     def get_target_tensor(self, prediction, target_is_real):
         """Create label tensors with the same size as the input.
@@ -67,22 +67,22 @@ class GANLoss(nn.Module):
         Returns:
             the calculated loss.
         """
-        if self.gan_mode in ['lsgan', 'vanilla']:
+        if self.gan_mode in ["lsgan", "vanilla"]:
             target_tensor = self.get_target_tensor(prediction, target_is_real)
             loss = self.loss(prediction, target_tensor)
         else:
             if is_dis:
                 if target_is_real:
                     prediction = -prediction
-                if self.gan_mode == 'wgangp':
+                if self.gan_mode == "wgangp":
                     loss = prediction.mean()
-                elif self.gan_mode == 'nonsaturating':
+                elif self.gan_mode == "nonsaturating":
                     loss = F.softplus(prediction).mean()
-                elif self.gan_mode == 'hinge':
-                    loss = self.loss(1+prediction).mean()
+                elif self.gan_mode == "hinge":
+                    loss = self.loss(1 + prediction).mean()
             else:
-                if self.gan_mode == 'nonsaturating':
-                   loss = F.softplus(-prediction).mean()
+                if self.gan_mode == "nonsaturating":
+                    loss = F.softplus(-prediction).mean()
                 else:
                     loss = -prediction.mean()
         return loss
@@ -100,7 +100,9 @@ class GANLoss(nn.Module):
         return loss
 
 
-def cal_gradient_penalty(netD, real_data, fake_data, device, type='mixed', constant=1.0, lambda_gp=10.0):
+def cal_gradient_penalty(
+    netD, real_data, fake_data, device, type="mixed", constant=1.0, lambda_gp=10.0
+):
     """Calculate the gradient penalty loss, used in WGAN-GP paper https://arxiv.org/abs/1704.00028
 
     Arguments:
@@ -115,30 +117,50 @@ def cal_gradient_penalty(netD, real_data, fake_data, device, type='mixed', const
     Returns the gradient penalty loss
     """
     if lambda_gp > 0.0:
-        if type == 'real':   # either use real images, fake images, or a linear interpolation of two.
+        if (
+            type == "real"
+        ):  # either use real images, fake images, or a linear interpolation of two.
             interpolatesv = real_data
-        elif type == 'fake':
+        elif type == "fake":
             interpolatesv = fake_data
-        elif type == 'mixed':
+        elif type == "mixed":
             alpha = torch.rand(real_data.shape[0], 1, device=device)
-            alpha = alpha.expand(real_data.shape[0], real_data.nelement() // real_data.shape[0]).contiguous().view(*real_data.shape)
+            alpha = (
+                alpha.expand(
+                    real_data.shape[0], real_data.nelement() // real_data.shape[0]
+                )
+                .contiguous()
+                .view(*real_data.shape)
+            )
             interpolatesv = alpha * real_data + ((1 - alpha) * fake_data)
         else:
-            raise NotImplementedError('{} not implemented'.format(type))
+            raise NotImplementedError("{} not implemented".format(type))
         interpolatesv.requires_grad_(True)
         disc_interpolates = netD(interpolatesv)
         if isinstance(disc_interpolates, list):
             gradients = 0
             for disc_interpolate in disc_interpolates:
-                gradients += torch.autograd.grad(outputs=disc_interpolate, inputs=interpolatesv,
-                                        grad_outputs=torch.ones(disc_interpolate.size()).to(device),
-                                        create_graph=True, retain_graph=True, only_inputs=True)[0]
+                gradients += torch.autograd.grad(
+                    outputs=disc_interpolate,
+                    inputs=interpolatesv,
+                    grad_outputs=torch.ones(disc_interpolate.size()).to(device),
+                    create_graph=True,
+                    retain_graph=True,
+                    only_inputs=True,
+                )[0]
         else:
-            gradients = torch.autograd.grad(outputs=disc_interpolates, inputs=interpolatesv,
-                                            grad_outputs=torch.ones(disc_interpolates.size()).to(device),
-                                            create_graph=True, retain_graph=True, only_inputs=True)[0]
+            gradients = torch.autograd.grad(
+                outputs=disc_interpolates,
+                inputs=interpolatesv,
+                grad_outputs=torch.ones(disc_interpolates.size()).to(device),
+                create_graph=True,
+                retain_graph=True,
+                only_inputs=True,
+            )[0]
         gradients = gradients.view(real_data.size(0), -1)  # flat the data
-        gradient_penalty = (((gradients + 1e-16).norm(2, dim=1) - constant) ** 2).mean() * lambda_gp        # added eps
+        gradient_penalty = (
+            ((gradients + 1e-16).norm(2, dim=1) - constant) ** 2
+        ).mean() * lambda_gp  # added eps
         return gradient_penalty, gradients
     else:
         return 0.0, None
@@ -153,7 +175,7 @@ class StyleLoss(nn.Module):
 
     def __init__(self):
         super(StyleLoss, self).__init__()
-        self.add_module('vgg', VGG16())
+        self.add_module("vgg", VGG16())
         self.criterion = nn.L1Loss()
 
     def compute_gram(self, x):
@@ -170,10 +192,18 @@ class StyleLoss(nn.Module):
 
         # Compute loss
         style_loss = 0.0
-        style_loss += self.criterion(self.compute_gram(x_vgg['relu1_2']), self.compute_gram(y_vgg['relu1_2']))
-        style_loss += self.criterion(self.compute_gram(x_vgg['relu2_2']), self.compute_gram(y_vgg['relu2_2']))
-        style_loss += self.criterion(self.compute_gram(x_vgg['relu3_3']), self.compute_gram(y_vgg['relu3_3']))
-        style_loss += self.criterion(self.compute_gram(x_vgg['relu4_3']), self.compute_gram(y_vgg['relu4_3']))
+        style_loss += self.criterion(
+            self.compute_gram(x_vgg["relu1_2"]), self.compute_gram(y_vgg["relu1_2"])
+        )
+        style_loss += self.criterion(
+            self.compute_gram(x_vgg["relu2_2"]), self.compute_gram(y_vgg["relu2_2"])
+        )
+        style_loss += self.criterion(
+            self.compute_gram(x_vgg["relu3_3"]), self.compute_gram(y_vgg["relu3_3"])
+        )
+        style_loss += self.criterion(
+            self.compute_gram(x_vgg["relu4_3"]), self.compute_gram(y_vgg["relu4_3"])
+        )
 
         return style_loss
 
@@ -187,7 +217,7 @@ class PerceptualLoss(nn.Module):
 
     def __init__(self, weights=[0.0, 0.0, 1.0, 0.0, 0.0]):
         super(PerceptualLoss, self).__init__()
-        self.add_module('vgg', VGG16())
+        self.add_module("vgg", VGG16())
         self.criterion = nn.L1Loss()
         self.weights = weights
 
@@ -196,17 +226,38 @@ class PerceptualLoss(nn.Module):
         x_vgg, y_vgg = self.vgg(x), self.vgg(y)
 
         content_loss = 0.0
-        content_loss += self.weights[0] * self.criterion(x_vgg['relu1_2'], y_vgg['relu1_2']) if self.weights[0] > 0 else 0
-        content_loss += self.weights[1] * self.criterion(x_vgg['relu2_2'], y_vgg['relu2_2']) if self.weights[1] > 0 else 0
-        content_loss += self.weights[2] * self.criterion(x_vgg['relu3_3'], y_vgg['relu3_3']) if self.weights[2] > 0 else 0
-        content_loss += self.weights[3] * self.criterion(x_vgg['relu4_3'], y_vgg['relu4_3']) if self.weights[3] > 0 else 0
-        content_loss += self.weights[4] * self.criterion(x_vgg['relu5_3'], y_vgg['relu5_3']) if self.weights[4] > 0 else 0
+        content_loss += (
+            self.weights[0] * self.criterion(x_vgg["relu1_2"], y_vgg["relu1_2"])
+            if self.weights[0] > 0
+            else 0
+        )
+        content_loss += (
+            self.weights[1] * self.criterion(x_vgg["relu2_2"], y_vgg["relu2_2"])
+            if self.weights[1] > 0
+            else 0
+        )
+        content_loss += (
+            self.weights[2] * self.criterion(x_vgg["relu3_3"], y_vgg["relu3_3"])
+            if self.weights[2] > 0
+            else 0
+        )
+        content_loss += (
+            self.weights[3] * self.criterion(x_vgg["relu4_3"], y_vgg["relu4_3"])
+            if self.weights[3] > 0
+            else 0
+        )
+        content_loss += (
+            self.weights[4] * self.criterion(x_vgg["relu5_3"], y_vgg["relu5_3"])
+            if self.weights[4] > 0
+            else 0
+        )
 
         return content_loss
 
 
 class PatchSim(nn.Module):
     """Calculate the similarity in selected patches"""
+
     def __init__(self, patch_nums=256, patch_size=None, norm=True):
         super(PatchSim, self).__init__()
         self.patch_nums = patch_nums
@@ -221,7 +272,7 @@ class PatchSim(nn.Module):
         feat = feat - feat.mean(dim=[-2, -1], keepdim=True)
         feat = F.normalize(feat, dim=1) if self.use_norm else feat / np.sqrt(C)
         query, key, patch_ids = self.select_patch(feat, patch_ids=patch_ids)
-        patch_sim = query.bmm(key) if self.use_norm else torch.tanh(query.bmm(key)/10)
+        patch_sim = query.bmm(key) if self.use_norm else torch.tanh(query.bmm(key) / 10)
         if patch_ids is not None:
             patch_sim = patch_sim.view(B, len(patch_ids), -1)
 
@@ -233,31 +284,46 @@ class PatchSim(nn.Module):
         """
         B, C, W, H = feat.size()
         pw, ph = self.patch_size, self.patch_size
-        feat_reshape = feat.permute(0, 2, 3, 1).flatten(1, 2) # B*N*C
+        feat_reshape = feat.permute(0, 2, 3, 1).flatten(1, 2)  # B*N*C
         if self.patch_nums > 0:
             if patch_ids is None:
                 patch_ids = torch.randperm(feat_reshape.size(1), device=feat.device)
-                patch_ids = patch_ids[:int(min(self.patch_nums, patch_ids.size(0)))]
-            feat_query = feat_reshape[:, patch_ids, :]       # B*Num*C
+                patch_ids = patch_ids[: int(min(self.patch_nums, patch_ids.size(0)))]
+            feat_query = feat_reshape[:, patch_ids, :]  # B*Num*C
             feat_key = []
             Num = feat_query.size(1)
             if pw < W and ph < H:
                 pos_x, pos_y = patch_ids // W, patch_ids % W
                 # patch should in the feature
                 left, top = pos_x - int(pw / 2), pos_y - int(ph / 2)
-                left, top = torch.where(left > 0, left, torch.zeros_like(left)), torch.where(top > 0, top, torch.zeros_like(top))
-                start_x = torch.where(left > (W - pw), (W - pw) * torch.ones_like(left), left)
-                start_y = torch.where(top > (H - ph), (H - ph) * torch.ones_like(top), top)
+                left, top = torch.where(
+                    left > 0, left, torch.zeros_like(left)
+                ), torch.where(top > 0, top, torch.zeros_like(top))
+                start_x = torch.where(
+                    left > (W - pw), (W - pw) * torch.ones_like(left), left
+                )
+                start_y = torch.where(
+                    top > (H - ph), (H - ph) * torch.ones_like(top), top
+                )
                 for i in range(Num):
-                    feat_key.append(feat[:, :, start_x[i]:start_x[i]+pw, start_y[i]:start_y[i]+ph]) # B*C*patch_w*patch_h
-                feat_key = torch.stack(feat_key, dim=0).permute(1, 0, 2, 3, 4) # B*Num*C*patch_w*patch_h
+                    feat_key.append(
+                        feat[
+                            :,
+                            :,
+                            start_x[i] : start_x[i] + pw,
+                            start_y[i] : start_y[i] + ph,
+                        ]
+                    )  # B*C*patch_w*patch_h
+                feat_key = torch.stack(feat_key, dim=0).permute(
+                    1, 0, 2, 3, 4
+                )  # B*Num*C*patch_w*patch_h
                 feat_key = feat_key.reshape(B * Num, C, pw * ph)  # Num * C * N
                 feat_query = feat_query.reshape(B * Num, 1, C)  # Num * 1 * C
-            else: # if patch larger than features size, use B * C * N (H * W)
-                feat_key = feat.reshape(B, C, W*H)
+            else:  # if patch larger than features size, use B * C * N (H * W)
+                feat_key = feat.reshape(B, C, W * H)
         else:
-            feat_query = feat.reshape(B, C, H*W).permute(0, 2, 1) # B * N (H * W) * C
-            feat_key = feat.reshape(B, C, H*W)  # B * C * N (H * W)
+            feat_query = feat.reshape(B, C, H * W).permute(0, 2, 1)  # B * N (H * W) * C
+            feat_key = feat.reshape(B, C, H * W)  # B * C * N (H * W)
 
         return feat_query, feat_key, patch_ids
 
@@ -266,10 +332,23 @@ class SpatialCorrelativeLoss(nn.Module):
     """
     learnable patch-based spatially-correlative loss with contrastive learning
     """
-    def __init__(self, loss_mode='cos', patch_nums=256, patch_size=32, norm=True, use_conv=True,
-                 init_type='normal', init_gain=0.02, gpu_ids=[], T=0.1):
+
+    def __init__(
+        self,
+        loss_mode="cos",
+        patch_nums=256,
+        patch_size=32,
+        norm=True,
+        use_conv=True,
+        init_type="normal",
+        init_gain=0.02,
+        gpu_ids=[],
+        T=0.1,
+    ):
         super(SpatialCorrelativeLoss, self).__init__()
-        self.patch_sim = PatchSim(patch_nums=patch_nums, patch_size=patch_size, norm=norm)
+        self.patch_sim = PatchSim(
+            patch_nums=patch_nums, patch_size=patch_size, norm=norm
+        )
         self.patch_size = patch_size
         self.patch_nums = patch_nums
         self.norm = norm
@@ -295,11 +374,15 @@ class SpatialCorrelativeLoss(nn.Module):
         """
         input_nc = feat.size(1)
         output_nc = max(32, input_nc // 4)
-        conv = nn.Sequential(*[nn.Conv2d(input_nc, output_nc, kernel_size=1),
-                               nn.ReLU(),
-                               nn.Conv2d(output_nc, output_nc, kernel_size=1)])
+        conv = nn.Sequential(
+            *[
+                nn.Conv2d(input_nc, output_nc, kernel_size=1),
+                nn.ReLU(),
+                nn.Conv2d(output_nc, output_nc, kernel_size=1),
+            ]
+        )
         conv.to(feat.device)
-        setattr(self, 'conv_%d' % layer, conv)
+        setattr(self, "conv_%d" % layer, conv)
         init_net(conv, self.init_type, self.init_gain, self.gpu_ids)
 
     def cal_sim(self, f_src, f_tgt, f_other=None, layer=0, patch_ids=None):
@@ -313,7 +396,7 @@ class SpatialCorrelativeLoss(nn.Module):
         if self.use_conv:
             if not self.conv_init:
                 self.create_conv(f_src, layer)
-            conv = getattr(self, 'conv_%d' % layer)
+            conv = getattr(self, "conv_%d" % layer)
             f_src, f_tgt = conv(f_src), conv(f_tgt)
             f_other = conv(f_other) if f_other is not None else None
         sim_src, patch_ids = self.patch_sim(f_src, patch_ids)
@@ -334,7 +417,7 @@ class SpatialCorrelativeLoss(nn.Module):
         :return:
         """
         B, Num, N = sim_src.size()
-        if self.loss_mode == 'info' or sim_other is not None:
+        if self.loss_mode == "info" or sim_other is not None:
             sim_src = F.normalize(sim_src, dim=-1)
             sim_tgt = F.normalize(sim_tgt, dim=-1)
             sim_other = F.normalize(sim_other, dim=-1)
@@ -342,19 +425,31 @@ class SpatialCorrelativeLoss(nn.Module):
             sam_neg2 = (sim_tgt.bmm(sim_other.permute(0, 2, 1))).view(-1, Num) / self.T
             sam_self = (sim_src.bmm(sim_tgt.permute(0, 2, 1))).view(-1, Num) / self.T
             sam_self = torch.cat([sam_self, sam_neg1, sam_neg2], dim=-1)
-            loss = self.cross_entropy_loss(sam_self, torch.arange(0, sam_self.size(0), dtype=torch.long, device=sim_src.device) % (Num))
+            loss = self.cross_entropy_loss(
+                sam_self,
+                torch.arange(
+                    0, sam_self.size(0), dtype=torch.long, device=sim_src.device
+                )
+                % (Num),
+            )
         else:
             tgt_sorted, _ = sim_tgt.sort(dim=-1, descending=True)
             num = int(N / 4)
-            src = torch.where(sim_tgt < tgt_sorted[:, :, num:num + 1], 0 * sim_src, sim_src)
-            tgt = torch.where(sim_tgt < tgt_sorted[:, :, num:num + 1], 0 * sim_tgt, sim_tgt)
-            if self.loss_mode == 'l1':
+            src = torch.where(
+                sim_tgt < tgt_sorted[:, :, num : num + 1], 0 * sim_src, sim_src
+            )
+            tgt = torch.where(
+                sim_tgt < tgt_sorted[:, :, num : num + 1], 0 * sim_tgt, sim_tgt
+            )
+            if self.loss_mode == "l1":
                 loss = self.criterion((N / num) * src, (N / num) * tgt)
-            elif self.loss_mode == 'cos':
+            elif self.loss_mode == "cos":
                 sim_pos = F.cosine_similarity(src, tgt, dim=-1)
                 loss = self.criterion(torch.ones_like(sim_pos), sim_pos)
             else:
-                raise NotImplementedError('padding [%s] is not implemented' % self.loss_mode)
+                raise NotImplementedError(
+                    "padding [%s] is not implemented" % self.loss_mode
+                )
 
         return loss
 
@@ -451,7 +546,7 @@ class VGG16(nn.Module):
             self.relu5_3.add_module(str(x), features[x])
 
         # don't need the gradients, just want the features
-        #for param in self.parameters():
+        # for param in self.parameters():
         #    param.requires_grad = False
 
     def forward(self, x, layers=None, encode_only=False, resize=False):
@@ -474,23 +569,19 @@ class VGG16(nn.Module):
         relu5_3 = self.relu5_3(relu5_2)
 
         out = {
-            'relu1_1': relu1_1,
-            'relu1_2': relu1_2,
-
-            'relu2_1': relu2_1,
-            'relu2_2': relu2_2,
-
-            'relu3_1': relu3_1,
-            'relu3_2': relu3_2,
-            'relu3_3': relu3_3,
-
-            'relu4_1': relu4_1,
-            'relu4_2': relu4_2,
-            'relu4_3': relu4_3,
-
-            'relu5_1': relu5_1,
-            'relu5_2': relu5_2,
-            'relu5_3': relu5_3,
+            "relu1_1": relu1_1,
+            "relu1_2": relu1_2,
+            "relu2_1": relu2_1,
+            "relu2_2": relu2_2,
+            "relu3_1": relu3_1,
+            "relu3_2": relu3_2,
+            "relu3_3": relu3_3,
+            "relu4_1": relu4_1,
+            "relu4_2": relu4_2,
+            "relu4_3": relu4_3,
+            "relu5_1": relu5_1,
+            "relu5_2": relu5_2,
+            "relu5_3": relu5_3,
         }
         if encode_only:
             if len(layers) > 0:
@@ -500,5 +591,5 @@ class VGG16(nn.Module):
                         feats.append(out[key])
                 return feats
             else:
-                return out['relu3_1']
+                return out["relu3_1"]
         return out

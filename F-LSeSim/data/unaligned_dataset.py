@@ -15,6 +15,7 @@ def remove_file(files, file_name):
     except Exception:
         pass
 
+
 class UnalignedDataset(BaseDataset):
     """
     This dataset class can load unaligned/unpaired datasets.
@@ -33,11 +34,19 @@ class UnalignedDataset(BaseDataset):
             opt (Option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
         BaseDataset.__init__(self, opt)
-        self.dir_A = os.path.join(opt.dataroot, opt.phase + 'X')  # create a path '/path/to/data/trainX'
-        self.dir_B = os.path.join(opt.dataroot, opt.phase + 'Y')  # create a path '/path/to/data/trainY'
+        self.dir_A = os.path.join(
+            opt.dataroot, opt.phase + "X"
+        )  # create a path '/path/to/data/trainX'
+        self.dir_B = os.path.join(
+            opt.dataroot, opt.phase + "Y"
+        )  # create a path '/path/to/data/trainY'
 
-        self.A_paths = sorted(make_dataset(self.dir_A, opt.max_dataset_size))   # load images from '/path/to/data/trainA'
-        self.B_paths = sorted(make_dataset(self.dir_B, opt.max_dataset_size))    # load images from '/path/to/data/trainB'
+        self.A_paths = sorted(
+            make_dataset(self.dir_A, opt.max_dataset_size)
+        )  # load images from '/path/to/data/trainA'
+        self.B_paths = sorted(
+            make_dataset(self.dir_B, opt.max_dataset_size)
+        )  # load images from '/path/to/data/trainB'
         self.A_size = len(self.A_paths)  # get the size of dataset A
         self.B_size = len(self.B_paths)  # get the size of dataset B
         # apply image transformation
@@ -47,13 +56,22 @@ class UnalignedDataset(BaseDataset):
         self.transform = get_transform(opt, convert=False)
         if self.opt.isTrain and opt.augment:
             self.transform_aug = transforms.Compose(
-                [transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.3),
-                 transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                [
+                    transforms.ColorJitter(
+                        brightness=0.5, contrast=0.5, saturation=0.5, hue=0.3
+                    ),
+                    transforms.ToTensor(),
+                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
             )
         else:
             self.transform_aug = None
-        self.transform_tensor = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        self.transform_tensor = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+            ]
+        )
 
     def __getitem__(self, index):
         """Return a data point and its metadata information.
@@ -67,14 +85,16 @@ class UnalignedDataset(BaseDataset):
             A_paths (str)    -- image paths
             B_paths (str)    -- image paths
         """
-        A_path = self.A_paths[index % self.A_size]  # make sure index is within then range
-        if self.opt.serial_batches:   # make sure index is within then range
+        A_path = self.A_paths[
+            index % self.A_size
+        ]  # make sure index is within then range
+        if self.opt.serial_batches:  # make sure index is within then range
             index_B = index % self.B_size
-        else:   # randomize the index for domain B to avoid fixed pairs.
+        else:  # randomize the index for domain B to avoid fixed pairs.
             index_B = random.randint(0, self.B_size - 1)
         B_path = self.B_paths[index_B]
-        A_img = Image.open(A_path).convert('RGB')
-        B_img = Image.open(B_path).convert('RGB')
+        A_img = Image.open(A_path).convert("RGB")
+        B_img = Image.open(B_path).convert("RGB")
         A_pil = self.transform(A_img)
         B_pil = self.transform(B_img)
         A = self.transform_tensor(A_pil)
@@ -82,9 +102,16 @@ class UnalignedDataset(BaseDataset):
         if self.opt.isTrain and self.transform_aug is not None:
             A_aug = self.transform_aug(A_pil)
             B_aug = self.transform_aug(B_pil)
-            return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path, 'A_aug': A_aug, 'B_aug': B_aug}
+            return {
+                "A": A,
+                "B": B,
+                "A_paths": A_path,
+                "B_paths": B_path,
+                "A_aug": A_aug,
+                "B_aug": B_aug,
+            }
         else:
-            return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path}
+            return {"A": A, "B": B, "A_paths": A_path, "B_paths": B_path}
 
     def __len__(self):
         """Return the total number of images in the dataset.

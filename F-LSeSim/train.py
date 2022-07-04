@@ -29,25 +29,32 @@ from models import create_model
 from options.train_options import TrainOptions
 
 
-#from util.visualizer import Visualizer
+# from util.visualizer import Visualizer
 def reverse_image_normalize(img, mean=0.5, std=0.5):
     return img * std + mean
 
-if __name__ == '__main__':
-    opt = TrainOptions().parse()   # get training options
-    dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
-    dataset_size = len(dataset)    # get the number of images in the dataset.
-    print('The number of training images = %d' % dataset_size)
 
-    model = create_model(opt, normalization_mode="in")      # create a model given opt.model and other options
+if __name__ == "__main__":
+    opt = TrainOptions().parse()  # get training options
+    dataset = create_dataset(
+        opt
+    )  # create a dataset given opt.dataset_mode and other options
+    dataset_size = len(dataset)  # get the number of images in the dataset.
+    print("The number of training images = %d" % dataset_size)
 
-    total_iters = 0                # the total number of training iterations
+    model = create_model(
+        opt, normalization_mode="in"
+    )  # create a model given opt.model and other options
+
+    total_iters = 0  # the total number of training iterations
 
     os.makedirs(os.path.join("./checkpoints/", opt.name, "test"), exist_ok=True)
-    for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
+    for epoch in range(
+        opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1
+    ):  # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
         epoch_start_time = time.time()  # timer for entire epoch
-        iter_data_time = time.time()    # timer for data loading per iteration
-        epoch_iter = 0                  # the number of training iterations in current epoch, reset to 0 every epoch
+        iter_data_time = time.time()  # timer for data loading per iteration
+        epoch_iter = 0  # the number of training iterations in current epoch, reset to 0 every epoch
         out = defaultdict(int)
         for i, data in enumerate(dataset):  # inner loop within one epoch
             iter_start_time = time.time()  # timer for computation per iteration
@@ -62,38 +69,61 @@ if __name__ == '__main__':
                 model.setup(opt)
                 model.parallelize()
                 model.print_networks(True)
-            model.set_input(data)         # unpack data from dataset and apply preprocessing
-            model.optimize_parameters()   # calculate loss functions, get gradients, update network weights
+            model.set_input(data)  # unpack data from dataset and apply preprocessing
+            model.optimize_parameters()  # calculate loss functions, get gradients, update network weights
 
-            if total_iters % opt.display_freq == 0:   # display images on visdom and save images to a HTML file
+            if (
+                total_iters % opt.display_freq == 0
+            ):  # display images on visdom and save images to a HTML file
                 save_result = total_iters % opt.update_html_freq == 0
                 model.compute_visuals()
                 results = model.get_current_visuals()
 
                 for img_name, img in results.items():
-                    save_image(reverse_image_normalize(img), os.path.join("./checkpoints/", opt.name, "test", f"{epoch}_{img_name}_{i}.png"))
+                    save_image(
+                        reverse_image_normalize(img),
+                        os.path.join(
+                            "./checkpoints/",
+                            opt.name,
+                            "test",
+                            f"{epoch}_{img_name}_{i}.png",
+                        ),
+                    )
 
                 for k, v in out.items():
                     out[k] /= opt.display_freq
-                
+
                 print(f"[Epoch {epoch}][Iter {i}] {out}", flush=True)
                 for k, v in out.items():
                     out[k] = 0
-            
+
             losses = model.get_current_losses()
             for k, v in losses.items():
                 out[k] += v
 
-            if total_iters % opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
-                print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
-                save_suffix = 'iter_%d' % total_iters if opt.save_by_iter else 'latest'
+            if (
+                total_iters % opt.save_latest_freq == 0
+            ):  # cache our latest model every <save_latest_freq> iterations
+                print(
+                    "saving the latest model (epoch %d, total_iters %d)"
+                    % (epoch, total_iters)
+                )
+                save_suffix = "iter_%d" % total_iters if opt.save_by_iter else "latest"
                 model.save_networks(save_suffix)
 
             iter_data_time = time.time()
-        if epoch % opt.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
-            print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
-            model.save_networks('latest')
+        if (
+            epoch % opt.save_epoch_freq == 0
+        ):  # cache our model every <save_epoch_freq> epochs
+            print(
+                "saving the model at the end of epoch %d, iters %d"
+                % (epoch, total_iters)
+            )
+            model.save_networks("latest")
             model.save_networks(epoch)
 
-        print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
+        print(
+            "End of epoch %d / %d \t Time Taken: %d sec"
+            % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time)
+        )
         model.update_learning_rate()  # update learning rates in the beginning of every epoch.
