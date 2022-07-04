@@ -31,18 +31,18 @@ from models.tin import (
 
 
 class LSeSim(BaseModel):
-    # instance normalization can be different from the one specified during training
+    # instance normalization can be different from
+    # the one specified during training
     def __init__(self, config, normalization="in", isTrain=True):
         BaseModel.__init__(self, config)
-        ###
         self.isTrain = isTrain
         self.attn_layers = "4, 7, 9"
         self.patch_nums = 256
         self.patch_size = 64
         self.loss_mode = "cos"
-        self.use_norm = True  #
-        self.learned_attn = False  ##
-        self.augment = False  ##
+        self.use_norm = True
+        self.learned_attn = False
+        self.augment = False
         self.T = 0.07
         self.lambda_spatial = 10.0
         self.lambda_spatial_idt = 0.0
@@ -53,7 +53,6 @@ class LSeSim(BaseModel):
 
         self.gan_mode = "lsgan"
         self.pool_size = 50
-        ###
         self.loss_names = ["style", "G_s", "per", "D_real", "D_fake", "G_GAN"]
         # specify the images you want to save/display
         self.visual_names = ["real_A", "fake_B", "real_B"]
@@ -71,7 +70,8 @@ class LSeSim(BaseModel):
             self.attn_layers = [int(i) for i in self.attn_layers.split(",")]
 
             if self.lambda_identity > 0.0 or self.lambda_spatial_idt > 0.0:
-                # only works when input and output images have the same number of channels
+                # only works when input and output images have the
+                # same number of channels
                 self.visual_names.append("idt_B")
                 if self.lambda_identity > 0.0:
                     self.loss_names.append("idt_B")
@@ -108,15 +108,22 @@ class LSeSim(BaseModel):
                 self.set_requires_grad([self.netPre], False)
             # initialize optimizers
             self.optimizer_G = optim.Adam(
-                itertools.chain(self.G.parameters()), lr=0.0001, betas=(0.5, 0.999)
+                itertools.chain(self.G.parameters()),
+                lr=0.0001,
+                betas=(0.5, 0.999),
             )
             self.optimizer_D = optim.Adam(
-                itertools.chain(self.D.parameters()), lr=0.0001, betas=(0.5, 0.999)
+                itertools.chain(self.D.parameters()),
+                lr=0.0001,
+                betas=(0.5, 0.999),
             )
             self.optimizers = [self.optimizer_G, self.optimizer_D]
 
     def Spatial_Loss(self, net, src, tgt, other=None):
-        """given the source and target images to calculate the spatial similarity and dissimilarity loss"""
+        """
+        given the source and target images to calculate
+        the spatial similarity and dissimilarity loss
+        """
         n_layers = len(self.attn_layers)
         feats_src = net(src, self.attn_layers, encode_only=True)
         feats_tgt = net(tgt, self.attn_layers, encode_only=True)
@@ -141,8 +148,10 @@ class LSeSim(BaseModel):
 
     def set_input(self, input):
         """
-        Unpack input data from the dataloader and perform necessary pre-processing steps
-        :param input: include the data itself and its metadata information
+        Unpack input data from the dataloader and perform necessary
+        pre-processing steps
+        :param input:
+        include the data itself and its metadata information
         :return:
         """
         self.real_A = input["X_img"].to(self.device)
@@ -155,13 +164,17 @@ class LSeSim(BaseModel):
         """Run forward pass"""
         self.real = (
             torch.cat((self.real_A, self.real_B), dim=0)
-            if (self.lambda_identity + self.lambda_spatial_idt > 0) and self.isTrain
+            if (
+                self.lambda_identity + self.lambda_spatial_idt > 0
+            ) and self.isTrain
             else self.real_A
         )
         self.fake = self.G(self.real)
         self.fake_B = self.fake[: self.real_A.size(0)]
-        if (self.lambda_identity + self.lambda_spatial_idt > 0) and self.isTrain:
-            self.idt_B = self.fake[self.real_A.size(0) :]
+        if (
+            self.lambda_identity + self.lambda_spatial_idt > 0
+        ) and self.isTrain:
+            self.idt_B = self.fake[self.real_A.size(0):]
 
     def backward_F(self):
         """
@@ -215,7 +228,9 @@ class LSeSim(BaseModel):
     def backward_D(self):
         """Calculate the GAN loss for discriminator"""
         fake_B = self.fake_B_pool.query(self.fake_B)
-        self.loss_D_A = self.backward_D_basic(self.D, self.real_B, fake_B.detach())
+        self.loss_D_A = self.backward_D_basic(
+            self.D, self.real_B, fake_B.detach()
+        )
 
     def backward_G(self):
         """Calculate the loss for generator G_A"""
@@ -236,10 +251,14 @@ class LSeSim(BaseModel):
             else 0
         )
         self.loss_per = (
-            self.criterionFeature(norm_real_A, norm_fake_B) * l_per if l_per > 0 else 0
+            self.criterionFeature(
+                norm_real_A, norm_fake_B
+            ) * l_per if l_per > 0 else 0
         )
         self.loss_G_s = (
-            self.Spatial_Loss(self.netPre, norm_real_A, norm_fake_B, None) * l_sptial
+            self.Spatial_Loss(
+                self.netPre, norm_real_A, norm_fake_B, None
+            ) * l_sptial
             if l_sptial > 0
             else 0
         )
@@ -247,13 +266,16 @@ class LSeSim(BaseModel):
         if l_spatial_idt > 0:
             norm_fake_idt_B = self.normalization((self.idt_B + 1) * 0.5)
             self.loss_G_s_idt_B = (
-                self.Spatial_Loss(self.netPre, norm_real_B, norm_fake_idt_B, None)
-                * l_spatial_idt
+                self.Spatial_Loss(
+                    self.netPre, norm_real_B, norm_fake_idt_B, None
+                ) * l_spatial_idt
             )
         else:
             self.loss_G_s_idt_B = 0
         self.loss_idt_B = (
-            self.criterionIdt(self.real_B, self.idt_B) * l_idt if l_idt > 0 else 0
+            self.criterionIdt(
+                self.real_B, self.idt_B
+            ) * l_idt if l_idt > 0 else 0
         )
 
         self.loss_G = (
@@ -290,8 +312,10 @@ class LSeSim(BaseModel):
 
     def data_dependent_initialize(self, data):
         """
-        The learnable spatially-correlative map is defined in terms of the shape of the intermediate, extracted features
-        of a given network (encoder or pretrained VGG16). Because of this, the weights of spatial are initialized at the
+        The learnable spatially-correlative map is defined in terms
+        of the shape of the intermediate, extracted features
+        of a given network (encoder or pretrained VGG16).
+        Because of this, the weights of spatial are initialized at the
         first feedforward pass with some input images
         :return:
         """
@@ -309,14 +333,18 @@ class LSeSim(BaseModel):
                         {
                             "params": list(
                                 filter(
-                                    lambda p: p.requires_grad, self.netPre.parameters()
+                                    lambda p: p.requires_grad,
+                                    self.netPre.parameters()
                                 )
                             ),
                             "lr": 0.0001 * 0.0,
                         },
                         {
                             "params": list(
-                                filter(lambda p: p.requires_grad, self.F.parameters())
+                                filter(
+                                    lambda p: p.requires_grad,
+                                    self.F.parameters()
+                                )
                             )
                         },
                     ],
@@ -380,7 +408,10 @@ class LSeSim(BaseModel):
         self, y_anchor_num, x_anchor_num, kernel=(torch.ones(1, 1, 3, 3) / 9)
     ):
         init_kernelized_instance_norm(
-            self.G, y_anchor_num=y_anchor_num, x_anchor_num=x_anchor_num, kernel=kernel
+            self.G,
+            y_anchor_num=y_anchor_num,
+            x_anchor_num=x_anchor_num,
+            kernel=kernel,
         )
 
     def use_kernelized_instance_norm_for_whole_model(self, padding=1):

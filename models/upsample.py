@@ -6,7 +6,13 @@ class Upsample(nn.Module):
         super().__init__()
         layers = [
             nn.ReplicationPad2d(1),
-            nn.ConvTranspose2d(features, features, kernel_size=4, stride=2, padding=3),
+            nn.ConvTranspose2d(
+                features,
+                features,
+                kernel_size=4,
+                stride=2,
+                padding=3,
+            ),
         ]
         self.model = nn.Sequential(*layers)
 

@@ -15,11 +15,13 @@ class GANLoss(nn.Module):
     def __init__(self, gan_mode, target_real_label=1.0, target_fake_label=0.0):
         """Initialize the GANLoss class.
         Parameters:
-            gan_mode (str) - - the type of GAN objective. It currently supports vanilla, lsgan, and wgangp.
+            gan_mode (str) - - the type of GAN objective.
+            It currently supports vanilla, lsgan, and wgangp.
             target_real_label (bool) - - label for a real image
             target_fake_label (bool) - - label of a fake image
         Note: Do not use sigmoid as the last layer of Discriminator.
-        LSGAN needs no sigmoid. vanilla GANs will handle it with BCEWithLogitsLoss.
+        LSGAN needs no sigmoid. vanilla GANs will handle it
+        with BCEWithLogitsLoss.
         """
         super(GANLoss, self).__init__()
         self.register_buffer("real_label", torch.tensor(target_real_label))
@@ -39,10 +41,13 @@ class GANLoss(nn.Module):
     def get_target_tensor(self, prediction, target_is_real):
         """Create label tensors with the same size as the input.
         Parameters:
-            prediction (tensor) - - tpyically the prediction from a discriminator
-            target_is_real (bool) - - if the ground truth label is for real images or fake images
+            prediction (tensor) - - tpyically the prediction
+                                    from a discriminator
+            target_is_real (bool) - - if the ground truth label
+                                      is for real images or fake images
         Returns:
-            A label tensor filled with ground truth label, and with the size of the input
+            A label tensor filled with ground truth label,
+            and with the size of the input
         """
 
         if target_is_real:
@@ -54,8 +59,10 @@ class GANLoss(nn.Module):
     def calculate_loss(self, prediction, target_is_real, is_dis=False):
         """Calculate loss given Discriminator's output and grount truth labels.
         Parameters:
-            prediction (tensor) - - tpyically the prediction output from a discriminator
-            target_is_real (bool) - - if the ground truth label is for real images or fake images
+            prediction (tensor) - - tpyically the prediction output from
+                                    a discriminator
+            target_is_real (bool) - - if the ground truth label is for real
+                                      images or fake images
         Returns:
             the calculated loss.
         """
@@ -84,7 +91,9 @@ class GANLoss(nn.Module):
         if isinstance(predictions, list):
             losses = []
             for prediction in predictions:
-                losses.append(self.calculate_loss(prediction, target_is_real, is_dis))
+                losses.append(
+                    self.calculate_loss(prediction, target_is_real, is_dis)
+                )
             loss = sum(losses)
         else:
             loss = self.calculate_loss(predictions, target_is_real, is_dis)
@@ -93,23 +102,36 @@ class GANLoss(nn.Module):
 
 
 def cal_gradient_penalty(
-    netD, real_data, fake_data, device, type="mixed", constant=1.0, lambda_gp=10.0
+    netD,
+    real_data,
+    fake_data,
+    device,
+    type="mixed",
+    constant=1.0,
+    lambda_gp=10.0,
 ):
-    """Calculate the gradient penalty loss, used in WGAN-GP paper https://arxiv.org/abs/1704.00028
+    """
+    Calculate the gradient penalty loss, used in WGAN-GP
+    paper https://arxiv.org/abs/1704.00028
+
     Arguments:
         netD (network)              -- discriminator network
         real_data (tensor array)    -- real images
         fake_data (tensor array)    -- generated images from the generator
-        device (str)                -- GPU / CPU: from torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device('cpu')
-        type (str)                  -- if we mix real and fake data or not [real | fake | mixed].
-        constant (float)            -- the constant used in formula ( ||gradient||_2 - constant)^2
+        device (str)                -- GPU / CPU: from torch.device('cuda:{}'.
+                                       format(self.gpu_ids[0])) if
+                                       self.gpu_ids else torch.device('cpu')
+        type (str)                  -- if we mix real and fake data or not
+                                       [real | fake | mixed].
+        constant (float)            -- the constant used in formula
+                                       ( ||gradient||_2 - constant)^2
         lambda_gp (float)           -- weight for this loss
     Returns the gradient penalty loss
     """
     if lambda_gp > 0.0:
-        if (
-            type == "real"
-        ):  # either use real images, fake images, or a linear interpolation of two.
+        # either use real images,
+        # fake images, or a linear interpolation of two.
+        if type == "real":
             interpolatesv = real_data
         elif type == "fake":
             interpolatesv = fake_data
@@ -117,7 +139,8 @@ def cal_gradient_penalty(
             alpha = torch.rand(real_data.shape[0], 1, device=device)
             alpha = (
                 alpha.expand(
-                    real_data.shape[0], real_data.nelement() // real_data.shape[0]
+                    real_data.shape[0],
+                    real_data.nelement() // real_data.shape[0]
                 )
                 .contiguous()
                 .view(*real_data.shape)
@@ -133,7 +156,9 @@ def cal_gradient_penalty(
                 gradients += torch.autograd.grad(
                     outputs=disc_interpolate,
                     inputs=interpolatesv,
-                    grad_outputs=torch.ones(disc_interpolate.size()).to(device),
+                    grad_outputs=torch.ones(
+                        disc_interpolate.size()
+                    ).to(device),
                     create_graph=True,
                     retain_graph=True,
                     only_inputs=True,
@@ -183,16 +208,20 @@ class StyleLoss(nn.Module):
         # Compute loss
         style_loss = 0.0
         style_loss += self.criterion(
-            self.compute_gram(x_vgg["relu1_2"]), self.compute_gram(y_vgg["relu1_2"])
+            self.compute_gram(x_vgg["relu1_2"]),
+            self.compute_gram(y_vgg["relu1_2"])
         )
         style_loss += self.criterion(
-            self.compute_gram(x_vgg["relu2_2"]), self.compute_gram(y_vgg["relu2_2"])
+            self.compute_gram(x_vgg["relu2_2"]),
+            self.compute_gram(y_vgg["relu2_2"])
         )
         style_loss += self.criterion(
-            self.compute_gram(x_vgg["relu3_3"]), self.compute_gram(y_vgg["relu3_3"])
+            self.compute_gram(x_vgg["relu3_3"]),
+            self.compute_gram(y_vgg["relu3_3"])
         )
         style_loss += self.criterion(
-            self.compute_gram(x_vgg["relu4_3"]), self.compute_gram(y_vgg["relu4_3"])
+            self.compute_gram(x_vgg["relu4_3"]),
+            self.compute_gram(y_vgg["relu4_3"])
         )
 
         return style_loss
@@ -217,27 +246,37 @@ class PerceptualLoss(nn.Module):
 
         content_loss = 0.0
         content_loss += (
-            self.weights[0] * self.criterion(x_vgg["relu1_2"], y_vgg["relu1_2"])
+            self.weights[0] * self.criterion(
+                x_vgg["relu1_2"], y_vgg["relu1_2"]
+            )
             if self.weights[0] > 0
             else 0
         )
         content_loss += (
-            self.weights[1] * self.criterion(x_vgg["relu2_2"], y_vgg["relu2_2"])
+            self.weights[1] * self.criterion(
+                x_vgg["relu2_2"], y_vgg["relu2_2"]
+            )
             if self.weights[1] > 0
             else 0
         )
         content_loss += (
-            self.weights[2] * self.criterion(x_vgg["relu3_3"], y_vgg["relu3_3"])
+            self.weights[2] * self.criterion(
+                x_vgg["relu3_3"], y_vgg["relu3_3"]
+            )
             if self.weights[2] > 0
             else 0
         )
         content_loss += (
-            self.weights[3] * self.criterion(x_vgg["relu4_3"], y_vgg["relu4_3"])
+            self.weights[3] * self.criterion(
+                x_vgg["relu4_3"], y_vgg["relu4_3"]
+            )
             if self.weights[3] > 0
             else 0
         )
         content_loss += (
-            self.weights[4] * self.criterion(x_vgg["relu5_3"], y_vgg["relu5_3"])
+            self.weights[4] * self.criterion(
+                x_vgg["relu5_3"], y_vgg["relu5_3"]
+            )
             if self.weights[4] > 0
             else 0
         )
@@ -262,7 +301,9 @@ class PatchSim(nn.Module):
         feat = feat - feat.mean(dim=[-2, -1], keepdim=True)
         feat = F.normalize(feat, dim=1) if self.use_norm else feat / np.sqrt(C)
         query, key, patch_ids = self.select_patch(feat, patch_ids=patch_ids)
-        patch_sim = query.bmm(key) if self.use_norm else torch.tanh(query.bmm(key) / 10)
+        patch_sim = query.bmm(key) if self.use_norm else torch.tanh(
+            query.bmm(key) / 10
+        )
         if patch_ids is not None:
             patch_sim = patch_sim.view(B, len(patch_ids), -1)
 
@@ -277,8 +318,12 @@ class PatchSim(nn.Module):
         feat_reshape = feat.permute(0, 2, 3, 1).flatten(1, 2)  # B*N*C
         if self.patch_nums > 0:
             if patch_ids is None:
-                patch_ids = torch.randperm(feat_reshape.size(1), device=feat.device)
-                patch_ids = patch_ids[: int(min(self.patch_nums, patch_ids.size(0)))]
+                patch_ids = torch.randperm(
+                    feat_reshape.size(1), device=feat.device
+                )
+                patch_ids = patch_ids[: int(min(
+                    self.patch_nums, patch_ids.size(0)
+                ))]
             feat_query = feat_reshape[:, patch_ids, :]  # B*Num*C
             feat_key = []
             Num = feat_query.size(1)
@@ -300,8 +345,8 @@ class PatchSim(nn.Module):
                         feat[
                             :,
                             :,
-                            start_x[i] : start_x[i] + pw,
-                            start_y[i] : start_y[i] + ph,
+                            start_x[i]:start_x[i] + pw,
+                            start_y[i]:start_y[i] + ph,
                         ]
                     )  # B*C*patch_w*patch_h
                 feat_key = torch.stack(feat_key, dim=0).permute(
@@ -312,7 +357,9 @@ class PatchSim(nn.Module):
             else:  # if patch larger than features size, use B * C * N (H * W)
                 feat_key = feat.reshape(B, C, W * H)
         else:
-            feat_query = feat.reshape(B, C, H * W).permute(0, 2, 1)  # B * N (H * W) * C
+            feat_query = feat.reshape(
+                B, C, H * W
+            ).permute(0, 2, 1)  # B * N (H * W) * C
             feat_key = feat.reshape(B, C, H * W)  # B * C * N (H * W)
 
         return feat_query, feat_key, patch_ids
@@ -356,7 +403,8 @@ class SpatialCorrelativeLoss(nn.Module):
     def create_conv(self, feat, layer):
         """
         create the 1*1 conv filter to select the features for a specific task
-        :param feat: extracted features from a pretrained VGG or encoder for the similarity and dissimilarity map
+        :param feat: extracted features from a pretrained VGG or
+                     encoder for the similarity and dissimilarity map
         :param layer: different layers use different filter
         :return:
         """
@@ -378,7 +426,8 @@ class SpatialCorrelativeLoss(nn.Module):
         calculate the similarity map using the fixed/learned query and key
         :param f_src: feature map from source domain
         :param f_tgt: feature map from target domain
-        :param f_other: feature map from other image (only used for contrastive learning for spatial network)
+        :param f_other: feature map from other image (only used
+                        for contrastive learning for spatial network)
         :return:
         """
         if self.use_conv:
@@ -409,14 +458,23 @@ class SpatialCorrelativeLoss(nn.Module):
             sim_src = F.normalize(sim_src, dim=-1)
             sim_tgt = F.normalize(sim_tgt, dim=-1)
             sim_other = F.normalize(sim_other, dim=-1)
-            sam_neg1 = (sim_src.bmm(sim_other.permute(0, 2, 1))).view(-1, Num) / self.T
-            sam_neg2 = (sim_tgt.bmm(sim_other.permute(0, 2, 1))).view(-1, Num) / self.T
-            sam_self = (sim_src.bmm(sim_tgt.permute(0, 2, 1))).view(-1, Num) / self.T
+            sam_neg1 = (sim_src.bmm(
+                sim_other.permute(0, 2, 1)
+            )).view(-1, Num) / self.T
+            sam_neg2 = (sim_tgt.bmm(
+                sim_other.permute(0, 2, 1)
+            )).view(-1, Num) / self.T
+            sam_self = (sim_src.bmm(
+                sim_tgt.permute(0, 2, 1)
+            )).view(-1, Num) / self.T
             sam_self = torch.cat([sam_self, sam_neg1, sam_neg2], dim=-1)
             loss = self.cross_entropy_loss(
                 sam_self,
                 torch.arange(
-                    0, sam_self.size(0), dtype=torch.long, device=sim_src.device
+                    0,
+                    sam_self.size(0),
+                    dtype=torch.long,
+                    device=sim_src.device,
                 )
                 % (Num),
             )
@@ -424,10 +482,10 @@ class SpatialCorrelativeLoss(nn.Module):
             tgt_sorted, _ = sim_tgt.sort(dim=-1, descending=True)
             num = int(N / 4)
             src = torch.where(
-                sim_tgt < tgt_sorted[:, :, num : num + 1], 0 * sim_src, sim_src
+                sim_tgt < tgt_sorted[:, :, num:num + 1], 0 * sim_src, sim_src
             )
             tgt = torch.where(
-                sim_tgt < tgt_sorted[:, :, num : num + 1], 0 * sim_tgt, sim_tgt
+                sim_tgt < tgt_sorted[:, :, num:num + 1], 0 * sim_tgt, sim_tgt
             )
             if self.loss_mode == "l1":
                 loss = self.criterion((N / num) * src, (N / num) * tgt)
@@ -443,14 +501,17 @@ class SpatialCorrelativeLoss(nn.Module):
 
     def loss(self, f_src, f_tgt, f_other=None, layer=0):
         """
-        calculate the spatial similarity and dissimilarity loss for given features from source and target domain
+        calculate the spatial similarity and dissimilarity
+        loss for given features from source and target domain
         :param f_src: source domain features
         :param f_tgt: target domain features
         :param f_other: other random sampled features
         :param layer:
         :return:
         """
-        sim_src, sim_tgt, sim_other = self.cal_sim(f_src, f_tgt, f_other, layer)
+        sim_src, sim_tgt, sim_other = self.cal_sim(
+            f_src, f_tgt, f_other, layer
+        )
         # calculate the spatial similarity for source and target domain
         loss = self.compare_sim(sim_src, sim_tgt, sim_other)
         return loss
@@ -584,12 +645,19 @@ class VGG16(nn.Module):
 
 
 def init_net(
-    net, init_type="normal", init_gain=0.02, debug=False, initialize_weights=True
+    net,
+    init_type="normal",
+    init_gain=0.02,
+    debug=False,
+    initialize_weights=True,
 ):
-    """Initialize a network: 1. register CPU/GPU device (with multi-GPU support); 2. initialize the network weights
+    """Initialize a network:
+    1. register CPU/GPU device (with multi-GPU support);
+    2. initialize the network weights
     Parameters:
         net (network)      -- the network to be initialized
-        init_type (str)    -- the name of an initialization method: normal | xavier | kaiming | orthogonal
+        init_type (str)    -- the name of an initialization method:
+                              normal | xavier | kaiming | orthogonal
         gain (float)       -- scaling factor for normal, xavier and orthogonal.
         gpu_ids (int list) -- which GPUs the network runs on: e.g., 0,1,2
     Return an initialized network.
@@ -603,9 +671,12 @@ def init_weights(net, init_type="xavier", init_gain=0.02, debug=False):
     """Initialize network weights.
     Parameters:
         net (network)   -- network to be initialized
-        init_type (str) -- the name of an initialization method: normal | xavier | kaiming | orthogonal
-        init_gain (float)    -- scaling factor for normal, xavier and orthogonal.
-    We use 'normal' in the original pix2pix and CycleGAN paper. But xavier and kaiming might
+        init_type (str) -- the name of an initialization method:
+                           normal | xavier | kaiming | orthogonal
+        init_gain (float)    -- scaling factor for normal, xavier
+                                and orthogonal.
+    We use 'normal' in the original pix2pix and CycleGAN paper.
+    But xavier and kaiming might
     work better for some applications. Feel free to try yourself.
     """
 
@@ -630,9 +701,10 @@ def init_weights(net, init_type="xavier", init_gain=0.02, debug=False):
                 )
             if hasattr(m, "bias") and m.bias is not None:
                 init.constant_(m.bias.data, 0.0)
-        elif (
-            classname.find("BatchNorm2d") != -1
-        ):  # BatchNorm Layer's weight is not a matrix; only normal distribution applies.
+
+        # BatchNorm Layer's weight is not a matrix;
+        # only normal distribution applies.
+        elif classname.find("BatchNorm2d") != -1:
             init.normal_(m.weight.data, 1.0, init_gain)
             init.constant_(m.bias.data, 0.0)
 

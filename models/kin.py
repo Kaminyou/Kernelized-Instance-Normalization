@@ -7,13 +7,17 @@ from utils.util import get_kernel
 class KernelizedInstanceNorm(nn.Module):
     def __init__(self, out_channels=None, affine=True, device="cuda"):
         super(KernelizedInstanceNorm, self).__init__()
-        self.normal_instance_normalization = (
-            False  # if use normal instance normalization during evaluation mode
-        )
-        self.collection_mode = False  # if collecting instance normalization mean and std during evaluation mode'
+
+        # if use normal instance normalization during evaluation mode
+        self.normal_instance_normalization = False
+
+        # if collecting instance normalization mean and std
+        # during evaluation mode'
+        self.collection_mode = False
+
         self.out_channels = out_channels
         self.device = device
-        if affine == True:
+        if affine:
             self.weight = nn.Parameter(
                 torch.ones(size=(1, out_channels, 1, 1), requires_grad=True)
             ).to(device)
@@ -24,10 +28,14 @@ class KernelizedInstanceNorm(nn.Module):
     def init_collection(self, y_anchor_num, x_anchor_num):
         self.y_anchor_num = y_anchor_num
         self.x_anchor_num = x_anchor_num
-        self.mean_table = torch.zeros(y_anchor_num, x_anchor_num, self.out_channels).to(
+        self.mean_table = torch.zeros(
+            y_anchor_num, x_anchor_num, self.out_channels
+        ).to(
             self.device
         )
-        self.std_table = torch.zeros(y_anchor_num, x_anchor_num, self.out_channels).to(
+        self.std_table = torch.zeros(
+            y_anchor_num, x_anchor_num, self.out_channels
+        ).to(
             self.device
         )
 
@@ -56,8 +64,8 @@ class KernelizedInstanceNorm(nn.Module):
             return self.forward_normal(x)
 
         else:
-            assert y_anchor != None
-            assert x_anchor != None
+            assert y_anchor is not None
+            assert x_anchor is not None
 
             if self.collection_mode:
                 x_std, x_mean = torch.std_mean(x, dim=(2, 3))  # [B, C]
@@ -74,9 +82,9 @@ class KernelizedInstanceNorm(nn.Module):
                     x = x.sum(dim=(2, 3), keepdim=True)  # [1, C, 1, 1]
                     return x
 
-                assert (
-                    x.shape[0] == 1
-                )  # currently, could support batch size = 1 for kernelized instance normalization
+                # currently, could support batch size = 1 for
+                # kernelized instance normalization
+                assert x.shape[0] == 1
 
                 top = y_anchor
                 down = y_anchor + 2 * padding + 1
@@ -85,7 +93,9 @@ class KernelizedInstanceNorm(nn.Module):
                 x_mean = self.padded_mean_table[
                     :, :, top:down, left:right
                 ]  # 1, C, H, W
-                x_std = self.padded_std_table[:, :, top:down, left:right]  # 1, C, H, W
+                x_std = self.padded_std_table[
+                    :, :, top:down, left:right
+                ]  # 1, C, H, W
                 x_mean = multiply_kernel(x_mean)
                 x_std = multiply_kernel(x_std)
 
@@ -107,8 +117,12 @@ def init_kernelized_instance_norm(
         if isinstance(layer, KernelizedInstanceNorm):
             layer.collection_mode = True
             layer.normal_instance_normalization = False
-            layer.init_collection(y_anchor_num=y_anchor_num, x_anchor_num=x_anchor_num)
-            layer.init_kernel(kernel_padding=kernel_padding, kernel_mode=kernel_mode)
+            layer.init_collection(
+                y_anchor_num=y_anchor_num, x_anchor_num=x_anchor_num
+            )
+            layer.init_kernel(
+                kernel_padding=kernel_padding, kernel_mode=kernel_mode
+            )
 
 
 def use_kernelized_instance_norm(model, padding=1):
@@ -121,7 +135,8 @@ def use_kernelized_instance_norm(model, padding=1):
 
 """
 USAGE
-    support a dataset with a dataloader would return (x, y_anchor, x_anchor) each time
+    support a dataset with a dataloader would return
+    (x, y_anchor, x_anchor) each time
 
     kin = KernelizedInstanceNorm()
 
@@ -132,7 +147,10 @@ USAGE
 
     [COLLECT] anchors are required and any batch size is allowed
     kin.eval()
-    init_kernelized_instance_norm(kin, y_anchor_num=$y_anchor_num, x_anchor_num=$x_anchor_num, kernel=torch.ones(3,3))
+    init_kernelized_instance_norm(
+        kin, y_anchor_num=$y_anchor_num,
+        x_anchor_num=$x_anchor_num, kernel=torch.ones(3,3)
+    )
     for (x, y_anchor, x_anchor) in dataloader:
         kin(x, y_anchor=y_anchor, x_anchor=x_anchor)
 

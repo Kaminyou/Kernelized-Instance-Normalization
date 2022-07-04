@@ -9,7 +9,7 @@ class ThumbInstanceNorm(nn.Module):
         self.thumb_std = None
         self.normal_instance_normalization = False
         self.collection_mode = False
-        if affine == True:
+        if affine:
             self.weight = nn.Parameter(
                 torch.ones(size=(1, out_channels, 1, 1), requires_grad=True)
             )
@@ -38,7 +38,8 @@ class ThumbInstanceNorm(nn.Module):
                 self.thumb_mean = x_mean
                 self.thumb_std = x_std
 
-            x = (x - self.thumb_mean) / self.thumb_std * self.weight + self.bias
+            shift = x - self.thumb_mean
+            x = shift / self.thumb_std * self.weight + self.bias
             return x
 
 

@@ -27,9 +27,13 @@ class ResnetBlock(nn.Module):
         assert self.normalization == "kin"
         x_residual = x
         x = self.model[:2](x)
-        x = self.model[2](x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        x = self.model[2](
+            x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding
+        )
         x = self.model[3:6](x)
-        x = self.model[6](x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        x = self.model[6](
+            x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding
+        )
         return x_residual + x
 
     def analyze_feature_map(self, x):
@@ -93,7 +97,9 @@ class GeneratorBasicBlock(nn.Module):
         if self.do_upsample:
             x = self.upsample(x)
         x = self.conv(x)
-        x = self.instancenorm(x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        x = self.instancenorm(
+            x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding
+        )
         x = self.relu(x)
         if self.do_downsample:
             x = self.downsample(x)
@@ -111,7 +117,9 @@ class GeneratorBasicBlock(nn.Module):
 
 
 class Generator(nn.Module):
-    def __init__(self, in_channels=3, features=64, residuals=9, normalization="in"):
+    def __init__(
+        self, in_channels=3, features=64, residuals=9, normalization="in"
+    ):
         super().__init__()
         self.residuals = residuals
         self.normalization = normalization
@@ -175,7 +183,6 @@ class Generator(nn.Module):
         num_patches=256,
         patch_ids=None,
     ):
-        B, H, W = feature.shape[0], feature.shape[2], feature.shape[3]
         feature_reshape = feature.permute(0, 2, 3, 1).flatten(1, 2)  # B, F, C
         if patch_ids is not None:
             patch_id = patch_ids[mlp_id]
@@ -202,8 +209,10 @@ class Generator(nn.Module):
 
         for resnet_idx, resnetblock in enumerate(self.resnetblocks4):
             x, feature_map1, feature_map2 = resnetblock.analyze_feature_map(x)
-            feature_maps[f"resnetblock4_{resnet_idx}_1"] = feature_map1.cpu().numpy()
-            feature_maps[f"resnetblock4_{resnet_idx}_2"] = feature_map2.cpu().numpy()
+            feature_map1_np = feature_map1.cpu().numpy()
+            feature_map2_np = feature_map2.cpu().numpy()
+            feature_maps[f"resnetblock4_{resnet_idx}_1"] = feature_map1_np
+            feature_maps[f"resnetblock4_{resnet_idx}_2"] = feature_map2_np
 
         x, feature_map = self.upsampleblock5.analyze_feature_map(x)
         feature_maps["upsampleblock5"] = feature_map.cpu().numpy()
@@ -218,7 +227,9 @@ class Generator(nn.Module):
         assert self.normalization == "kin"
         x = self.reflectionpad(x)
         x = self.block1[0](x)
-        x = self.block1[1](x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
+        x = self.block1[1](
+            x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding
+        )
         x = self.block1[2](x)
         x = self.downsampleblock2.forward_with_anchor(
             x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding

@@ -47,18 +47,36 @@ class Discriminator(nn.Module):
     def __init__(self, in_channels=3, features=64, avg_pooling=False):
         super().__init__()
         self.block1 = DiscriminatorBasicBlock(
-            in_channels, features, do_downsample=True, do_instancenorm=False
+            in_channels,
+            features,
+            do_downsample=True,
+            do_instancenorm=False,
         )
         self.block2 = DiscriminatorBasicBlock(
-            features, features * 2, do_downsample=True, do_instancenorm=True
+            features,
+            features * 2,
+            do_downsample=True,
+            do_instancenorm=True,
         )
         self.block3 = DiscriminatorBasicBlock(
-            features * 2, features * 4, do_downsample=True, do_instancenorm=True
+            features * 2,
+            features * 4,
+            do_downsample=True,
+            do_instancenorm=True,
         )
         self.block4 = DiscriminatorBasicBlock(
-            features * 4, features * 8, do_downsample=False, do_instancenorm=True
+            features * 4,
+            features * 8,
+            do_downsample=False,
+            do_instancenorm=True,
         )
-        self.conv = nn.Conv2d(features * 8, 1, kernel_size=4, stride=1, padding=1)
+        self.conv = nn.Conv2d(
+            features * 8,
+            1,
+            kernel_size=4,
+            stride=1,
+            padding=1,
+        )
         self.avg_pooling = avg_pooling
 
     def forward(self, x):

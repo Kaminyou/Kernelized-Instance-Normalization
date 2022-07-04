@@ -1,6 +1,5 @@
 from models.cut import ContrastiveModel
 from models.cyclegan import CycleGanModel
-from models.lsesim import LSeSim
 
 
 def get_model(config, model_name="CUT", normalization="in", isTrain=True):

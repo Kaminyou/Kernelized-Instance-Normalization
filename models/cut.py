@@ -20,7 +20,8 @@ from models.tin import (
 
 
 class ContrastiveModel(BaseModel):
-    # instance normalization can be different from the one specified during training
+    # instance normalization can be different from the
+    # one specified during training
     def __init__(self, config, normalization="in"):
         BaseModel.__init__(self, config)
         self.model_names = ["D_Y", "G", "H"]
@@ -64,9 +65,15 @@ class ContrastiveModel(BaseModel):
         lambda_lr = lambda epoch: 1.0 - max(
             0, epoch - self.config["TRAINING_SETTING"]["NUM_EPOCHS"] / 2
         ) / (self.config["TRAINING_SETTING"]["NUM_EPOCHS"] / 2)
-        self.scheduler_disc = lr_scheduler.LambdaLR(self.opt_D_Y, lr_lambda=lambda_lr)
-        self.scheduler_gen = lr_scheduler.LambdaLR(self.opt_G, lr_lambda=lambda_lr)
-        self.scheduler_mlp = lr_scheduler.LambdaLR(self.opt_H, lr_lambda=lambda_lr)
+        self.scheduler_disc = lr_scheduler.LambdaLR(
+            self.opt_D_Y, lr_lambda=lambda_lr
+        )
+        self.scheduler_gen = lr_scheduler.LambdaLR(
+            self.opt_G, lr_lambda=lambda_lr
+        )
+        self.scheduler_mlp = lr_scheduler.LambdaLR(
+            self.opt_H, lr_lambda=lambda_lr
+        )
 
     def set_input(self, data):
         self.X = data["X_img"]
@@ -135,7 +142,9 @@ class ContrastiveModel(BaseModel):
         self.loss_D_fake = self.mse(pred_fake, torch.zeros_like(pred_fake))
         # Real
         self.pred_real = self.D_Y(self.Y)
-        self.loss_D_real = self.mse(self.pred_real, torch.ones_like(self.pred_real))
+        self.loss_D_real = self.mse(
+            self.pred_real, torch.ones_like(self.pred_real)
+        )
 
         self.loss_D_Y = (self.loss_D_fake + self.loss_D_real) / 2
         return self.loss_D_Y
@@ -169,7 +178,9 @@ class ContrastiveModel(BaseModel):
         feat_k = feat_k.detach()
         out = torch.mm(feat_q, feat_k.transpose(1, 0)) / 0.07
         loss = self.cross_entropy_loss(
-            out, torch.arange(0, out.size(0), dtype=torch.long, device=self.device)
+            out, torch.arange(
+                0, out.size(0), dtype=torch.long, device=self.device
+            )
         )
         return loss
 
@@ -183,7 +194,11 @@ class ContrastiveModel(BaseModel):
         not_use_thumbnail_instance_norm(self.G)
 
     def init_kernelized_instance_norm_for_whole_model(
-        self, y_anchor_num, x_anchor_num, kernel_padding=1, kernel_mode="constant"
+        self,
+        y_anchor_num,
+        x_anchor_num,
+        kernel_padding=1,
+        kernel_mode="constant",
     ):
         init_kernelized_instance_norm(
             self.G,

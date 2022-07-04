@@ -22,7 +22,8 @@ from models.tin import (
 
 
 class CycleGanModel(BaseModel):
-    # instance normalization can be different from the one specified during training
+    # instance normalization can be different
+    # from the one specified during training
     def __init__(self, config, normalization="in"):
         BaseModel.__init__(self, config)
         self.model_names = ["G_X2Y", "G_Y2X", "D_X", "D_Y"]
@@ -86,9 +87,15 @@ class CycleGanModel(BaseModel):
         lambda_lr = lambda epoch: 1.0 - max(
             0, epoch - self.config["TRAINING_SETTING"]["NUM_EPOCHS"] / 2
         ) / (self.config["TRAINING_SETTING"]["NUM_EPOCHS"] / 2)
-        self.scheduler_G = lr_scheduler.LambdaLR(self.opt_G, lr_lambda=lambda_lr)
-        self.scheduler_D_X = lr_scheduler.LambdaLR(self.opt_D_X, lr_lambda=lambda_lr)
-        self.scheduler_D_Y = lr_scheduler.LambdaLR(self.opt_D_Y, lr_lambda=lambda_lr)
+        self.scheduler_G = lr_scheduler.LambdaLR(
+            self.opt_G, lr_lambda=lambda_lr
+        )
+        self.scheduler_D_X = lr_scheduler.LambdaLR(
+            self.opt_D_X, lr_lambda=lambda_lr
+        )
+        self.scheduler_D_Y = lr_scheduler.LambdaLR(
+            self.opt_D_Y, lr_lambda=lambda_lr
+        )
 
         self.fake_X_buffer = ReplayBuffer()
         self.fake_Y_buffer = ReplayBuffer()
@@ -247,7 +254,11 @@ class CycleGanModel(BaseModel):
         not_use_thumbnail_instance_norm(self.G_X2Y)
 
     def init_kernelized_instance_norm_for_whole_model(
-        self, y_anchor_num, x_anchor_num, kernel_padding=1, kernel_mode="constant"
+        self,
+        y_anchor_num,
+        x_anchor_num,
+        kernel_padding=1,
+        kernel_mode="constant",
     ):
         init_kernelized_instance_norm(
             self.G_X2Y,
