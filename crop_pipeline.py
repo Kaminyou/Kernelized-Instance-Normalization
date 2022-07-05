@@ -34,7 +34,7 @@ if __name__ == "__main__":
         output_path = os.path.join(config['TEST_DIR_X'], filename)
         os.system(
             f"python3 crop.py -i {test_x} -o {output_path} "
-            f"--thumbnail_output {output_path} "
+            f"--thumbnail --thumbnail_output {output_path} "
             f"--patch_size {config['PATCH_SIZE']} "
             f"--stride {config['PATCH_SIZE']}"
         )

@@ -15,18 +15,18 @@ if __name__ == "__main__":
     USAGE
     1. prepare data belongs to domain X
         python3 crop.py -i ./data/example/HE_cropped.jpg \
-                        -o ./data/example/trainX/ \
+                        -o ./data/example/trainX/ --thumbnail \
                         --thumbnail_output ./data/example/trainX/
 
     2. prepare data belongs to domain Y
         python3 crop.py -i ./data/example/ER_cropped.jpg \
-                        -o ./data/example/trainY/ \
+                        -o ./data/example/trainY/ --thumbnail \
                             --thumbnail_output ./data/example/trainY/
 
     3. prepare data belongs to domain X required to be transferred to domain Y
         python3 crop.py -i ./data/example/HE_cropped.jpg \
                         -o ./data/example/testX/ \
-                        --stride 512 \
+                        --stride 512 --thumbnail \
                         --thumbnail_output ./data/example/testX/
     """
     parser = argparse.ArgumentParser(

@@ -36,10 +36,10 @@ TRAINING_SETTING:
 
 INFERENCE_SETTING:
   TEST_X: "./data/example/HE_cropped.jpg"
-  TEST_DIR_X: "./data/example/testX/"
+  TEST_DIR_X: "./data/example/testX/HE_cropped/"
   MODEL_VERSION: "10"
   SAVE_ORIGINAL_IMAGE: False
   NORMALIZATION: "kin"
-  THUMBNAIL: "./data/example/testX/thumbnail.png" #"None" # set to "None" if it's not required
+  THUMBNAIL: "./data/example/testX/HE_cropped/thumbnail.png" #"None" # set to "None" if it's not required
   KIN_PADDING: 3 # for kin
   KIN_KERNEL: "constant" #constant or gaussian
