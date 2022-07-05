@@ -1,24 +1,27 @@
-EXPERIMENT_ROOT_PATH: "/home/kaminyouho/URUST/experiments/"
-EXPERIMENT_NAME: "example_cycleGAN2"
-MODEL_NAME: "cycleGAN" # currently only CUT, cycleGAN, and LSeSim are support
+EXPERIMENT_ROOT_PATH: "./experiments/"
+EXPERIMENT_NAME: "example_CUT"
+MODEL_NAME: "CUT" # currently only CUT, cycleGAN, and LSeSim are support
 DEVICE: "cuda"
 
 CROPPING_SETTING:
-  TRAIN_X: "/home/kaminyouho/URUST/data/example/HE_cropped.jpg"
-  TRAIN_DIR_X: "/home/kaminyouho/URUST/data/example/trainX/"
-  TRAIN_Y: "/home/kaminyouho/URUST/data/example/ER_cropped.jpg"
-  TRAIN_DIR_Y: "/home/kaminyouho/URUST/data/example/trainY/"
-  TEST_X: "/home/kaminyouho/URUST/data/example/HE_cropped.jpg"
-  TEST_DIR_X: "/home/kaminyouho/URUST/data/example/testX/"
+  TRAIN_X: 
+  - "./data/example/HE_cropped.jpg"
+  TRAIN_DIR_X: "./data/example/trainX/"
+  TRAIN_Y: 
+  - "./data/example/ER_cropped.jpg"
+  TRAIN_DIR_Y: "./data/example/trainY/"
+  TEST_X: 
+  - "./data/example/HE_cropped.jpg"
+  TEST_DIR_X: "./data/example/testX/"
   PATCH_SIZE: 512
   STRIDE: 256
 
 TRAINING_SETTING:
   PAIRED_TRAINING: False
   RANDOM_CROP_AUG: False
-  TRAIN_ROOT: "/home/kaminyouho/URUST/data/example/"
-  TRAIN_DIR_X: "/home/kaminyouho/URUST/data/example/trainX/"
-  TRAIN_DIR_Y: "/home/kaminyouho/URUST/data/example/trainY/"
+  TRAIN_ROOT: "./data/example/"
+  TRAIN_DIR_X: "./data/example/trainX/"
+  TRAIN_DIR_Y: "./data/example/trainY/"
   NUM_EPOCHS: 100
   LAMBDA_Y: 1
   LEARNING_RATE: 0.0002
@@ -32,11 +35,11 @@ TRAINING_SETTING:
   Augment: True #LSeSim
 
 INFERENCE_SETTING:
-  TEST_X: "/home/kaminyouho/URUST/data/example/HE_cropped.jpg"
-  TEST_DIR_X: "/home/kaminyouho/URUST/data/example/testX/"
+  TEST_X: "./data/example/HE_cropped.jpg"
+  TEST_DIR_X: "./data/example/testX/"
   MODEL_VERSION: "10"
   SAVE_ORIGINAL_IMAGE: False
   NORMALIZATION: "kin"
-  THUMBNAIL: "/home/kaminyouho/URUST/data/example/testX/thumbnail.png" #"None" # set to "None" if it's not required
+  THUMBNAIL: "./data/example/testX/thumbnail.png" #"None" # set to "None" if it's not required
   KIN_PADDING: 3 # for kin
   KIN_KERNEL: "constant" #constant or gaussian

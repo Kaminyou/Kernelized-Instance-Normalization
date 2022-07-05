@@ -1,3 +1,4 @@
+# Author: Kaminyou (https://github.com/Kaminyou)
 import argparse
 import csv
 import os
@@ -13,26 +14,64 @@ if __name__ == "__main__":
     """
     USAGE
     1. prepare data belongs to domain X
-        python3 crop.py -i ./data/example/HE_cropped.jpg -o ./data/example/trainX/ --thumbnail_output ./data/example/trainX/
+        python3 crop.py -i ./data/example/HE_cropped.jpg \
+                        -o ./data/example/trainX/ \
+                        --thumbnail_output ./data/example/trainX/
+
     2. prepare data belongs to domain Y
-        python3 crop.py -i ./data/example/ER_cropped.jpg -o ./data/example/trainY/ --thumbnail_output ./data/example/trainY/
+        python3 crop.py -i ./data/example/ER_cropped.jpg \
+                        -o ./data/example/trainY/ \
+                            --thumbnail_output ./data/example/trainY/
+
     3. prepare data belongs to domain X required to be transferred to domain Y
-        python3 crop.py -i ./data/example/HE_cropped.jpg -o ./data/example/testX/ --stride 512 --thumbnail_output ./data/example/testX/
+        python3 crop.py -i ./data/example/HE_cropped.jpg \
+                        -o ./data/example/testX/ \
+                        --stride 512 \
+                        --thumbnail_output ./data/example/testX/
     """
-    parser = argparse.ArgumentParser(description="Crop a large image into patches.")
-    parser.add_argument("-i", "--input", help="Input image path", required=True)
-    parser.add_argument(
-        "-o", "--output", help="Output image path", default="data/initial/trainX/"
+    parser = argparse.ArgumentParser(
+        description="Crop a large image into patches."
     )
     parser.add_argument(
-        "--thumbnail", help="If crop a thumbnail or not", action="store_true"
+        "-i",
+        "--input",
+        help="Input image path",
+        required=True,
     )
     parser.add_argument(
-        "--thumbnail_output", help="Output image path", default="data/initial/"
+        "-o",
+        "--output",
+        help="Output image path",
+        default="data/initial/trainX/",
     )
-    parser.add_argument("--patch_size", type=int, help="Patch size", default=512)
-    parser.add_argument("--stride", type=int, help="Stride to crop patch", default=256)
-    parser.add_argument("--mode", type=str, help="reduce or extend", default="reduce")
+    parser.add_argument(
+        "--thumbnail",
+        help="If crop a thumbnail or not",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--thumbnail_output",
+        help="Output image path",
+        default="data/initial/",
+    )
+    parser.add_argument(
+        "--patch_size",
+        type=int,
+        help="Patch size",
+        default=512,
+    )
+    parser.add_argument(
+        "--stride",
+        type=int,
+        help="Stride to crop patch",
+        default=256,
+    )
+    parser.add_argument(
+        "--mode",
+        type=str,
+        help="reduce or extend",
+        default="reduce",
+    )
     args = parser.parse_args()
 
     os.makedirs(args.output, exist_ok=True)
@@ -41,7 +80,7 @@ if __name__ == "__main__":
     image_name = Path(args.input).stem
     try:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    except:
+    except Exception:
         raise ValueError
 
     if args.thumbnail:
@@ -49,7 +88,9 @@ if __name__ == "__main__":
             image, (args.patch_size, args.patch_size), cv2.INTER_AREA
         )
         thumbnail_instance = Image.fromarray(thumbnail)
-        thumbnail_instance.save(os.path.join(args.thumbnail_output, "thumbnail.png"))
+        thumbnail_instance.save(
+            os.path.join(args.thumbnail_output, "thumbnail.png")
+        )
 
     h, w, c = image.shape
 
@@ -81,8 +122,8 @@ if __name__ == "__main__":
         for x_idx, w_anchor in enumerate(w_anchors):
             print(f"[{curr_idx} / {output_num}] Processing ...", end="\r")
             image_crop = image[
-                h_anchor : h_anchor + args.patch_size,
-                w_anchor : w_anchor + args.patch_size,
+                h_anchor:h_anchor + args.patch_size,
+                w_anchor:w_anchor + args.patch_size,
                 :,
             ]
 
@@ -97,8 +138,13 @@ if __name__ == "__main__":
 
             image_crop_instance = Image.fromarray(image_crop)
 
-            ## filename: {y-idx}_{x-idx}_{h-anchor}_{w-anchor}.png
-            filename = f"{str(y_idx).zfill(max_idx_digits)}_{str(x_idx).zfill(max_idx_digits)}_{str(h_anchor).zfill(max_anchor_digits)}_{str(w_anchor).zfill(max_anchor_digits)}_{image_name}.png"
+            # filename: {y-idx}_{x-idx}_{h-anchor}_{w-anchor}.png
+            filename = f"{str(y_idx).zfill(max_idx_digits)}_" \
+                       f"{str(x_idx).zfill(max_idx_digits)}_" \
+                       f"{str(h_anchor).zfill(max_anchor_digits)}_" \
+                       f"{str(w_anchor).zfill(max_anchor_digits)}_" \
+                       f"{image_name}.png"
+
             image_crop_instance.save(os.path.join(args.output, filename))
             blank_patches_list.append((filename, is_blank_patch(image_crop)))
             curr_idx += 1
