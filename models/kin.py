@@ -41,7 +41,7 @@ class KernelizedInstanceNorm(nn.Module):
 
     def init_kernel(self, kernel_padding, kernel_mode):
         kernel = get_kernel(padding=kernel_padding, mode=kernel_mode)
-        self.kernel = kernel
+        self.kernel = kernel.to(self.device)
 
     def pad_table(self, padding):
         # modify
@@ -74,6 +74,8 @@ class KernelizedInstanceNorm(nn.Module):
                 # update std and mean to corresponing coordinates
                 self.mean_table[y_anchor, x_anchor] = x_mean
                 self.std_table[y_anchor, x_anchor] = x_std
+                x_mean = x_mean.unsqueeze(-1).unsqueeze(-1)
+                x_std = x_std.unsqueeze(-1).unsqueeze(-1)
 
             else:
 
@@ -149,14 +151,16 @@ USAGE
     kin.eval()
     init_kernelized_instance_norm(
         kin, y_anchor_num=$y_anchor_num,
-        x_anchor_num=$x_anchor_num, kernel=torch.ones(3,3)
+        x_anchor_num=$x_anchor_num,
+        kernel_padding=$kernel_padding,
+        kernel_mode=$kernel_mode,
     )
     for (x, y_anchor, x_anchor) in dataloader:
         kin(x, y_anchor=y_anchor, x_anchor=x_anchor)
 
     [INFERENCE] anchors are required and batch size is limited to 1 !!
     kin.eval()
-    use_kernelized_instance_norm(kin)
+    use_kernelized_instance_norm(kin, kernel_padding=$kernel_padding)
     for (x, y_anchor, x_anchor) in dataloader:
         kin(x, y_anchor=y_anchor, x_anchor=x_anchor, padding=$padding)
 
@@ -193,17 +197,21 @@ if __name__ == "__main__":
     test_dataset = TestDataset()
     test_dataloader = DataLoader(test_dataset, batch_size=5)
 
-    kin = KernelizedInstanceNorm(out_channels=3)
+    kin = KernelizedInstanceNorm(out_channels=3, device="cpu")
     kin.eval()
     init_kernelized_instance_norm(
-        kin, y_anchor_num=10, x_anchor_num=10, kernel=torch.ones(3, 3)
+        kin,
+        y_anchor_num=10,
+        x_anchor_num=10,
+        kernel_padding=1,
+        kernel_mode="constant",
     )
 
     for (x, y_anchor, x_anchor) in test_dataloader:
         kin(x, y_anchor=y_anchor, x_anchor=x_anchor)
 
-    use_kernelized_instance_norm(kin)
+    use_kernelized_instance_norm(kin, kernel_padding=1)
     test_dataloader = DataLoader(test_dataset, batch_size=1)
     for (x, y_anchor, x_anchor) in test_dataloader:
-        x = kin(x, y_anchor=y_anchor, x_anchor=x_anchor)
+        x = kin(x, y_anchor=y_anchor, x_anchor=x_anchor, padding=1)
         print(x.shape)
