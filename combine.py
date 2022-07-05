@@ -17,15 +17,26 @@ def main():
         default="./config.yaml",
         help="Path to the config file.",
     )
-    parser.add_argument("--patch_size", type=int, help="Patch size", default=512)
-    parser.add_argument("--resize_h", type=int, help="Resize H", default=-1)
-    parser.add_argument("--resize_w", type=int, help="Resize W", default=-1)
+    parser.add_argument(
+        "--patch_size", type=int, help="Patch size", default=512
+    )
+    parser.add_argument(
+        "--resize_h", type=int, help="Resize H", default=-1
+    )
+    parser.add_argument(
+        "--resize_w", type=int, help="Resize W", default=-1
+    )
     args = parser.parse_args()
 
     config = read_yaml_config(args.config)
 
+    basename = os.path.basename(config["INFERENCE_SETTING"]["TEST_X"])
+    filename = os.path.splitext(basename)[0]
     path_root = os.path.join(
-        config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test"
+        config["EXPERIMENT_ROOT_PATH"],
+        config["EXPERIMENT_NAME"],
+        "test",
+        filename,
     )
 
     if (
@@ -40,19 +51,26 @@ def main():
         config["INFERENCE_SETTING"]["MODEL_VERSION"],
     )
 
-    combined_image_name = f"combined_{config['INFERENCE_SETTING']['NORMALIZATION']}_{config['INFERENCE_SETTING']['MODEL_VERSION']}.png"
+    combined_image_name = f"combined_" \
+                          f"{config['INFERENCE_SETTING']['NORMALIZATION']}_" \
+                          f"{config['INFERENCE_SETTING']['MODEL_VERSION']}.png"
 
     if config["INFERENCE_SETTING"]["NORMALIZATION"] == "kin":
         path_base = os.path.join(
             path_base,
-            f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_{config['INFERENCE_SETTING']['KIN_PADDING']}",
+            f"{config['INFERENCE_SETTING']['KIN_KERNEL']}"
+            f"_{config['INFERENCE_SETTING']['KIN_PADDING']}",
         )
-        combined_image_name = f"combined_{config['INFERENCE_SETTING']['NORMALIZATION']}_{config['INFERENCE_SETTING']['MODEL_VERSION']}_{config['INFERENCE_SETTING']['KIN_KERNEL']}_{config['INFERENCE_SETTING']['KIN_PADDING']}.png"
+        combined_image_name = f"combined_" \
+            f"{config['INFERENCE_SETTING']['NORMALIZATION']}" \
+            f"_{config['INFERENCE_SETTING']['MODEL_VERSION']}_" \
+            f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_" \
+            f"{config['INFERENCE_SETTING']['KIN_PADDING']}.png"
 
     filenames = os.listdir(path_base)
     try:
         filenames.remove("thumbnail_Y_fake.png")
-    except:
+    except Exception:
         pass
 
     y_anchor_max = 0
@@ -74,10 +92,12 @@ def main():
         x_anchor = int(x_anchor)
         image = cv2.imread(os.path.join(path_base, filename))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        matrix[y_anchor : y_anchor + 512, x_anchor : x_anchor + 512, :] = image
+        matrix[y_anchor:y_anchor + 512, x_anchor:x_anchor + 512, :] = image
 
     if (args.resize_h != -1) and (args.resize_w != -1):
-        matrix = cv2.resize(matrix, (args.resize_w, args.resize_h), cv2.INTER_CUBIC)
+        matrix = cv2.resize(
+            matrix, (args.resize_w, args.resize_h), cv2.INTER_CUBIC
+        )
 
     matrix_image = Image.fromarray(matrix)
     matrix_image.save(os.path.join(path_root, combined_image_name))

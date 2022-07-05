@@ -8,7 +8,6 @@ from torchvision.utils import save_image
 from models.model import get_model
 from utils.dataset import XInferenceDataset
 from utils.util import (
-    get_kernel,
     read_yaml_config,
     reverse_image_normalize,
     test_transforms,
@@ -49,12 +48,19 @@ def main():
             return_anchor=True,
         )
 
-    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, pin_memory=True)
+    test_loader = DataLoader(
+        test_dataset, batch_size=1, shuffle=False, pin_memory=True
+    )
 
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])
 
+    basename = os.path.basename(config["INFERENCE_SETTING"]["TEST_X"])
+    filename = os.path.splitext(basename)[0]
     save_path_root = os.path.join(
-        config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test"
+        config["EXPERIMENT_ROOT_PATH"],
+        config["EXPERIMENT_NAME"],
+        "test",
+        filename,
     )
 
     if (
@@ -87,7 +93,10 @@ def main():
             if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
                 save_image(
                     reverse_image_normalize(X),
-                    os.path.join(save_path_base, f"{Path(X_path[0]).stem}_X_{idx}.png"),
+                    os.path.join(
+                        save_path_base,
+                        f"{Path(X_path[0]).stem}_X_{idx}.png",
+                    ),
                 )
             save_image(
                 reverse_image_normalize(Y_fake),
@@ -99,11 +108,13 @@ def main():
     elif config["INFERENCE_SETTING"]["NORMALIZATION"] == "kin":
         save_path_base_kin = os.path.join(
             save_path_base,
-            f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_{config['INFERENCE_SETTING']['KIN_PADDING']}",
+            f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_"
+            f"{config['INFERENCE_SETTING']['KIN_PADDING']}",
         )
         os.makedirs(save_path_base_kin, exist_ok=True)
         y_anchor_num, x_anchor_num = test_dataset.get_boundary()
-        # as the anchor num from 0 to N, anchor_num = N but it actually has N + 1 values
+        # as the anchor num from 0 to N,
+        # anchor_num = N but it actually has N + 1 values
         model.init_kernelized_instance_norm_for_whole_model(
             y_anchor_num=y_anchor_num + 1,
             x_anchor_num=x_anchor_num + 1,
@@ -146,13 +157,15 @@ def main():
                 save_image(
                     reverse_image_normalize(X),
                     os.path.join(
-                        save_path_base_kin, f"{Path(X_path[0]).stem}_X_{idx}.png"
+                        save_path_base_kin,
+                        f"{Path(X_path[0]).stem}_X_{idx}.png",
                     ),
                 )
             save_image(
                 reverse_image_normalize(Y_fake),
                 os.path.join(
-                    save_path_base_kin, f"{Path(X_path[0]).stem}_Y_fake_{idx}.png"
+                    save_path_base_kin,
+                    f"{Path(X_path[0]).stem}_Y_fake_{idx}.png",
                 ),
             )
 
@@ -166,7 +179,10 @@ def main():
             if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
                 save_image(
                     reverse_image_normalize(X),
-                    os.path.join(save_path_base, f"{Path(X_path[0]).stem}_X_{idx}.png"),
+                    os.path.join(
+                        save_path_base,
+                        f"{Path(X_path[0]).stem}_X_{idx}.png",
+                    ),
                 )
 
             save_image(
