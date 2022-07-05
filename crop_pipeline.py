@@ -29,8 +29,8 @@ if __name__ == "__main__":
 
     # Prepare the testing set
     for test_x in config["TEST_X"]:
-        base = os.path.basename(test_x)
-        filename = os.path.splitext(base)[0]
+        basename = os.path.basename(test_x)
+        filename = os.path.splitext(basename)[0]
         output_path = os.path.join(config['TEST_DIR_X'], filename)
         os.system(
             f"python3 crop.py -i {test_x} -o {output_path} "
