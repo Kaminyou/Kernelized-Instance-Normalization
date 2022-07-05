@@ -30,30 +30,31 @@ python3 crop_pipeline.py -c ./data/example/config.yaml
 python3 train.py -c ./data/example/config.yaml
 ```
 2. Wait for the model training
-- Some transfered examples will be generated during training. Please check the `./experiments/example/train/` folder.
+- Some transfered examples will be generated during training. Please check the `./experiments/example_CUT/train/` folder.
 
 ### Inference
 As the testing data have been cropped during the first step, we can skip this step here.
 ```
 python3 transfer.py -c config_example.yaml --skip_cropping
 ```
-The output will be in the `./experiments/example/test/` folder.
+The output will be in the `./experiments/example_CUT/test/HE_cropped/` folder.
 The following is an example of output file structure.
 ```
-./example/
-├── test
-│   ├── in
-│   │   └── 30
-│   ├── kin
-│   │   └── 30
-│   │       ├── constant_1
-│   │       └── constant_5
-│   ├── tin
-│   │   └── 30
-│   ├── combined_in_30.png
-│   ├── combined_tin_30.png
-│   └── combined_kin_30_constant_5.png
-└── train
+experiments/
+└── example_CUT
+    ├── test
+    │   └── HE_cropped
+    │       ├── combined_in_30.png
+    │       ├── combined_kin_30_constant_5.png
+    │       ├── combined_tin_30.png
+    │       ├── in
+    │       │   └── 30
+    │       ├── kin
+    │       │   └── 30
+    │       │       └── constant_5
+    │       └── tin
+    │           └── 30
+    └── train
 ```
 ## Train your own model with your own dataset
 1. Create a folder in `./data/`
