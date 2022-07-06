@@ -7,17 +7,30 @@ from metrics.calculate_fid import calculate_fid_given_two_paths
 from metrics.inception import InceptionV3
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
-parser.add_argument("--exp_name", type=str, help="Experiment name")
-parser.add_argument("--batch-size", type=int, default=50, help="Batch size to use")
+parser.add_argument(
+    "--exp_name",
+    type=str,
+    help="Experiment name"
+)
+parser.add_argument(
+    "--batch-size",
+    type=int,
+    default=50,
+    help="Batch size to use"
+)
 parser.add_argument(
     "--num-workers",
     type=int,
     help=(
-        "Number of processes to use for data loading. " "Defaults to `min(8, num_cpus)`"
+        "Number of processes to use for data loading. "
+        "Defaults to `min(8, num_cpus)`"
     ),
 )
 parser.add_argument(
-    "--device", type=str, default=None, help="Device to use. Like cuda, cuda:0 or cpu"
+    "--device",
+    type=str,
+    default=None,
+    help="Device to use. Like cuda, cuda:0 or cpu",
 )
 parser.add_argument(
     "--dims",
@@ -67,7 +80,7 @@ parser.add_argument(
 
 def main():
     args = parser.parse_args()
-    # print('Exp.: ', args.exp_name)
+
     if args.device is None:
         device = torch.device("cuda" if (torch.cuda.is_available()) else "cpu")
     else:
