@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 import torch.nn as nn
 from utils.util import get_kernel
