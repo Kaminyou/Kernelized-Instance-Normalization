@@ -31,8 +31,10 @@ def main():
 
     config = read_yaml_config(args.config)
 
+    basename = os.path.basename(config["INFERENCE_SETTING"]["TEST_X"])
+    filename = os.path.splitext(basename)[0]
     path_root = os.path.join(
-        config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test"
+        config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", filename
     )
     if (
         "OVERWRITE_OUTPUT_PATH" in config["INFERENCE_SETTING"]

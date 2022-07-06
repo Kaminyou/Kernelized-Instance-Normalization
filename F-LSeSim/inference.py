@@ -78,10 +78,10 @@ if __name__ == "__main__":
 
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, pin_memory=True)
 
+    basename = os.path.basename(config["INFERENCE_SETTING"]["TEST_X"])
+    filename = os.path.splitext(basename)[0]
     save_path_root = os.path.join(
-        config["EXPERIMENT_ROOT_PATH"],
-        config["EXPERIMENT_NAME"],
-        "test",
+        config["EXPERIMENT_ROOT_PATH"], config["EXPERIMENT_NAME"], "test", filename
     )
 
     if (

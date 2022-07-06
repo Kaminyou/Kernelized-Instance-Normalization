@@ -140,11 +140,27 @@ MODEL_NAME: "LSeSim"
 TRAINING_SETTING:
   Augment: True #LSeSim
 ```
-3. Move to `./F-LSeSim`.
+3. Modify data path in the `config.yaml`, including `EXPERIMENT_ROOT_PATH`, `TRAINING_SETTING::TRAIN_ROOT`, `TRAINING_SETTING::TRAIN_DIR_X`, `TRAINING_SETTING::TRAIN_DIR_Y`,
+`INFERENCE_SETTING::TEST_X`,
+`INFERENCE_SETTING::TEST_DIR_X`, and `INFERENCE_SETTING::THUMBNAIL`.<br> *It is recommended to use absolute path to avoid any modification when change to different frameworks.*
+```yaml
+# Example 1
+EXPERIMENT_ROOT_PATH: "./experiments/" 
+# Change to
+EXPERIMENT_ROOT_PATH: "../experiments/" 
+
+# Example 2
+TRAINING_SETTING:
+  TRAIN_ROOT: "./data/example/"
+# Change to
+TRAINING_SETTING:
+  TRAIN_ROOT: "../data/example/"
+```
+4. Move to `./F-LSeSim`.
 ```
 cd ./F-LSeSim
 ```
-4. Run script
+5. Run script
 ```script
 ./scripts/train_sc.sh $path_to_yaml
 ```
@@ -153,7 +169,7 @@ cd ./F-LSeSim
 ./scripts/train_sc.sh ./../data/example/config.yaml
 ```
 - Then the model weights and generated samples will be in `./F-LSeSim/checkpoints/$EXPERIMENT_NAME`
-5. Inference
+6. Inference
 ```script
 ./scripts/transfer_sc.sh $path_to_yaml
 ```
