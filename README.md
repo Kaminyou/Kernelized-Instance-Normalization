@@ -2,7 +2,7 @@
 We invented a kernelized instance normalization module enabling ultra-resolution unpaired stain transformation
 ![KIN](./imgs/Figure_KIN.jpg)
 ## Release
-We have released [v0](https://github.com/Kaminyou/URUST/releases/tag/v0) that can reproduce everything experiemnt mentioned in our paper. 
+We have released [v0](https://github.com/Kaminyou/URUST/releases/tag/v0) that can reproduce experiments mentioned in our paper or be used in your application and study. 
 ## Environment
 - Python 3.8.6
 - All the required packages are listed in the `requirements.txt`.
