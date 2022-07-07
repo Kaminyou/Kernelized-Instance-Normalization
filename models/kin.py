@@ -1,10 +1,12 @@
 import torch
 import torch.nn as nn
+
 from utils.util import get_kernel
 
 
 class KernelizedInstanceNorm(nn.Module):
-    def __init__(self, out_channels=None, affine=True, device="cuda"):
+    # TODO: Can out_channels be None ?
+    def __init__(self, out_channels=None, eps=0, affine=True, device="cuda"):
         super(KernelizedInstanceNorm, self).__init__()
 
         # if use normal instance normalization during evaluation mode
@@ -15,7 +17,9 @@ class KernelizedInstanceNorm(nn.Module):
         self.collection_mode = False
 
         self.out_channels = out_channels
+        self.eps = eps
         self.device = device
+
         if affine:
             self.weight = nn.Parameter(
                 torch.ones(size=(1, out_channels, 1, 1), requires_grad=True)
@@ -58,7 +62,8 @@ class KernelizedInstanceNorm(nn.Module):
         )  # [H, W, C] -> [C, H, W] -> [N, C, H, W]
 
     def forward_normal(self, x):
-        x_std, x_mean = torch.std_mean(x, dim=(2, 3), keepdim=True)
+        x_var, x_mean = torch.var_mean(x, dim=(2, 3), keepdim=True)
+        x_std = torch.sqrt(x_var + self.eps)
         x = (x - x_mean) / x_std  # * self.weight + self.bias
         return x
 
@@ -72,7 +77,8 @@ class KernelizedInstanceNorm(nn.Module):
             assert x_anchor is not None
 
             if self.collection_mode:
-                x_std, x_mean = torch.std_mean(x, dim=(2, 3))  # [B, C]
+                x_var, x_mean = torch.var_mean(x, dim=(2, 3))  # [B, C]
+                x_std = torch.sqrt(x_var + self.eps)
                 # x_anchor, y_anchor = [B], [B]
                 # table = [H, W, C]
                 # update std and mean to corresponing coordinates
