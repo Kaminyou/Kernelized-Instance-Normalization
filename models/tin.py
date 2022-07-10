@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class ThumbInstanceNorm(nn.Module):
-    def __init__(self, out_channels=None, affine=True):
+    def __init__(self, num_features, affine=True):
         super(ThumbInstanceNorm, self).__init__()
         self.thumb_mean = None
         self.thumb_std = None
@@ -11,10 +11,10 @@ class ThumbInstanceNorm(nn.Module):
         self.collection_mode = False
         if affine:
             self.weight = nn.Parameter(
-                torch.ones(size=(1, out_channels, 1, 1), requires_grad=True)
+                torch.ones(size=(1, num_features, 1, 1), requires_grad=True)
             )
             self.bias = nn.Parameter(
-                torch.zeros(size=(1, out_channels, 1, 1), requires_grad=True)
+                torch.zeros(size=(1, num_features, 1, 1), requires_grad=True)
             )
 
     def calc_mean_std(self, feat, eps=1e-5):
