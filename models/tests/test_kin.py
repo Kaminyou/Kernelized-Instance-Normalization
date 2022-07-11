@@ -11,7 +11,7 @@ def normalize(x):
 
 
 def test_forward_normal():
-    layer = KernelizedInstanceNorm(out_channels=3, device='cpu')
+    layer = KernelizedInstanceNorm(num_features=3, device='cpu')
     x = np.random.normal(size=(1, 3, 32, 32)).astype(np.float32)
     x = torch.FloatTensor(x)
 
@@ -23,7 +23,7 @@ def test_forward_normal():
 
 
 def test_init_kernel():
-    layer = KernelizedInstanceNorm(out_channels=3, device='cpu')
+    layer = KernelizedInstanceNorm(num_features=3, device='cpu')
     layer.init_kernel(kernel_padding=1, kernel_mode='constant')
 
     expected = np.ones(shape=(3, 3), dtype=np.float32) / 9
@@ -32,7 +32,7 @@ def test_init_kernel():
 
 
 def test_init_collection():
-    layer = KernelizedInstanceNorm(out_channels=3, device='cpu')
+    layer = KernelizedInstanceNorm(num_features=3, device='cpu')
     layer.init_collection(y_anchor_num=10, x_anchor_num=9)
 
     expected_mean_table = np.zeros(shape=(10, 9, 3))
@@ -43,7 +43,7 @@ def test_init_collection():
 
 
 def test_pad_table():
-    layer = KernelizedInstanceNorm(out_channels=1, device='cpu')
+    layer = KernelizedInstanceNorm(num_features=1, device='cpu')
 
     table = np.array(
         [
@@ -76,7 +76,7 @@ def test_pad_table():
 
 
 def test_forward_with_normal_instance_normalization():
-    layer = KernelizedInstanceNorm(out_channels=3, device='cpu')
+    layer = KernelizedInstanceNorm(num_features=3, device='cpu')
     layer.normal_instance_normalization = True
     x = np.random.normal(size=(1, 3, 32, 32)).astype(np.float32)
     x = torch.FloatTensor(x)
@@ -89,7 +89,7 @@ def test_forward_with_normal_instance_normalization():
 
 
 def test_forward_with_collection_mode():
-    layer = KernelizedInstanceNorm(out_channels=3, device='cpu').eval()
+    layer = KernelizedInstanceNorm(num_features=3, device='cpu').eval()
     layer.collection_mode = True
     layer.normal_instance_normalization = False
 
@@ -115,7 +115,7 @@ def test_forward_with_collection_mode():
 
 
 def test_forward_with_kernelized():
-    layer = KernelizedInstanceNorm(out_channels=3, device='cpu').eval()
+    layer = KernelizedInstanceNorm(num_features=3, device='cpu').eval()
     layer.collection_mode = True
     layer.normal_instance_normalization = False
 

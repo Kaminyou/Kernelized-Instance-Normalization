@@ -5,8 +5,8 @@ from utils.util import get_kernel
 
 
 class KernelizedInstanceNorm(nn.Module):
-    # TODO: Can out_channels be None ?
-    def __init__(self, out_channels=None, eps=0, affine=True, device="cuda"):
+
+    def __init__(self, num_features, eps=0, affine=True, device="cuda"):
         super(KernelizedInstanceNorm, self).__init__()
 
         # if use normal instance normalization during evaluation mode
@@ -16,16 +16,16 @@ class KernelizedInstanceNorm(nn.Module):
         # during evaluation mode'
         self.collection_mode = False
 
-        self.out_channels = out_channels
+        self.num_features = num_features
         self.eps = eps
         self.device = device
 
         if affine:
             self.weight = nn.Parameter(
-                torch.ones(size=(1, out_channels, 1, 1), requires_grad=True)
+                torch.ones(size=(1, num_features, 1, 1), requires_grad=True)
             ).to(device)
             self.bias = nn.Parameter(
-                torch.zeros(size=(1, out_channels, 1, 1), requires_grad=True)
+                torch.zeros(size=(1, num_features, 1, 1), requires_grad=True)
             ).to(device)
 
     def init_collection(self, y_anchor_num, x_anchor_num):
@@ -33,12 +33,12 @@ class KernelizedInstanceNorm(nn.Module):
         self.y_anchor_num = y_anchor_num
         self.x_anchor_num = x_anchor_num
         self.mean_table = torch.zeros(
-            y_anchor_num, x_anchor_num, self.out_channels
+            y_anchor_num, x_anchor_num, self.num_features
         ).to(
             self.device
         )
         self.std_table = torch.zeros(
-            y_anchor_num, x_anchor_num, self.out_channels
+            y_anchor_num, x_anchor_num, self.num_features
         ).to(
             self.device
         )
