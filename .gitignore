@@ -4,3 +4,5 @@ __pycache__/
 experiments/
 checkpoints/
 .pytest_cache
+test_dir_x/
+test_dir_y/
