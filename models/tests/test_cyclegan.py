@@ -15,9 +15,9 @@ from utils.util import (read_yaml_config, reverse_image_normalize,
 @pytest.fixture()
 def config():
     config_path = os.path.join(
-        '/home/vincentwu',
-        'URUST_exp',
-        'config_lung_lesion_for_test_cyclegan.yaml'
+        "./test_data",
+        "configs",
+        "config_lung_lesion_for_test_cyclegan.yaml"
     )
     config = read_yaml_config(config_path)
 
@@ -29,7 +29,7 @@ def in_model(config):
     model = get_model(
         config=config,
         model_name=config["MODEL_NAME"],
-        normalization='in',
+        normalization="in",
         isTrain=False,
     )
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])
@@ -42,7 +42,7 @@ def kin_model(config):
     model = get_model(
         config=config,
         model_name=config["MODEL_NAME"],
-        normalization='kin',
+        normalization="kin",
         isTrain=False,
     )
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])
@@ -71,11 +71,10 @@ def dataloader(dataset):
 @pytest.fixture()
 def in_expected_outputs(config):
     expected_output_dir = os.path.join(
-        config["EXPERIMENT_ROOT_PATH"],
+        config["INFERENCE_SETTING"]["TEST_DIR_Y"],
         config["EXPERIMENT_NAME"],
-        "test",
         "in",
-        f"{config['INFERENCE_SETTING']['MODEL_VERSION']}_pytest",
+        f"{config['INFERENCE_SETTING']['MODEL_VERSION']}",
 
     )
     expected_output_files = sorted(
@@ -97,13 +96,12 @@ def in_expected_outputs(config):
 @pytest.fixture()
 def kin_expected_outputs(config):
     expected_output_dir = os.path.join(
-        config["EXPERIMENT_ROOT_PATH"],
+        config["INFERENCE_SETTING"]["TEST_DIR_Y"],
         config["EXPERIMENT_NAME"],
-        "test",
         "kin",
         config["INFERENCE_SETTING"]["MODEL_VERSION"],
         f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_"
-        f"{config['INFERENCE_SETTING']['KIN_PADDING']}_pytest",
+        f"{config['INFERENCE_SETTING']['KIN_PADDING']}",
 
     )
     expected_output_files = sorted(

@@ -1,0 +1,27 @@
+EXPERIMENT_ROOT_PATH: "./test_data/checkpoints/lung_lesion"
+EXPERIMENT_NAME: "lung_lesion_CUT"
+MODEL_NAME: "CUT" # currently only CUT and cycleGAN are support
+DEVICE: "cuda"
+
+TRAINING_SETTING:
+  PAIRED_TRAINING: False
+  NUM_EPOCHS: 100
+  LAMBDA_Y: 1
+  LEARNING_RATE: 0.0002
+  BATCH_SIZE: 1
+  NUM_WORKERS: 4
+  SAVE_MODEL: true
+  SAVE_MODEL_EPOCH_STEP: 10
+  VISUALIZATION_STEP: 250
+  LOAD_MODEL: false
+  LOAD_EPOCH: 0
+
+INFERENCE_SETTING:
+  TEST_DIR_X: "./test_data/test_dir_x/lung_lesion/"
+  TEST_DIR_Y: "./test_data/test_dir_y/lung_lesion"
+  MODEL_VERSION: "latest"
+  SAVE_ORIGINAL_IMAGE: False
+  NORMALIZATION: "kin"
+  THUMBNAIL: "None" # set to "None" if it's not required
+  KIN_PADDING: 1 # for kin
+  KIN_KERNEL: "gaussian" #constant or gaussian
