@@ -12,8 +12,8 @@ A simple example is provided for you here. Or you can jump to the next section t
 ### Prepare dataset
 - [**ANHIR**](https://anhir.grand-challenge.org/Data/)
   * A public dataset [ANHIR](https://anhir.grand-challenge.org/Data/) is used in this project. Please first download it from the offical website and put `ANHIR2019/dataset_medium/breast_1/scale-20pc/HE.jpg` and `ANHIR2019/dataset_medium/breast_1/scale-20pc/ER.jpg` in `data/example/` folder. We would like to transfer `HE (domain X)` to `ER (domain Y)`.
-- [**Kyoto_summer2autumn**](https://drive.google.com/file/d/1yghYBSCbPyTqu_xKZeSgX9JFZun4Djhs/view?usp=sharing)
-  * Due to the lack of dataset consists of high-resolution, we collected and released a dataset named **Kyoto_summer2autumn** to facilitate further studies. Please download this dataset via the following [link]().
+- [**Kyoto_summer2autumn**](https://github.com/Kaminyou/Kyoto-summer2autumn)
+  * Due to the lack of dataset consists of high-resolution, we collected and released a dataset named **Kyoto-summer2autumn** to facilitate further studies. Please download this dataset via the following [link](https://github.com/Kaminyou/Kyoto-summer2autumn).
 
 ### Take a look at the `config.yaml`
 The whole pipeline is heavily dependent on the `config.yaml`. Please take a look at the `./data/example/config.yaml` first to understand what are necessary during training and testing process. You can easily train your own model with your own dataset by modifiying the `config.yaml`.
