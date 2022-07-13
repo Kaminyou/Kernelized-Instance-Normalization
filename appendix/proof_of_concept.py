@@ -68,7 +68,7 @@ def main():
     model = get_model(
         config=config,
         model_name=config["MODEL_NAME"],
-        normalization=config["INFERENCE_SETTING"]["NORMALIZATION"],
+        norm_cfg=config["INFERENCE_SETTING"]["NORMALIZATION"],
         isTrain=False,
     )
 

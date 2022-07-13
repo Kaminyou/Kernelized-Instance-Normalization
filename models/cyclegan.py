@@ -24,7 +24,7 @@ from models.tin import (
 class CycleGanModel(BaseModel):
     # instance normalization can be different
     # from the one specified during training
-    def __init__(self, config, normalization="in"):
+    def __init__(self, config, norm_cfg=None):
         BaseModel.__init__(self, config)
         self.model_names = ["G_X2Y", "G_Y2X", "D_X", "D_Y"]
         self.loss_names = [
@@ -48,11 +48,11 @@ class CycleGanModel(BaseModel):
             "recovered_Y",
         ]
 
-        self.normalization = normalization
+        self.norm_cfg = norm_cfg or {'type': 'in'}
         # Discrimnator would not be used during inference,
         # so specification of instane normalization is not required
-        self.G_X2Y = Generator(normalization=normalization).to(self.device)
-        self.G_Y2X = Generator(normalization=normalization).to(self.device)
+        self.G_X2Y = Generator(norm_cfg=norm_cfg).to(self.device)
+        self.G_Y2X = Generator(norm_cfg=norm_cfg).to(self.device)
         self.D_X = Discriminator(avg_pooling=True).to(self.device)
         self.D_Y = Discriminator(avg_pooling=True).to(self.device)
 
@@ -123,7 +123,7 @@ class CycleGanModel(BaseModel):
         return Y_fake
 
     def inference_with_anchor(self, X, y_anchor, x_anchor, padding):
-        assert self.normalization == "kin"
+        assert self.norm_cfg['type'] == "kin"
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)

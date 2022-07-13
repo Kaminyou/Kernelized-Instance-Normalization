@@ -29,7 +29,7 @@ def in_model(config):
     model = get_model(
         config=config,
         model_name=config["MODEL_NAME"],
-        normalization="in",
+        norm_cfg={'type': 'in'},
         isTrain=False,
     )
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])
@@ -42,7 +42,7 @@ def kin_model(config):
     model = get_model(
         config=config,
         model_name=config["MODEL_NAME"],
-        normalization="kin",
+        norm_cfg={'type': 'kin'},
         isTrain=False,
     )
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])

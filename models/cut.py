@@ -22,7 +22,7 @@ from models.tin import (
 class ContrastiveModel(BaseModel):
     # instance normalization can be different from the
     # one specified during training
-    def __init__(self, config, normalization="in"):
+    def __init__(self, config, norm_cfg=None):
         BaseModel.__init__(self, config)
         self.model_names = ["D_Y", "G", "H"]
         self.loss_names = ["G_adv", "D_Y", "G", "NCE"]
@@ -31,12 +31,12 @@ class ContrastiveModel(BaseModel):
             self.loss_names += ["NCE_Y"]
             self.visual_names += ["Y_idt"]
 
-        self.normalization = normalization
+        self.norm_cfg = norm_cfg or {'type': 'in'}
         # Discrimnator would not be used during inference,
         # so specification of instane normalization is not required
         self.D_Y = Discriminator().to(self.device)
 
-        self.G = Generator(normalization=normalization).to(self.device)
+        self.G = Generator(norm_cfg=norm_cfg).to(self.device)
         self.H = Head().to(self.device)
 
         self.opt_D_Y = optim.Adam(
@@ -101,7 +101,7 @@ class ContrastiveModel(BaseModel):
         return Y_fake
 
     def inference_with_anchor(self, X, y_anchor, x_anchor, padding):
-        assert self.normalization == "kin"
+        assert self.norm_cfg['type'] == "kin"
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)
