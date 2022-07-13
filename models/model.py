@@ -2,6 +2,7 @@ from models.cut import ContrastiveModel
 from models.cyclegan import CycleGanModel
 
 
+# XXX: Check if isTrain is used
 def get_model(config, model_name="CUT", norm_cfg=None, isTrain=True):
     if model_name == "CUT":
         model = ContrastiveModel(config, norm_cfg=norm_cfg)

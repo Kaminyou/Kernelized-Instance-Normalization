@@ -30,6 +30,8 @@ def make_norm_layer(norm_cfg: Dict[str, Any], **kwargs: Any):
         nn.Module: A layer object.
     """
     norm_cfg = deepcopy(norm_cfg)
+    norm_cfg = {k.lower(): v for k, v in norm_cfg.items()}
+
     norm_cfg.update(kwargs)
 
     if 'type' not in norm_cfg:

@@ -47,22 +47,22 @@ def main():
 
     path_base = os.path.join(
         path_root,
-        config["INFERENCE_SETTING"]["NORMALIZATION"],
+        config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"],
         config["INFERENCE_SETTING"]["MODEL_VERSION"],
     )
 
     combined_image_name = f"combined_" \
-                          f"{config['INFERENCE_SETTING']['NORMALIZATION']}_" \
+                          f"{config['INFERENCE_SETTING']['NORMALIZATION']['TYPE']}_" \
                           f"{config['INFERENCE_SETTING']['MODEL_VERSION']}.png"
 
-    if config["INFERENCE_SETTING"]["NORMALIZATION"] == "kin":
+    if config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"] == "kin":
         path_base = os.path.join(
             path_base,
             f"{config['INFERENCE_SETTING']['KIN_KERNEL']}"
             f"_{config['INFERENCE_SETTING']['KIN_PADDING']}",
         )
         combined_image_name = f"combined_" \
-            f"{config['INFERENCE_SETTING']['NORMALIZATION']}" \
+            f"{config['INFERENCE_SETTING']['NORMALIZATION']['TYPE']}" \
             f"_{config['INFERENCE_SETTING']['MODEL_VERSION']}_" \
             f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_" \
             f"{config['INFERENCE_SETTING']['KIN_PADDING']}.png"
