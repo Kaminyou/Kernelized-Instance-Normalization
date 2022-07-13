@@ -7,6 +7,7 @@ from models.kin import KernelizedInstanceNorm
 from models.tin import ThumbInstanceNorm
 
 
+# TODO: To be deprecated
 def get_normalization_layer(num_features, normalization="kin"):
     if normalization == "kin":
         return KernelizedInstanceNorm(num_features=num_features)
@@ -20,10 +21,12 @@ def get_normalization_layer(num_features, normalization="kin"):
 
 def make_norm_layer(norm_cfg: Dict[str, Any], **kwargs: Any):
     """
+    Create normalization layer based on given config and arguments.
 
     Args:
         norm_cfg (Dict[str, Any]): A dict of keyword arguments of normalization layer.
             It must have a key 'type' to specify which normalization layers will be used.
+            It accepts upper case argument.
         **kwargs (Any): The keyword arguments are used to overwrite `norm_cfg`.
 
     Returns:
