@@ -30,11 +30,11 @@ def main():
     model = get_model(
         config=config,
         model_name=config["MODEL_NAME"],
-        normalization=config["INFERENCE_SETTING"]["NORMALIZATION"],
+        norm_cfg=config["INFERENCE_SETTING"]["NORMALIZATION"],
         isTrain=False,
     )
 
-    if config["INFERENCE_SETTING"]["NORMALIZATION"] == "tin":
+    if config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"] == "tin":
         test_dataset = XInferenceDataset(
             root_X=config["INFERENCE_SETTING"]["TEST_DIR_X"],
             transform=test_transforms,
@@ -71,12 +71,12 @@ def main():
 
     save_path_base = os.path.join(
         save_path_root,
-        config["INFERENCE_SETTING"]["NORMALIZATION"],
+        config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"],
         config["INFERENCE_SETTING"]["MODEL_VERSION"],
     )
     os.makedirs(save_path_base, exist_ok=True)
 
-    if config["INFERENCE_SETTING"]["NORMALIZATION"] == "tin":
+    if config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"] == "tin":
         model.init_thumbnail_instance_norm_for_whole_model()
         thumbnail = test_dataset.get_thumbnail()
         thumbnail_fake = model.inference(thumbnail)
@@ -105,7 +105,7 @@ def main():
                 ),
             )
 
-    elif config["INFERENCE_SETTING"]["NORMALIZATION"] == "kin":
+    elif config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"] == "kin":
         save_path_base_kin = os.path.join(
             save_path_base,
             f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_"

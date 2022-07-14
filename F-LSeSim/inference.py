@@ -58,11 +58,11 @@ if __name__ == "__main__":
     config = read_yaml_config(opt.config)
 
     model = create_model(
-        opt, normalization_mode=config["INFERENCE_SETTING"]["NORMALIZATION"]
+        opt, norm_cfg=config["INFERENCE_SETTING"]["NORMALIZATION"]
     )  # create a model given opt.model and other options
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])
 
-    if config["INFERENCE_SETTING"]["NORMALIZATION"] == "tin":
+    if config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"] == "tin":
         test_dataset = XInferenceDataset(
             root_X=config["INFERENCE_SETTING"]["TEST_DIR_X"],
             transform=test_transforms,
@@ -92,12 +92,12 @@ if __name__ == "__main__":
 
     save_path_base = os.path.join(
         save_path_root,
-        config["INFERENCE_SETTING"]["NORMALIZATION"],
+        config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"],
         config["INFERENCE_SETTING"]["MODEL_VERSION"],
     )
     os.makedirs(save_path_base, exist_ok=True)
 
-    if config["INFERENCE_SETTING"]["NORMALIZATION"] == "tin":
+    if config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"] == "tin":
         model.init_thumbnail_instance_norm_for_whole_model()
         thumbnail = test_dataset.get_thumbnail()
         thumbnail_fake = model.inference(thumbnail)
@@ -123,7 +123,7 @@ if __name__ == "__main__":
                 ),
             )
 
-    elif config["INFERENCE_SETTING"]["NORMALIZATION"] == "kin":
+    elif config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"] == "kin":
         save_path_base_kin = os.path.join(
             save_path_base,
             f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_{config['INFERENCE_SETTING']['KIN_PADDING']}",

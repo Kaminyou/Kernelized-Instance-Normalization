@@ -39,7 +39,8 @@ INFERENCE_SETTING:
   TEST_DIR_X: "./data/example/testX/HE_cropped/"
   MODEL_VERSION: "10"
   SAVE_ORIGINAL_IMAGE: False
-  NORMALIZATION: "kin"
+  NORMALIZATION:
+    TYPE: 'kin'
   THUMBNAIL: "./data/example/testX/HE_cropped/thumbnail.png" #"None" # set to "None" if it's not required
   KIN_PADDING: 3 # for kin
   KIN_KERNEL: "constant" #constant or gaussian

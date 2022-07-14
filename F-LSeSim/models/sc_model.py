@@ -106,7 +106,7 @@ class SCModel(BaseModel):
 
         return parser
 
-    def __init__(self, opt, normalization_mode="in"):
+    def __init__(self, opt, norm_cfg=None):
         """
         Initialize the translation losses
         :param opt: stores all the experiment flags; needs to be a subclass of BaseOptions
@@ -119,6 +119,7 @@ class SCModel(BaseModel):
         # specify the models you want to save to the disk
         self.model_names = ["G", "D"] if self.isTrain else ["G"]
         # define the networks
+        self.norm_cfg = norm_cfg or {'type': 'in'}
         self.netG = networks.define_G(
             opt.input_nc,
             opt.output_nc,
@@ -132,9 +133,8 @@ class SCModel(BaseModel):
             opt.no_antialias_up,
             self.gpu_ids,
             opt,
-            normalization=normalization_mode,
+            norm_cfg=self.norm_cfg,
         )
-        self.normalization_mode = normalization_mode
 
         # define the training process
         if self.isTrain:
@@ -278,7 +278,7 @@ class SCModel(BaseModel):
         return Y_fake
 
     def inference_with_anchor(self, X, y_anchor, x_anchor, padding):
-        assert self.normalization_mode == "kin"
+        assert self.norm_cfg['type'] == "kin"
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)

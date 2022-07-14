@@ -101,7 +101,8 @@ You can adjust `KIN_PADDING` and `KIN_KERNEL` for inference.
 ```yaml
 INFERENCE_SETTING:
   ...
-  NORMALIZATION: "kin"
+  NORMALIZATION:
+      TYPE: "kin"
   KIN_PADDING: 3 # for kin
   KIN_KERNEL: "constant" #constant or gaussian
 ```
@@ -110,15 +111,17 @@ Please provide the path of the `THUMBNAIL`.
 ```yaml
 INFERENCE_SETTING:
   ...
-  NORMALIZATION: "tin"
+  NORMALIZATION:
+      TYPE: "tin"
   THUMBNAIL: "./data/example/testX/thumbnail.png"
 ```
 ### Instance normalization
-Specification of `NORMALIZATION: in` is enough.
+Specification of `NORMALIZATION.TYPE: in` is enough.
 ```yaml
 INFERENCE_SETTING:
   ...
-  NORMALIZATION: "in"
+  NORMALIZATION:
+      TYPE: "in"
 ```
 ## Training framework options
 Besides `CUT`, `LSeSim` and `CycleGAN` are also provided. For each experiment, you should rename `EXPERIMENT_NAME` to avoid overwritting.

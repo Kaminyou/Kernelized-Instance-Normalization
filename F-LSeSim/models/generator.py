@@ -2,29 +2,29 @@ import torch
 import torch.nn as nn
 
 from models.downsample import Downsample
-from models.normalization import get_normalization_layer
+from models.normalization import make_norm_layer
 from models.upsample import Upsample
 
 
 class ResnetBlock(nn.Module):
-    def __init__(self, features, normalization="in"):
+    def __init__(self, features, norm_cfg=None):
         super().__init__()
-        self.normalization = normalization
+        self.norm_cfg = norm_cfg or {'type': 'in'}
         self.model = nn.Sequential(
             nn.ReflectionPad2d(1),
             nn.Conv2d(features, features, kernel_size=3),
-            get_normalization_layer(features, normalization=normalization),
+            make_norm_layer(self.norm_cfg, num_features=features),
             nn.ReLU(True),
             nn.ReflectionPad2d(1),
             nn.Conv2d(features, features, kernel_size=3),
-            get_normalization_layer(features, normalization=normalization),
+            make_norm_layer(self.norm_cfg, num_features=features),
         )
 
     def forward(self, x):
         return x + self.model(x)
 
     def forward_with_anchor(self, x, y_anchor, x_anchor, padding):
-        assert self.normalization == "kin"
+        assert self.norm_cfg['type'] == "kin"
         x_residual = x
         x = self.model[:2](x)
         x = self.model[2](x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
@@ -48,22 +48,20 @@ class GeneratorBasicBlock(nn.Module):
         out_features,
         do_upsample=False,
         do_downsample=False,
-        normalization="in",
+        norm_cfg=None,
     ):
         super().__init__()
 
         self.do_upsample = do_upsample
         self.do_downsample = do_downsample
-        self.normalization = normalization
+        self.norm_cfg = norm_cfg or {'type': 'in'}
 
         if self.do_upsample:
             self.upsample = Upsample(in_features)
         self.conv = nn.Conv2d(
             in_features, out_features, kernel_size=3, stride=1, padding=1
         )
-        self.instancenorm = get_normalization_layer(
-            out_features, normalization=normalization
-        )
+        self.instancenorm = make_norm_layer(self.norm_cfg, num_features=out_features)
         self.relu = nn.ReLU(True)
         if self.do_downsample:
             self.downsample = Downsample(out_features)
@@ -89,7 +87,7 @@ class GeneratorBasicBlock(nn.Module):
         return x_hook, x
 
     def forward_with_anchor(self, x, y_anchor, x_anchor, padding):
-        assert self.normalization == "kin"
+        assert self.norm_cfg['type'] == "kin"
         if self.do_upsample:
             x = self.upsample(x)
         x = self.conv(x)
@@ -111,15 +109,15 @@ class GeneratorBasicBlock(nn.Module):
 
 
 class Generator(nn.Module):
-    def __init__(self, in_channels=3, features=64, residuals=9, normalization="in"):
+    def __init__(self, in_channels=3, features=64, residuals=9, norm_cfg=None):
         super().__init__()
         self.residuals = residuals
-        self.normalization = normalization
+        self.norm_cfg = norm_cfg or {'type': 'in'}
 
         self.reflectionpad = nn.ReflectionPad2d(3)
         self.block1 = nn.Sequential(
             nn.Conv2d(in_channels, features, kernel_size=7),
-            get_normalization_layer(features, normalization=normalization),
+            make_norm_layer(self.norm_cfg, num_features=features),
             nn.ReLU(True),
         )
 
@@ -128,19 +126,19 @@ class Generator(nn.Module):
             features * 2,
             do_upsample=False,
             do_downsample=True,
-            normalization=normalization,
+            norm_cfg=self.norm_cfg,
         )
         self.downsampleblock3 = GeneratorBasicBlock(
             features * 2,
             features * 4,
             do_upsample=False,
             do_downsample=True,
-            normalization=normalization,
+            norm_cfg=self.norm_cfg,
         )
 
         self.resnetblocks4 = nn.Sequential(
             *[
-                ResnetBlock(features * 4, normalization=normalization)
+                ResnetBlock(features * 4, norm_cfg=self.norm_cfg)
                 for _ in range(residuals)
             ]
         )
@@ -150,14 +148,14 @@ class Generator(nn.Module):
             features * 2,
             do_upsample=True,
             do_downsample=False,
-            normalization=normalization,
+            norm_cfg=self.norm_cfg,
         )
         self.upsampleblock6 = GeneratorBasicBlock(
             features * 2,
             features,
             do_upsample=True,
             do_downsample=False,
-            normalization=normalization,
+            norm_cfg=self.norm_cfg,
         )
 
         self.block7 = nn.Sequential(
@@ -215,7 +213,7 @@ class Generator(nn.Module):
         return x, feature_maps
 
     def forward_with_anchor(self, x, y_anchor, x_anchor, padding):
-        assert self.normalization == "kin"
+        assert self.norm_cfg['type'] == "kin"
         x = self.reflectionpad(x)
         x = self.block1[0](x)
         x = self.block1[1](x, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding)
