@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from models.downsample import Downsample
-from models.normalization import get_normalization_layer
+from models.normalization import make_norm_layer
 
 
 class DiscriminatorBasicBlock(nn.Module):
@@ -13,12 +13,13 @@ class DiscriminatorBasicBlock(nn.Module):
         out_features,
         do_downsample=True,
         do_instancenorm=True,
-        normalization="in",
+        norm_cfg=None,
     ):
         super().__init__()
 
         self.do_downsample = do_downsample
         self.do_instancenorm = do_instancenorm
+        self.norm_cfg = norm_cfg or {'type': 'in'}
 
         self.conv = nn.Conv2d(
             in_features, out_features, kernel_size=4, stride=1, padding=1
@@ -26,9 +27,7 @@ class DiscriminatorBasicBlock(nn.Module):
         self.leakyrelu = nn.LeakyReLU(0.2, True)
 
         if do_instancenorm:
-            self.instancenorm = get_normalization_layer(
-                out_features, normalization=normalization
-            )
+            self.instancenorm = make_norm_layer(self.norm_cfg, num_features=out_features)
 
         if do_downsample:
             self.downsample = Downsample(out_features)

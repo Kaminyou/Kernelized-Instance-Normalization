@@ -21,7 +21,7 @@ def define_G(
     no_antialias_up=False,
     gpu_ids=[],
     opt=None,
-    normalization="in",
+    norm_cfg=None,
 ):
     """
     Create a generator
@@ -39,10 +39,9 @@ def define_G(
     :param opt: options
     :return:
     """
-    norm_value = cyclegan_networks.get_norm_layer(norm)
 
     if netG == "resnet_9blocks":
-        net = Generator(normalization=normalization)
+        net = Generator(norm_cfg=norm_cfg or {'type': 'in'})
     elif netG == "stylegan2":
         net = stylegan_networks.StyleGAN2Generator(input_nc, output_nc, ngf, opt=opt)
     else:
