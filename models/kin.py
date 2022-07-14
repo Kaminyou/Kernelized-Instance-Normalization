@@ -5,6 +5,18 @@ from utils.util import get_kernel
 
 
 class KernelizedInstanceNorm(nn.Module):
+    """
+
+    Attributes:
+        num_features (int): The number of input features.
+        kernel_size (int): The size of kernel used to kernelize.
+        kernel_type (str): The kernel type. It must be either 'constant' or 'gaussian'.
+        padding (int): The padding size of cache table.
+        eps (float): A value added to the denominator for numerical stability.
+        affine (bool): A boolean value that when set to True, this module has learnable
+            affine parameters, initialized the same way as done for batch normalization.
+        device (str): The device to place the variables.
+    """
 
     def __init__(
         self,
@@ -35,6 +47,7 @@ class KernelizedInstanceNorm(nn.Module):
         self.kernel_type = kernel_type
         self.padding = padding
         self.eps = eps
+        self.affine = affine
         self.device = device
 
         self.kernel = get_kernel(
@@ -42,7 +55,7 @@ class KernelizedInstanceNorm(nn.Module):
             mode=self.kernel_type,
         ).to(self.device)
 
-        if affine:
+        if self.affine:
             self.weight = nn.Parameter(
                 torch.ones(size=(1, num_features, 1, 1), requires_grad=True)
             ).to(device)
