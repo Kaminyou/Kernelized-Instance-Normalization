@@ -55,7 +55,7 @@ def main():
             path_base,
             f"{config['INFERENCE_SETTING']['NORMALIZATION']['KERNEL_TYPE']}_{config['INFERENCE_SETTING']['NORMALIZATION']['PADDING']}",
         )
-        combined_image_name = f"combined_{config['INFERENCE_SETTING']['NORMALIZATION']['TYPE']}_{config['INFERENCE_SETTING']['MODEL_VERSION']}_{config['INFERENCE_SETTING']['KIN_KERNEL']}_{config['INFERENCE_SETTING']['KIN_PADDING']}.png"
+        combined_image_name = f"combined_{config['INFERENCE_SETTING']['NORMALIZATION']['TYPE']}_{config['INFERENCE_SETTING']['MODEL_VERSION']}_{config['INFERENCE_SETTING']['NORMALIZATION']['KERNEL_TYPE']}_{config['INFERENCE_SETTING']['NORMALIZATION']['PADDING']}.png"
 
     filenames = os.listdir(path_base)
     try:

@@ -278,13 +278,13 @@ class SCModel(BaseModel):
             Y_fake, _ = self.netG(X)
         return Y_fake
 
-    def inference_with_anchor(self, X, y_anchor, x_anchor, padding):
+    def inference_with_anchor(self, X, y_anchor, x_anchor):
         assert self.norm_cfg['type'] == "kin"
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)
             Y_fake = self.netG.forward_with_anchor(
-                X, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding
+                X, y_anchor=y_anchor, x_anchor=x_anchor,
             )
         return Y_fake
 
@@ -447,18 +447,16 @@ class SCModel(BaseModel):
         not_use_thumbnail_instance_norm(self.netG)
 
     def init_kernelized_instance_norm_for_whole_model(
-        self, y_anchor_num, x_anchor_num, kernel_padding=1, kernel_mode="constant"
+        self, y_anchor_num, x_anchor_num,
     ):
         init_kernelized_instance_norm(
             self.netG,
             y_anchor_num=y_anchor_num,
             x_anchor_num=x_anchor_num,
-            kernel_padding=kernel_padding,
-            kernel_mode=kernel_mode,
         )
 
-    def use_kernelized_instance_norm_for_whole_model(self, padding=1):
-        use_kernelized_instance_norm(self.netG, padding=padding)
+    def use_kernelized_instance_norm_for_whole_model(self):
+        use_kernelized_instance_norm(self.netG)
 
     def not_use_kernelized_instance_norm_for_whole_model(self):
         not_use_kernelized_instance_norm(self.netG)
