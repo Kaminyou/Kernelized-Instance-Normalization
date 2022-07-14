@@ -58,14 +58,14 @@ def main():
     if config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"] == "kin":
         path_base = os.path.join(
             path_base,
-            f"{config['INFERENCE_SETTING']['KIN_KERNEL']}"
-            f"_{config['INFERENCE_SETTING']['KIN_PADDING']}",
+            f"{config['INFERENCE_SETTING']['NORMALIZATION']['KERNEL_TYPE']}"
+            f"_{config['INFERENCE_SETTING']['NORMALIZATION']['PADDING']}",
         )
         combined_image_name = f"combined_" \
             f"{config['INFERENCE_SETTING']['NORMALIZATION']['TYPE']}" \
             f"_{config['INFERENCE_SETTING']['MODEL_VERSION']}_" \
-            f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_" \
-            f"{config['INFERENCE_SETTING']['KIN_PADDING']}.png"
+            f"{config['INFERENCE_SETTING']['NORMALIZATION']['KERNEL_TYPE']}_" \
+            f"{config['INFERENCE_SETTING']['NORMALIZATION']['PADDING']}.png"
 
     filenames = os.listdir(path_base)
     try:

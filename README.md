@@ -97,14 +97,15 @@ python3 transfer.py -c ./data/$your_folder/config.yaml --skip_cropping
 ## Inference options
 Besides `kernelized instance normalization`, `thumbnail instance normalization` and `instance normalization` are also provided.
 ### Kernelized instance normalization
-You can adjust `KIN_PADDING` and `KIN_KERNEL` for inference.
+You can adjust `NORMALIZATION.PADDING`, `NORMALIZATION.KERNEL_TYPE`, and `NORMALIZATION.KERNEL_SIZE` for inference.
 ```yaml
 INFERENCE_SETTING:
   ...
   NORMALIZATION:
       TYPE: "kin"
-  KIN_PADDING: 3 # for kin
-  KIN_KERNEL: "constant" #constant or gaussian
+      PADDING: 1
+      KERNEL_TYPE: "constant"  # constant or gaussian
+      KERNEL_SIZE: 3
 ```
 ### Thumbnail instance normalization
 Please provide the path of the `THUMBNAIL`.

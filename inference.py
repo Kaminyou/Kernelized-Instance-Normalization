@@ -108,8 +108,8 @@ def main():
     elif config["INFERENCE_SETTING"]["NORMALIZATION"]["TYPE"] == "kin":
         save_path_base_kin = os.path.join(
             save_path_base,
-            f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_"
-            f"{config['INFERENCE_SETTING']['KIN_PADDING']}",
+            f"{config['INFERENCE_SETTING']['NORMALIZATION']['KERNEL_TYPE']}_"
+            f"{config['INFERENCE_SETTING']['NORMALIZATION']['PADDING']}",
         )
         os.makedirs(save_path_base_kin, exist_ok=True)
         y_anchor_num, x_anchor_num = test_dataset.get_boundary()
@@ -118,8 +118,6 @@ def main():
         model.init_kernelized_instance_norm_for_whole_model(
             y_anchor_num=y_anchor_num + 1,
             x_anchor_num=x_anchor_num + 1,
-            kernel_padding=config["INFERENCE_SETTING"]["KIN_PADDING"],
-            kernel_mode=config["INFERENCE_SETTING"]["KIN_KERNEL"],
         )
         for idx, data in enumerate(test_loader):
             print(f"Caching {idx}", end="\r")
@@ -133,12 +131,9 @@ def main():
                 X,
                 y_anchor=y_anchor,
                 x_anchor=x_anchor,
-                padding=config["INFERENCE_SETTING"]["KIN_PADDING"],
             )
 
-        model.use_kernelized_instance_norm_for_whole_model(
-            padding=config["INFERENCE_SETTING"]["KIN_PADDING"]
-        )
+        model.use_kernelized_instance_norm_for_whole_model()
         for idx, data in enumerate(test_loader):
             print(f"Processing {idx}", end="\r")
             X, X_path, y_anchor, x_anchor = (
@@ -151,7 +146,6 @@ def main():
                 X,
                 y_anchor=y_anchor,
                 x_anchor=x_anchor,
-                padding=config["INFERENCE_SETTING"]["KIN_PADDING"],
             )
             if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
                 save_image(

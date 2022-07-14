@@ -21,7 +21,9 @@ INFERENCE_SETTING:
   TEST_DIR_Y: "./test_data/test_dir_y/lung_lesion"
   MODEL_VERSION: "latest"
   SAVE_ORIGINAL_IMAGE: False
-  NORMALIZATION: "kin"
+  NORMALIZATION:
+    TYPE: "kin"
+    PADDING: 1
+    KERNEL_TYPE: 'gaussian'
+    KERNEL_SIZE: 3
   THUMBNAIL: "None" # set to "None" if it's not required
-  KIN_PADDING: 1 # for kin
-  KIN_KERNEL: "gaussian" #constant or gaussian
