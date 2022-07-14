@@ -32,6 +32,7 @@ class ContrastiveModel(BaseModel):
             self.visual_names += ["Y_idt"]
 
         self.norm_cfg = norm_cfg or {'type': 'in'}
+        self.norm_cfg = {k.lower(): v for k, v in self.norm_cfg.items()}
         # Discrimnator would not be used during inference,
         # so specification of instane normalization is not required
         self.D_Y = Discriminator().to(self.device)

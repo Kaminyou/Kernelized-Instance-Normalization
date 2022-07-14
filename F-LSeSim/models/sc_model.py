@@ -120,6 +120,7 @@ class SCModel(BaseModel):
         self.model_names = ["G", "D"] if self.isTrain else ["G"]
         # define the networks
         self.norm_cfg = norm_cfg or {'type': 'in'}
+        self.norm_cfg = {k.lower(): v for k, v in self.norm_cfg.items()}
         self.netG = networks.define_G(
             opt.input_nc,
             opt.output_nc,

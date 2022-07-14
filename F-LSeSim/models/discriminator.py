@@ -20,6 +20,7 @@ class DiscriminatorBasicBlock(nn.Module):
         self.do_downsample = do_downsample
         self.do_instancenorm = do_instancenorm
         self.norm_cfg = norm_cfg or {'type': 'in'}
+        self.norm_cfg = {k.lower(): v for k, v in self.norm_cfg.items()}
 
         self.conv = nn.Conv2d(
             in_features, out_features, kernel_size=4, stride=1, padding=1

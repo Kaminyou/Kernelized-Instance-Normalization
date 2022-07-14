@@ -60,6 +60,7 @@ class LSeSim(BaseModel):
         self.model_names = ["G", "D"] if self.isTrain else ["G"]
 
         self.norm_cfg = norm_cfg or {'type': 'in'}
+        self.norm_cfg = {k.lower(): v for k, v in self.norm_cfg.items()}
 
         ###########################################################
         self.G = Generator(norm_cfg=self.norm_cfg).to(self.device)

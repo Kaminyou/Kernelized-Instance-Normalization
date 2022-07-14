@@ -10,6 +10,7 @@ class ResnetBlock(nn.Module):
     def __init__(self, features, norm_cfg=None):
         super().__init__()
         self.norm_cfg = norm_cfg or {'type': 'in'}
+        self.norm_cfg = {k.lower(): v for k, v in self.norm_cfg.items()}
         self.model = nn.Sequential(
             nn.ReflectionPad2d(1),
             nn.Conv2d(features, features, kernel_size=3),
@@ -55,6 +56,7 @@ class GeneratorBasicBlock(nn.Module):
         self.do_upsample = do_upsample
         self.do_downsample = do_downsample
         self.norm_cfg = norm_cfg or {'type': 'in'}
+        self.norm_cfg = {k.lower(): v for k, v in self.norm_cfg.items()}
 
         if self.do_upsample:
             self.upsample = Upsample(in_features)
@@ -113,6 +115,7 @@ class Generator(nn.Module):
         super().__init__()
         self.residuals = residuals
         self.norm_cfg = norm_cfg or {'type': 'in'}
+        self.norm_cfg = {k.lower(): v for k, v in self.norm_cfg.items()}
 
         self.reflectionpad = nn.ReflectionPad2d(3)
         self.block1 = nn.Sequential(
