@@ -114,7 +114,7 @@ class KernelizedInstanceNorm(nn.Module):
         return x
 
     def forward(self, x, y_anchor=None, x_anchor=None):
-        # TODO: Do not reply on self.training
+        # TODO: Do not rely on self.training
         if self.training or self.normal_instance_normalization:
             return self.forward_normal(x)
 
