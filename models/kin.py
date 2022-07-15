@@ -1,3 +1,5 @@
+from functools import cached_property
+
 import torch
 import torch.nn as nn
 
@@ -83,16 +85,26 @@ class KernelizedInstanceNorm(nn.Module):
             self.device
         )
 
-    def pad_table(self):
-        # modify
-        # padded table shape inconsisency
-        # TODO: Don't permute the dimensions
+        try:
+            del self.padded_mean_table
+            del self.padded_std_table
+        except AttributeError:
+            pass
+
+    @cached_property
+    def padded_std_table(self):
         pad_func = nn.ReplicationPad2d((self.padding, self.padding, self.padding, self.padding))
-        self.padded_mean_table = pad_func(
-            self.mean_table.permute(2, 0, 1).unsqueeze(0)
-        )  # [H, W, C] -> [C, H, W] -> [N, C, H, W]
-        self.padded_std_table = pad_func(
+        # TODO: Don't permute the dimensions
+        return pad_func(
             self.std_table.permute(2, 0, 1).unsqueeze(0)
+        )  # [H, W, C] -> [C, H, W] -> [N, C, H, W]
+
+    @cached_property
+    def padded_mean_table(self):
+        pad_func = nn.ReplicationPad2d((self.padding, self.padding, self.padding, self.padding))
+        # TODO: Don't permute the dimensions
+        return pad_func(
+            self.mean_table.permute(2, 0, 1).unsqueeze(0)
         )  # [H, W, C] -> [C, H, W] -> [N, C, H, W]
 
     def forward_normal(self, x):
@@ -169,6 +181,5 @@ def init_kernelized_instance_norm(model, y_anchor_num, x_anchor_num):
 def use_kernelized_instance_norm(model):
     for _, layer in model.named_modules():
         if isinstance(layer, KernelizedInstanceNorm):
-            layer.pad_table()
             layer.collection_mode = False
             layer.normal_instance_normalization = False
