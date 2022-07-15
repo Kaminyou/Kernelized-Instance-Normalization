@@ -8,8 +8,6 @@ from models.discriminator import Discriminator
 from models.generator import Generator
 from models.kin import (
     init_kernelized_instance_norm,
-    not_use_kernelized_instance_norm,
-    use_kernelized_instance_norm,
 )
 from models.projector import Head
 from models.tin import (
@@ -101,13 +99,13 @@ class ContrastiveModel(BaseModel):
             Y_fake = self.G(X)
         return Y_fake
 
-    def inference_with_anchor(self, X, y_anchor, x_anchor):
+    def inference_with_anchor(self, X, y_anchor, x_anchor, mode):
         assert self.norm_cfg['type'] == "kin"
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)
             Y_fake = self.G.forward_with_anchor(
-                X, y_anchor=y_anchor, x_anchor=x_anchor,
+                X, y_anchor=y_anchor, x_anchor=x_anchor, mode=mode,
             )
         return Y_fake
 
@@ -204,9 +202,3 @@ class ContrastiveModel(BaseModel):
             y_anchor_num=y_anchor_num,
             x_anchor_num=x_anchor_num,
         )
-
-    def use_kernelized_instance_norm_for_whole_model(self):
-        use_kernelized_instance_norm(self.G)
-
-    def not_use_kernelized_instance_norm_for_whole_model(self):
-        not_use_kernelized_instance_norm(self.G)

@@ -1,3 +1,4 @@
+from enum import IntEnum
 from functools import cached_property
 
 import torch
@@ -7,6 +8,11 @@ from utils.util import get_kernel
 
 
 class KernelizedInstanceNorm(nn.Module):
+
+    class Mode(IntEnum):
+        PHASE_CACHING = 1
+        PHASE_INFERENCE = 2
+
     """
 
     Attributes:
@@ -41,13 +47,6 @@ class KernelizedInstanceNorm(nn.Module):
             raise ValueError(
                 f'padding must be (kernel_size - 1) / 2. But got {padding}.'
             )
-
-        # if use normal instance normalization during evaluation mode
-        self.normal_instance_normalization = False
-
-        # if collecting instance normalization mean and std
-        # during evaluation mode'
-        self.collection_mode = False
 
         self.num_features = num_features
         self.kernel_size = kernel_size
@@ -113,16 +112,15 @@ class KernelizedInstanceNorm(nn.Module):
         x = (x - x_mean) / x_std  # * self.weight + self.bias
         return x
 
-    def forward(self, x, y_anchor=None, x_anchor=None):
-        # TODO: Do not rely on self.training
-        if self.training or self.normal_instance_normalization:
+    def forward(self, x, y_anchor=None, x_anchor=None, mode=1):
+        if self.training or x_anchor is None or y_anchor is None:
             return self.forward_normal(x)
 
         else:
             assert y_anchor is not None
             assert x_anchor is not None
 
-            if self.collection_mode:
+            if mode == self.Mode.PHASE_CACHING:
                 x_var, x_mean = torch.var_mean(x, dim=(2, 3))  # [B, C]
                 x_std = torch.sqrt(x_var + self.eps)
                 # x_anchor, y_anchor = [B], [B]
@@ -133,7 +131,7 @@ class KernelizedInstanceNorm(nn.Module):
                 x_mean = x_mean.unsqueeze(-1).unsqueeze(-1)
                 x_std = x_std.unsqueeze(-1).unsqueeze(-1)
 
-            else:
+            elif mode == self.Mode.PHASE_INFERENCE:
 
                 def multiply_kernel(x):
                     x = x * self.kernel  # [1, C, H, W] * [H, W] = [1, C, H, W]
@@ -157,29 +155,16 @@ class KernelizedInstanceNorm(nn.Module):
                 x_mean = multiply_kernel(x_mean)
                 x_std = multiply_kernel(x_std)
 
+            else:
+                raise ValueError(f'Unknown mode: {mode}.')
+
             x = (x - x_mean) / x_std * self.weight + self.bias
             return x
-
-
-def not_use_kernelized_instance_norm(model):
-    for _, layer in model.named_modules():
-        if isinstance(layer, KernelizedInstanceNorm):
-            layer.collection_mode = False
-            layer.normal_instance_normalization = True
 
 
 def init_kernelized_instance_norm(model, y_anchor_num, x_anchor_num):
     for _, layer in model.named_modules():
         if isinstance(layer, KernelizedInstanceNorm):
-            layer.collection_mode = True
-            layer.normal_instance_normalization = False
             layer.init_collection(
                 y_anchor_num=y_anchor_num, x_anchor_num=x_anchor_num
             )
-
-
-def use_kernelized_instance_norm(model):
-    for _, layer in model.named_modules():
-        if isinstance(layer, KernelizedInstanceNorm):
-            layer.collection_mode = False
-            layer.normal_instance_normalization = False

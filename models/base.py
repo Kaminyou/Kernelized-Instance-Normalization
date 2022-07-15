@@ -111,14 +111,6 @@ class BaseModel(ABC):
     def init_kernelized_instance_norm_for_whole_model(self):
         pass
 
-    @abstractmethod
-    def use_kernelized_instance_norm_for_whole_model(self):
-        pass
-
-    @abstractmethod
-    def not_use_kernelized_instance_norm_for_whole_model(self):
-        pass
-
     def train(self):
         """Make models eval mode during test time"""
         for name in self.model_names:

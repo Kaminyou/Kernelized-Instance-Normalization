@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 import torch
 from models.model import get_model
+from models.kin import KernelizedInstanceNorm
 from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
@@ -46,6 +47,7 @@ def kin_model(config):
         isTrain=False,
     )
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])
+    model.eval()
 
     return model
 
@@ -167,9 +169,8 @@ def test_inference_with_anchor(
             X,
             y_anchor=y_anchor,
             x_anchor=x_anchor,
+            mode=KernelizedInstanceNorm.Mode.PHASE_CACHING,
         )
-
-    kin_model.use_kernelized_instance_norm_for_whole_model()
 
     for idx, data in enumerate(dataloader):
         X, _, y_anchor, x_anchor = (
@@ -182,6 +183,7 @@ def test_inference_with_anchor(
             X,
             y_anchor=y_anchor,
             x_anchor=x_anchor,
+            mode=KernelizedInstanceNorm.Mode.PHASE_INFERENCE,
         )
         test_output_tensor = reverse_image_normalize(Y_fake)
 
