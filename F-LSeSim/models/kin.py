@@ -11,7 +11,7 @@ class KernelizedInstanceNorm(nn.Module):
         num_features (int): The number of input features.
         kernel_size (int): The size of kernel used to kernelize.
         kernel_type (str): The kernel type. It must be either 'constant' or 'gaussian'.
-        padding (int): The padding size of cache table.
+        padding (int): The padding size of cache table. It must be `(kernel_size - 1) / 2`.
         eps (float): A value added to the denominator for numerical stability.
         affine (bool): A boolean value that when set to True, this module has learnable
             affine parameters, initialized the same way as done for batch normalization.
@@ -33,6 +33,11 @@ class KernelizedInstanceNorm(nn.Module):
         if kernel_size % 2 == 0:
             raise ValueError(
                 f'kernel_size must be an odd number. But got {kernel_size}.',
+            )
+
+        if padding != (kernel_size - 1) // 2:
+            raise ValueError(
+                f'padding must be (kernel_size - 1) / 2. But got {padding}.'
             )
 
         # if use normal instance normalization during evaluation mode
