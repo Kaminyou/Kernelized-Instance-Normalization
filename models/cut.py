@@ -32,6 +32,7 @@ class ContrastiveModel(BaseModel):
             self.visual_names += ["Y_idt"]
 
         self.norm_cfg = norm_cfg or {'type': 'in'}
+        self.norm_cfg = {k.lower(): v for k, v in self.norm_cfg.items()}
         # Discrimnator would not be used during inference,
         # so specification of instane normalization is not required
         self.D_Y = Discriminator().to(self.device)
@@ -100,13 +101,13 @@ class ContrastiveModel(BaseModel):
             Y_fake = self.G(X)
         return Y_fake
 
-    def inference_with_anchor(self, X, y_anchor, x_anchor, padding):
+    def inference_with_anchor(self, X, y_anchor, x_anchor):
         assert self.norm_cfg['type'] == "kin"
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)
             Y_fake = self.G.forward_with_anchor(
-                X, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding
+                X, y_anchor=y_anchor, x_anchor=x_anchor,
             )
         return Y_fake
 
@@ -197,19 +198,15 @@ class ContrastiveModel(BaseModel):
         self,
         y_anchor_num,
         x_anchor_num,
-        kernel_padding=1,
-        kernel_mode="constant",
     ):
         init_kernelized_instance_norm(
             self.G,
             y_anchor_num=y_anchor_num,
             x_anchor_num=x_anchor_num,
-            kernel_padding=kernel_padding,
-            kernel_mode=kernel_mode,
         )
 
-    def use_kernelized_instance_norm_for_whole_model(self, padding=1):
-        use_kernelized_instance_norm(self.G, padding=padding)
+    def use_kernelized_instance_norm_for_whole_model(self):
+        use_kernelized_instance_norm(self.G)
 
     def not_use_kernelized_instance_norm_for_whole_model(self):
         not_use_kernelized_instance_norm(self.G)

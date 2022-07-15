@@ -22,15 +22,6 @@ def test_forward_normal():
     assert check.numpy() == pytest.approx(expected, abs=1e-6)
 
 
-def test_init_kernel():
-    layer = KernelizedInstanceNorm(num_features=3, device='cpu')
-    layer.init_kernel(kernel_padding=1, kernel_mode='constant')
-
-    expected = np.ones(shape=(3, 3), dtype=np.float32) / 9
-
-    assert layer.kernel.numpy() == pytest.approx(expected)
-
-
 def test_init_collection():
     layer = KernelizedInstanceNorm(num_features=3, device='cpu')
     layer.init_collection(y_anchor_num=10, x_anchor_num=9)
@@ -66,7 +57,7 @@ def test_pad_table():
     layer.mean_table = torch.FloatTensor(table)
     layer.std_table = torch.FloatTensor(table)
 
-    layer.pad_table(padding=1)
+    layer.pad_table()
 
     expected_padded_mean_table = expected_table.transpose(2, 0, 1).reshape(1, 1, 4, 4)
     expected_padded_std_table = expected_table.transpose(2, 0, 1).reshape(1, 1, 4, 4)
@@ -89,12 +80,11 @@ def test_forward_with_normal_instance_normalization():
 
 
 def test_forward_with_collection_mode():
-    layer = KernelizedInstanceNorm(num_features=3, device='cpu').eval()
+    layer = KernelizedInstanceNorm(num_features=3, kernel_type='constant', device='cpu').eval()
     layer.collection_mode = True
     layer.normal_instance_normalization = False
 
     layer.init_collection(y_anchor_num=3, x_anchor_num=3)
-    layer.init_kernel(kernel_padding=1, kernel_mode='constant')
 
     x = np.random.normal(size=(1, 3, 32, 32)).astype(np.float32)
     x = torch.FloatTensor(x)
@@ -107,7 +97,7 @@ def test_forward_with_collection_mode():
     expected_mean_table[0, 0] = mean
     expected_std_table[0, 0] = std
 
-    check = layer.forward(x, x_anchor=0, y_anchor=0, padding=1)
+    check = layer.forward(x, x_anchor=0, y_anchor=0)
 
     assert check.detach().numpy() == pytest.approx(normalize(x).numpy(), abs=1e-6)
     assert layer.mean_table.numpy() == pytest.approx(expected_mean_table)
@@ -115,22 +105,21 @@ def test_forward_with_collection_mode():
 
 
 def test_forward_with_kernelized():
-    layer = KernelizedInstanceNorm(num_features=3, device='cpu').eval()
+    layer = KernelizedInstanceNorm(num_features=3, kernel_type='constant', device='cpu').eval()
     layer.collection_mode = True
     layer.normal_instance_normalization = False
 
     layer.init_collection(y_anchor_num=3, x_anchor_num=3)
-    layer.init_kernel(kernel_padding=1, kernel_mode='constant')
 
     x = np.random.normal(size=(1, 3, 32, 32)).astype(np.float32)
     x = torch.FloatTensor(x)
 
-    layer.forward(x, x_anchor=1, y_anchor=1, padding=1)
+    layer.forward(x, x_anchor=1, y_anchor=1)
 
     layer.collection_mode = False
-    layer.pad_table(1)
+    layer.pad_table()
 
-    check = layer.forward(x, x_anchor=1, y_anchor=1, padding=1)
+    check = layer.forward(x, x_anchor=1, y_anchor=1)
     std, mean = torch.std_mean(x, dim=(2, 3), keepdim=True)
 
     mean /= 9

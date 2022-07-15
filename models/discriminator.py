@@ -13,11 +13,12 @@ class DiscriminatorBasicBlock(nn.Module):
         out_features,
         do_downsample=True,
         do_instancenorm=True,
-        norm_cfg=None
+        norm_cfg=None,
     ):
         super().__init__()
 
         self.norm_cfg = norm_cfg or {'type': 'in'}
+        self.norm_cfg = {k.lower(): v for k, v in self.norm_cfg.items()}
         self.do_downsample = do_downsample
         self.do_instancenorm = do_instancenorm
 

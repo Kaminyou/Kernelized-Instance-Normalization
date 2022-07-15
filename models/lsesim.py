@@ -33,7 +33,7 @@ from models.tin import (
 class LSeSim(BaseModel):
     # instance normalization can be different from
     # the one specified during training
-    def __init__(self, config, normalization="in", isTrain=True):
+    def __init__(self, config, norm_cfg=None, isTrain=True):
         BaseModel.__init__(self, config)
         self.isTrain = isTrain
         self.attn_layers = "4, 7, 9"
@@ -59,10 +59,11 @@ class LSeSim(BaseModel):
         # specify the models you want to save to the disk
         self.model_names = ["G", "D"] if self.isTrain else ["G"]
 
-        self.normalization = normalization
+        self.norm_cfg = norm_cfg or {'type': 'in'}
+        self.norm_cfg = {k.lower(): v for k, v in self.norm_cfg.items()}
 
         ###########################################################
-        self.G = Generator(normalization=normalization).to(self.device)
+        self.G = Generator(norm_cfg=self.norm_cfg).to(self.device)
 
         if self.isTrain:
             self.D = Discriminator().to(self.device)
@@ -381,13 +382,13 @@ class LSeSim(BaseModel):
             Y_fake = self.G(X)
         return Y_fake
 
-    def inference_with_anchor(self, X, y_anchor, x_anchor, padding):
-        assert self.normalization == "kin"
+    def inference_with_anchor(self, X, y_anchor, x_anchor):
+        assert self.norm_cfg['type'] == "kin"
         self.eval()
         with torch.no_grad():
             X = X.to(self.device)
             Y_fake = self.G.forward_with_anchor(
-                X, y_anchor=y_anchor, x_anchor=x_anchor, padding=padding
+                X, y_anchor=y_anchor, x_anchor=x_anchor,
             )
         return Y_fake
 
@@ -405,17 +406,16 @@ class LSeSim(BaseModel):
         not_use_thumbnail_instance_norm(self.G)
 
     def init_kernelized_instance_norm_for_whole_model(
-        self, y_anchor_num, x_anchor_num, kernel=(torch.ones(1, 1, 3, 3) / 9)
+        self, y_anchor_num, x_anchor_num
     ):
         init_kernelized_instance_norm(
             self.G,
             y_anchor_num=y_anchor_num,
             x_anchor_num=x_anchor_num,
-            kernel=kernel,
         )
 
-    def use_kernelized_instance_norm_for_whole_model(self, padding=1):
-        use_kernelized_instance_norm(self.G, padding=padding)
+    def use_kernelized_instance_norm_for_whole_model(self):
+        use_kernelized_instance_norm(self.G)
 
     def not_use_kernelized_instance_norm_for_whole_model(self):
         not_use_kernelized_instance_norm(self.G)

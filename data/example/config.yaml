@@ -41,6 +41,7 @@ INFERENCE_SETTING:
   SAVE_ORIGINAL_IMAGE: False
   NORMALIZATION:
     TYPE: 'kin'
+    PADDING: 1
+    KERNEL_TYPE: 'constant'
+    KERNEL_SIZE: 3
   THUMBNAIL: "./data/example/testX/HE_cropped/thumbnail.png" #"None" # set to "None" if it's not required
-  KIN_PADDING: 3 # for kin
-  KIN_KERNEL: "constant" #constant or gaussian

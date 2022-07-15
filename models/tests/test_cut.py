@@ -42,7 +42,7 @@ def kin_model(config):
     model = get_model(
         config=config,
         model_name=config["MODEL_NAME"],
-        norm_cfg={'type': 'kin'},
+        norm_cfg=config["INFERENCE_SETTING"]["NORMALIZATION"],
         isTrain=False,
     )
     model.load_networks(config["INFERENCE_SETTING"]["MODEL_VERSION"])
@@ -100,8 +100,8 @@ def kin_expected_outputs(config):
         config["EXPERIMENT_NAME"],
         "kin",
         config["INFERENCE_SETTING"]["MODEL_VERSION"],
-        f"{config['INFERENCE_SETTING']['KIN_KERNEL']}_"
-        f"{config['INFERENCE_SETTING']['KIN_PADDING']}"
+        f"{config['INFERENCE_SETTING']['NORMALIZATION']['KERNEL_TYPE']}_"
+        f"{config['INFERENCE_SETTING']['NORMALIZATION']['PADDING']}"
     )
     expected_output_files = sorted(
         os.listdir(expected_output_dir)
@@ -153,8 +153,6 @@ def test_inference_with_anchor(
     kin_model.init_kernelized_instance_norm_for_whole_model(
         y_anchor_num=y_anchor_num + 1,
         x_anchor_num=x_anchor_num + 1,
-        kernel_padding=config["INFERENCE_SETTING"]["KIN_PADDING"],
-        kernel_mode=config["INFERENCE_SETTING"]["KIN_KERNEL"],
     )
 
     for idx, data in enumerate(dataloader):
@@ -168,12 +166,9 @@ def test_inference_with_anchor(
             X,
             y_anchor=y_anchor,
             x_anchor=x_anchor,
-            padding=config["INFERENCE_SETTING"]["KIN_PADDING"],
         )
 
-    kin_model.use_kernelized_instance_norm_for_whole_model(
-        padding=config["INFERENCE_SETTING"]["KIN_PADDING"]
-    )
+    kin_model.use_kernelized_instance_norm_for_whole_model()
 
     for idx, data in enumerate(dataloader):
         X, _, y_anchor, x_anchor = (
@@ -186,7 +181,6 @@ def test_inference_with_anchor(
             X,
             y_anchor=y_anchor,
             x_anchor=x_anchor,
-            padding=config["INFERENCE_SETTING"]["KIN_PADDING"],
         )
         test_output_tensor = reverse_image_normalize(Y_fake)
 
