@@ -33,39 +33,6 @@ def test_init_collection():
     np.testing.assert_array_equal(layer.std_table.numpy(), expected_std_table)
 
 
-def test_pad_table():
-    layer = KernelizedInstanceNorm(num_features=1, device='cpu')
-
-    table = np.array(
-        [
-            [0, 1],
-            [2, 3],
-        ],
-        dtype=np.float32
-    ).reshape(2, 2, 1)
-
-    expected_table = np.array(
-        [
-            [0, 0, 1, 1],
-            [0, 0, 1, 1],
-            [2, 2, 3, 3],
-            [2, 2, 3, 3],
-        ],
-        dtype=np.float32
-    ).reshape(4, 4, 1)
-
-    layer.mean_table = torch.FloatTensor(table)
-    layer.std_table = torch.FloatTensor(table)
-
-    layer.pad_table()
-
-    expected_padded_mean_table = expected_table.transpose(2, 0, 1).reshape(1, 1, 4, 4)
-    expected_padded_std_table = expected_table.transpose(2, 0, 1).reshape(1, 1, 4, 4)
-
-    np.testing.assert_array_equal(layer.padded_mean_table.numpy(), expected_padded_mean_table)
-    np.testing.assert_array_equal(layer.padded_std_table.numpy(), expected_padded_std_table)
-
-
 def test_forward_with_normal_instance_normalization():
     layer = KernelizedInstanceNorm(num_features=3, device='cpu')
     layer.normal_instance_normalization = True
@@ -117,7 +84,6 @@ def test_forward_with_kernelized():
     layer.forward(x, x_anchor=1, y_anchor=1)
 
     layer.collection_mode = False
-    layer.pad_table()
 
     check = layer.forward(x, x_anchor=1, y_anchor=1)
     std, mean = torch.std_mean(x, dim=(2, 3), keepdim=True)
