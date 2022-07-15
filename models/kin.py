@@ -117,9 +117,6 @@ class KernelizedInstanceNorm(nn.Module):
             return self.forward_normal(x)
 
         else:
-            assert y_anchor is not None
-            assert x_anchor is not None
-
             if mode == self.Mode.PHASE_CACHING:
                 x_var, x_mean = torch.var_mean(x, dim=(2, 3))  # [B, C]
                 x_std = torch.sqrt(x_var + self.eps)
