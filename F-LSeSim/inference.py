@@ -15,6 +15,7 @@ from yaml.loader import SafeLoader
 from data import create_dataset
 from data.dataset import XInferenceDataset, test_transforms
 from models import create_model
+from models.kin import KernelizedInstanceNorm
 from options.train_options import TrainOptions
 
 
@@ -147,9 +148,9 @@ if __name__ == "__main__":
                 X,
                 y_anchor=y_anchor,
                 x_anchor=x_anchor,
+                mode=KernelizedInstanceNorm.Mode.PHASE_CACHING,
             )
 
-        model.use_kernelized_instance_norm_for_whole_model()
         for idx, data in enumerate(test_loader):
             print(f"Processing {idx}", end="\r")
             X, X_path, y_anchor, x_anchor = (
@@ -162,6 +163,7 @@ if __name__ == "__main__":
                 X,
                 y_anchor=y_anchor,
                 x_anchor=x_anchor,
+                mode=KernelizedInstanceNorm.Mode.PHASE_INFERENCE,
             )
             if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
                 save_image(

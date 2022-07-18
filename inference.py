@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision.utils import save_image
 
 from models.model import get_model
+from models.kin import KernelizedInstanceNorm
 from utils.dataset import XInferenceDataset
 from utils.util import (
     read_yaml_config,
@@ -131,9 +132,9 @@ def main():
                 X,
                 y_anchor=y_anchor,
                 x_anchor=x_anchor,
+                mode=KernelizedInstanceNorm.Mode.PHASE_CACHING,
             )
 
-        model.use_kernelized_instance_norm_for_whole_model()
         for idx, data in enumerate(test_loader):
             print(f"Processing {idx}", end="\r")
             X, X_path, y_anchor, x_anchor = (
@@ -146,6 +147,7 @@ def main():
                 X,
                 y_anchor=y_anchor,
                 x_anchor=x_anchor,
+                mode=KernelizedInstanceNorm.Mode.PHASE_INFERENCE,
             )
             if config["INFERENCE_SETTING"]["SAVE_ORIGINAL_IMAGE"]:
                 save_image(

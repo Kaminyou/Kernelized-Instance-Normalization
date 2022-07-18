@@ -24,16 +24,16 @@ class ResnetBlock(nn.Module):
     def forward(self, x):
         return x + self.model(x)
 
-    def forward_with_anchor(self, x, y_anchor, x_anchor):
+    def forward_with_anchor(self, x, y_anchor, x_anchor, mode):
         assert self.norm_cfg['type'] == "kin"
         x_residual = x
         x = self.model[:2](x)
         x = self.model[2](
-            x, y_anchor=y_anchor, x_anchor=x_anchor,
+            x, y_anchor=y_anchor, x_anchor=x_anchor, mode=mode,
         )
         x = self.model[3:6](x)
         x = self.model[6](
-            x, y_anchor=y_anchor, x_anchor=x_anchor,
+            x, y_anchor=y_anchor, x_anchor=x_anchor, mode=mode,
         )
         return x_residual + x
 
@@ -92,13 +92,16 @@ class GeneratorBasicBlock(nn.Module):
             x = self.downsample(x)
         return x_hook, x
 
-    def forward_with_anchor(self, x, y_anchor, x_anchor):
+    def forward_with_anchor(self, x, y_anchor, x_anchor, mode):
         assert self.norm_cfg['type'] == "kin"
         if self.do_upsample:
             x = self.upsample(x)
         x = self.conv(x)
         x = self.instancenorm(
-            x, y_anchor=y_anchor, x_anchor=x_anchor,
+            x,
+            y_anchor=y_anchor,
+            x_anchor=x_anchor,
+            mode=mode,
         )
         x = self.relu(x)
         if self.do_downsample:
@@ -224,29 +227,29 @@ class Generator(nn.Module):
         x = self.block7(x)
         return x, feature_maps
 
-    def forward_with_anchor(self, x, y_anchor, x_anchor):
+    def forward_with_anchor(self, x, y_anchor, x_anchor, mode):
         assert self.norm_cfg['type'] == "kin"
         x = self.reflectionpad(x)
         x = self.block1[0](x)
         x = self.block1[1](
-            x, y_anchor=y_anchor, x_anchor=x_anchor
+            x, y_anchor=y_anchor, x_anchor=x_anchor, mode=mode,
         )
         x = self.block1[2](x)
         x = self.downsampleblock2.forward_with_anchor(
-            x, y_anchor=y_anchor, x_anchor=x_anchor,
+            x, y_anchor=y_anchor, x_anchor=x_anchor, mode=mode,
         )
         x = self.downsampleblock3.forward_with_anchor(
-            x, y_anchor=y_anchor, x_anchor=x_anchor,
+            x, y_anchor=y_anchor, x_anchor=x_anchor, mode=mode,
         )
         for resnetblock in self.resnetblocks4:
             x = resnetblock.forward_with_anchor(
-                x, y_anchor=y_anchor, x_anchor=x_anchor,
+                x, y_anchor=y_anchor, x_anchor=x_anchor, mode=mode,
             )
         x = self.upsampleblock5.forward_with_anchor(
-            x, y_anchor=y_anchor, x_anchor=x_anchor,
+            x, y_anchor=y_anchor, x_anchor=x_anchor, mode=mode,
         )
         x = self.upsampleblock6.forward_with_anchor(
-            x, y_anchor=y_anchor, x_anchor=x_anchor,
+            x, y_anchor=y_anchor, x_anchor=x_anchor, mode=mode,
         )
         x = self.block7(x)
         return x
