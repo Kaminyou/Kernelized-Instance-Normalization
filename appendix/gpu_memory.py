@@ -10,13 +10,13 @@ random.seed(20222022)
 if __name__ == "__main__":
     memory_dict = {
         "training": {
-            "Cyclegan": {"x": [128, 256, 512], "y": [2939, 5517, 16357]},
+            "CycleGAN": {"x": [128, 256, 512], "y": [2939, 5517, 16357]},
             "CUT": {"x": [128, 256, 512], "y": [2365, 4133, 11123]},
             "F-LSeSim": {"x": [256, 512, 1024], "y": [3585, 8813, 23023]},
             "L-LSeSim": {"x": [256, 512, 1024], "y": [3605, 9331, 29289]},
         },
         "inference": {
-            "Cyclegan": {
+            "CycleGAN": {
                 "x": [128, 256, 512, 1024, 2048],
                 "y": [1697, 1795, 2211, 3749, 12073],
             },
@@ -26,7 +26,7 @@ if __name__ == "__main__":
             },
             "F-LSeSim": {"x": [512, 1024], "y": [8571, 19269]},
             "L-LSeSim": {"x": [512, 1024], "y": [8571, 19269]},
-            "Cyclegan+KIN (ours)": {
+            "CycleGAN+KIN (ours)": {
                 "x": [128, 256, 512, 1024, 2048, 4096, 9192],
                 "y": [2307, 2307, 2307, 2307, 2307, 2307, 2307],
             },
@@ -159,4 +159,4 @@ if __name__ == "__main__":
     plt.legend()
     plt.grid()
     # plt.show()
-    plt.savefig("./inference_usage.png", bbox_inches="tight")
+    plt.savefig("./inference_usage.jpg", bbox_inches="tight")
