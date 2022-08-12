@@ -1,4 +1,4 @@
-# URUST: Ultra-high-resolution unpaired stain transformation via Kernelized Instance Normalization (ECCV 2022)
+# [ECCV 2022] URUST: Ultra-resolution unpaired stain transformation via Kernelized Instance Normalization 
 We invented a kernelized instance normalization module enabling ultra-resolution unpaired stain transformation
 ![KIN](./imgs/Figure_KIN.jpg)
 ![Anime](./imgs/URUST_anime.gif)
