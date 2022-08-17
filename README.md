@@ -1,6 +1,7 @@
 # [ECCV 2022] URUST: Ultra-high-resolution unpaired stain transformation via Kernelized Instance Normalization
 We invented a kernelized instance normalization module enabling ultra-resolution unpaired stain transformation.</br>
 Authors: Ming-Yang Ho*, Min-Sheng Wu, and Che-Ming Wu (* corresponding author)
+Affiliation: [aetherAI](https://www.aetherai.com/), Taipei, Taiwan
 
 ![KIN](./imgs/Figure_KIN.jpg)
 ![Anime](./imgs/URUST_anime.gif)
@@ -228,4 +229,5 @@ Generated images would be saved in `./proof_of_concept/`
  
 
 ## Acknowledgement
+We thank Chao-Yuan Yeh, the CEO of aetherAI, for pro- viding computing resources, which enabled this study to be performed, and Cheng-Kun Yang for his revision suggestions.</br>
 Besides our novel kernelized instance normalizatio module, we use [CycleGAN](https://arxiv.org/abs/1703.10593), [Contrastive Unpaired Translation (CUT)](https://link.springer.com/chapter/10.1007/978-3-030-58545-7_19) as our backbone, and [LSeSim](https://arxiv.org/abs/2104.00854). For the CUT model, please refer to the official implementation [here](https://github.com/taesungp/contrastive-unpaired-translation). This code is a simplified version revised from [wilbertcaine's implementation](https://github.com/wilbertcaine/CUT).
