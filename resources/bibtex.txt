@@ -1,0 +1,6 @@
+@article{ho2022ultra,
+  title={Ultra-high-resolution unpaired stain transformation via Kernelized Instance Normalization},
+  author={Ho, Ming-Yang and Wu, Min-Sheng and Wu, Che-Ming},
+  journal={arXiv preprint arXiv:2208.10730},
+  year={2022}
+}

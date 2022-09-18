@@ -1,0 +1,47 @@
+EXPERIMENT_ROOT_PATH: "./experiments/"
+EXPERIMENT_NAME: "example_CUT"
+MODEL_NAME: "CUT" # currently only CUT, cycleGAN, and LSeSim are support
+DEVICE: "cuda"
+
+CROPPING_SETTING:
+  TRAIN_X: 
+  - "./data/example/HE_cropped.jpg"
+  TRAIN_DIR_X: "./data/example/trainX/"
+  TRAIN_Y: 
+  - "./data/example/ER_cropped.jpg"
+  TRAIN_DIR_Y: "./data/example/trainY/"
+  TEST_X: 
+  - "./data/example/HE_cropped.jpg"
+  TEST_DIR_X: "./data/example/testX/"
+  PATCH_SIZE: 512
+  STRIDE: 256
+
+TRAINING_SETTING:
+  PAIRED_TRAINING: False
+  RANDOM_CROP_AUG: False
+  TRAIN_ROOT: "./data/example/"
+  TRAIN_DIR_X: "./data/example/trainX/"
+  TRAIN_DIR_Y: "./data/example/trainY/"
+  NUM_EPOCHS: 100
+  LAMBDA_Y: 1
+  LEARNING_RATE: 0.0002
+  BATCH_SIZE: 1
+  NUM_WORKERS: 8
+  SAVE_MODEL: true
+  SAVE_MODEL_EPOCH_STEP: 10
+  VISUALIZATION_STEP: 250
+  LOAD_MODEL: false
+  LOAD_EPOCH: 0
+  Augment: True #LSeSim
+
+INFERENCE_SETTING:
+  TEST_X: "./data/example/HE_cropped.jpg"
+  TEST_DIR_X: "./data/example/testX/HE_cropped/"
+  MODEL_VERSION: "10"
+  SAVE_ORIGINAL_IMAGE: False
+  NORMALIZATION:
+    TYPE: 'kin'
+    PADDING: 1
+    KERNEL_TYPE: 'constant'
+    KERNEL_SIZE: 3
+  THUMBNAIL: "./data/example/testX/HE_cropped/thumbnail.png" #"None" # set to "None" if it's not required

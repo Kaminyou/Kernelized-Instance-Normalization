@@ -1,0 +1,8 @@
+__pycache__/
+.ipynb_checkpoints/
+*.out
+experiments/
+checkpoints/
+.pytest_cache
+test_dir_x/
+test_dir_y/
