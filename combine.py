@@ -76,7 +76,10 @@ def main():
     y_anchor_max = 0
     x_anchor_max = 0
     for filename in filenames:
-        _, _, y_anchor, x_anchor, _ = filename.split("_", 4)
+        try:
+            _, _, y_anchor, x_anchor, _ = filename.split("_", 4)
+        except Exception as e:
+            raise ValueError(f"{filename} is not valid") from e
         y_anchor_max = max(y_anchor_max, int(y_anchor))
         x_anchor_max = max(x_anchor_max, int(x_anchor))
 
