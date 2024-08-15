@@ -3,6 +3,8 @@ We invented a kernelized instance normalization module enabling ultra-resolution
 Authors: Ming-Yang Ho*, Min-Sheng Wu, and Che-Ming Wu (* corresponding author)</br>
 Affiliation: [aetherAI](https://www.aetherai.com/), Taipei, Taiwan
 
+*Note: We have invented Dense Normalization (DN) and published in ECCV 2024. DN is better than Kernelized Instance Normalization. Please don't forget to check our latest [DN here](https://github.com/Kaminyou/Dense-Normalization).
+
 ![KIN](./imgs/Figure_KIN.jpg)
 ![Anime](./imgs/URUST_anime.gif)
 ## Release
