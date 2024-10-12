@@ -1,9 +1,20 @@
-# [ECCV 2022] Ultra-high-resolution unpaired stain transformation via Kernelized Instance Normalization
-We invented a kernelized instance normalization module enabling ultra-resolution unpaired stain transformation.</br>
-Authors: Ming-Yang Ho*, Min-Sheng Wu, and Che-Ming Wu (* corresponding author)</br>
-Affiliation: [aetherAI](https://www.aetherai.com/), Taipei, Taiwan
+<div align="center">
 
-*Note: We have invented Dense Normalization (DN) and published in ECCV 2024. DN is better than Kernelized Instance Normalization. Please don't forget to check our latest [DN here](https://github.com/Kaminyou/Dense-Normalization).
+<h2>ECCV 2022</h2>
+<h1>Ultra-high-resolution unpaired stain transformation via Kernelized Instance Normalization</h1>
+
+[Ming-Yang Ho](https://kaminyou.com/)*, &nbsp; [Min-Sheng Wu](https://github.com/Min-Sheng), &nbsp; [Che-Ming Wu](https://github.com/st9007a) &nbsp;
+
+aetherAI, Taipei, Taiwan<br>
+
+(* corresponding author)
+
+[[`Paper`](https://link.springer.com/chapter/10.1007/978-3-031-19803-8_29)] [[`Project Page`](https://kaminyou.com/Kernelized-Instance-Normalization/)]
+
+</div>
+
+### 🎉 News
+We have invented Dense Normalization (DN) and published in ECCV 2024. DN is better than Kernelized Instance Normalization. Please don't forget to check our latest [DN here](https://github.com/Kaminyou/Dense-Normalization).
 
 ![KIN](./imgs/Figure_KIN.jpg)
 ![Anime](./imgs/URUST_anime.gif)
